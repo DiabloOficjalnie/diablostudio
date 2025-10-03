@@ -48,36 +48,36 @@ export default function AnalyticsPage() {
   const router = useRouter()
 
   useEffect(() => {
-    loadAnalyticsData()
-  }, [timeRange])
+    const loadData = async () => {
+      try {
+        setLoading(true)
 
-  const loadAnalyticsData = async () => {
-    try {
-      setLoading(true)
+        // Load analytics data from various sources
+        const [overviewData, trafficData, salesData, customersData] = await Promise.allSettled([
+          loadOverviewData(),
+          loadTrafficData(),
+          loadSalesData(),
+          loadCustomersData()
+        ])
 
-      // Load analytics data from various sources
-      const [overviewData, trafficData, salesData, customersData] = await Promise.allSettled([
-        loadOverviewData(),
-        loadTrafficData(),
-        loadSalesData(),
-        loadCustomersData()
-      ])
+        const analyticsData: AnalyticsData = {
+          overview: overviewData.status === 'fulfilled' ? overviewData.value as any : getMockOverviewData(),
+          traffic: trafficData.status === 'fulfilled' ? trafficData.value as any : getMockTrafficData(),
+          sales: salesData.status === 'fulfilled' ? salesData.value as any : getMockSalesData(),
+          customers: customersData.status === 'fulfilled' ? customersData.value as any : getMockCustomersData()
+        }
 
-      const analyticsData: AnalyticsData = {
-        overview: overviewData.status === 'fulfilled' ? overviewData.value : getMockOverviewData(),
-        traffic: trafficData.status === 'fulfilled' ? trafficData.value : getMockTrafficData(),
-        sales: salesData.status === 'fulfilled' ? salesData.value : getMockSalesData(),
-        customers: customersData.status === 'fulfilled' ? customersData.value : getMockCustomersData()
+        setData(analyticsData)
+      } catch (error) {
+        console.error('Error loading analytics data:', error)
+        setData(getMockAnalyticsData())
+      } finally {
+        setLoading(false)
       }
-
-      setData(analyticsData)
-    } catch (error) {
-      console.error('Error loading analytics data:', error)
-      setData(getMockAnalyticsData())
-    } finally {
-      setLoading(false)
     }
-  }
+
+    loadData()
+  }, [timeRange])
 
   const loadOverviewData = async () => {
     // Load data from internal database

@@ -51,42 +51,42 @@ export default function AdvancedRbacPage() {
   const router = useRouter()
 
   useEffect(() => {
-    loadRbacData()
-  }, [])
+    const loadData = async () => {
+      try {
+        setLoading(true)
 
-  const loadRbacData = async () => {
-    try {
-      setLoading(true)
+        // Load all RBAC-related data
+        const [permissionsData, rolesData, userPermissionsData] = await Promise.allSettled([
+          loadPermissions(),
+          loadRoles(),
+          loadUserPermissions()
+        ])
 
-      // Load all RBAC-related data
-      const [permissionsData, rolesData, userPermissionsData] = await Promise.allSettled([
-        loadPermissions(),
-        loadRoles(),
-        loadUserPermissions()
-      ])
+        if (permissionsData.status === 'fulfilled') {
+          setPermissions(permissionsData.value)
+        }
 
-      if (permissionsData.status === 'fulfilled') {
-        setPermissions(permissionsData.value)
+        if (rolesData.status === 'fulfilled') {
+          setRoles(rolesData.value)
+        }
+
+        if (userPermissionsData.status === 'fulfilled') {
+          setUserPermissions(userPermissionsData.value)
+        }
+
+      } catch (error) {
+        console.error('Error loading RBAC data:', error)
+        // Fallback to mock data
+        setPermissions(getMockPermissions())
+        setRoles(getMockRoles())
+        setUserPermissions(getMockUserPermissions())
+      } finally {
+        setLoading(false)
       }
-
-      if (rolesData.status === 'fulfilled') {
-        setRoles(rolesData.value)
-      }
-
-      if (userPermissionsData.status === 'fulfilled') {
-        setUserPermissions(userPermissionsData.value)
-      }
-
-    } catch (error) {
-      console.error('Error loading RBAC data:', error)
-      // Fallback to mock data
-      setPermissions(getMockPermissions())
-      setRoles(getMockRoles())
-      setUserPermissions(getMockUserPermissions())
-    } finally {
-      setLoading(false)
     }
-  }
+
+    loadData()
+  }, [])
 
   const loadPermissions = async () => {
     return new Promise<Permission[]>(resolve => {
