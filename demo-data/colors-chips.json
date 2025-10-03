@@ -1,0 +1,23 @@
+[
+  {"code": "Chips 01", "name": "Dekoracyjne chips 01", "hex": "#8B4513", "rgb_r": 139, "rgb_g": 69, "rgb_b": 19, "category": "chips", "image_path": "/assets/Chips/webersys chips_01.jpg"},
+  {"code": "Chips 02", "name": "Dekoracyjne chips 02", "hex": "#A0522D", "rgb_r": 160, "rgb_g": 82, "rgb_b": 45, "category": "chips", "image_path": "/assets/Chips/webersys chips_02.jpg"},
+  {"code": "Chips 03", "name": "Dekoracyjne chips 03", "hex": "#CD853F", "rgb_r": 205, "rgb_g": 133, "rgb_b": 63, "category": "chips", "image_path": "/assets/Chips/webersys chips_03.jpg"},
+  {"code": "Chips 04", "name": "Dekoracyjne chips 04", "hex": "#DAA520", "rgb_r": 218, "rgb_g": 165, "rgb_b": 32, "category": "chips", "image_path": "/assets/Chips/webersys chips_04.jpg"},
+  {"code": "Chips 05", "name": "Dekoracyjne chips 05", "hex": "#D2691E", "rgb_r": 210, "rgb_g": 105, "rgb_b": 30, "category": "chips", "image_path": "/assets/Chips/webersys chips_05.jpg"},
+  {"code": "Chips 06", "name": "Dekoracyjne chips 06", "hex": "#B8860B", "rgb_r": 184, "rgb_g": 134, "rgb_b": 11, "category": "chips", "image_path": "/assets/Chips/webersys chips_06.jpg"},
+  {"code": "Chips 07", "name": "Dekoracyjne chips 07", "hex": "#8B0000", "rgb_r": 139, "rgb_g": 0, "rgb_b": 0, "category": "chips", "image_path": "/assets/Chips/webersys chips_07.jpg"},
+  {"code": "Chips 08", "name": "Dekoracyjne chips 08", "hex": "#FF6347", "rgb_r": 255, "rgb_g": 99, "rgb_b": 71, "category": "chips", "image_path": "/assets/Chips/webersys chips_08.jpg"},
+  {"code": "Chips 09", "name": "Dekoracyjne chips 09", "hex": "#4169E1", "rgb_r": 65, "rgb_g": 105, "rgb_b": 225, "category": "chips", "image_path": "/assets/Chips/webersys chips_09.jpg"},
+  {"code": "Chips 10", "name": "Dekoracyjne chips 10", "hex": "#32CD32", "rgb_r": 50, "rgb_g": 205, "rgb_b": 50, "category": "chips", "image_path": "/assets/Chips/webersys chips_10.jpg"},
+  {"code": "Chips 11", "name": "Dekoracyjne chips 11", "hex": "#FFD700", "rgb_r": 255, "rgb_g": 215, "rgb_b": 0, "category": "chips", "image_path": "/assets/Chips/webersys chips_11.jpg"},
+  {"code": "Chips 12", "name": "Dekoracyjne chips 12", "hex": "#C0C0C0", "rgb_r": 192, "rgb_g": 192, "rgb_b": 192, "category": "chips", "image_path": "/assets/Chips/webersys chips_12.jpg"},
+  {"code": "Chips 13", "name": "Dekoracyjne chips 13", "hex": "#800080", "rgb_r": 128, "rgb_g": 0, "rgb_b": 128, "category": "chips", "image_path": "/assets/Chips/webersys chips_13.jpg"},
+  {"code": "Chips 14", "name": "Dekoracyjne chips 14", "hex": "#FF4500", "rgb_r": 255, "rgb_g": 69, "rgb_b": 0, "category": "chips", "image_path": "/assets/Chips/webersys chips_14.jpg"},
+  {"code": "Chips 15", "name": "Dekoracyjne chips 15", "hex": "#00FF7F", "rgb_r": 0, "rgb_g": 255, "rgb_b": 127, "category": "chips", "image_path": "/assets/Chips/webersys chips_15.jpg"},
+  {"code": "Chips 16", "name": "Dekoracyjne chips 16", "hex": "#008080", "rgb_r": 0, "rgb_g": 128, "rgb_b": 128, "category": "chips", "image_path": "/assets/Chips/webersys chips_16.jpg"},
+  {"code": "Chips 17", "name": "Dekoracyjne chips 17", "hex": "#FF1493", "rgb_r": 255, "rgb_g": 20, "rgb_b": 147, "category": "chips", "image_path": "/assets/Chips/webersys chips_17.jpg"},
+  {"code": "Chips 18", "name": "Dekoracyjne chips 18", "hex": "#00CED1", "rgb_r": 0, "rgb_g": 206, "rgb_b": 209, "category": "chips", "image_path": "/assets/Chips/webersys chips_18.jpg"},
+  {"code": "Chips 19", "name": "Dekoracyjne chips 19", "hex": "#FF8C00", "rgb_r": 255, "rgb_g": 140, "rgb_b": 0, "category": "chips", "image_path": "/assets/Chips/webersys chips_19.jpg"},
+  {"code": "Chips 20", "name": "Dekoracyjne chips 20", "hex": "#9932CC", "rgb_r": 153, "rgb_g": 50, "rgb_b": 204, "category": "chips", "image_path": "/assets/Chips/webersys chips_20.jpg"},
+  {"code": "Chips 21", "name": "Dekoracyjne chips 21", "hex": "#8FBC8F", "rgb_r": 143, "rgb_g": 188, "rgb_b": 143, "category": "chips", "image_path": "/assets/Chips/webersys chips_21.jpg"}
+]

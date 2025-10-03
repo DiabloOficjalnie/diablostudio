@@ -1,0 +1,5 @@
+[
+  {"title": "Nowoczesna posadzka w apartamencie", "category": "residential", "description": "Elegancka posadzka dekoracyjna w stylu minimalistycznym z użyciem mikrocementu w kolorze szarym.", "materials": ["mikrocement", "żywica"], "square_meters": 65.0, "location": "Warszawa, Mokotów", "completion_date": "2024-01-30", "is_published": true},
+  {"title": "Posadzka w salonie fryzjerskim", "category": "commercial", "description": "Funkcjonalna i estetyczna posadzka w salonie fryzjerskim odporna na intensywne użytkowanie.", "materials": ["żywica epoksydowa", "piasek kwarcowy"], "square_meters": 45.0, "location": "Kraków, Stare Miasto", "completion_date": "2024-02-25", "is_published": true},
+  {"title": "Industrialna posadzka w garażu", "category": "industrial", "description": "Trwała posadzka epoksydowa w prywatnym garażu z dekoracyjnymi chipsami.", "materials": ["żywica epoksydowa", "chips dekoracyjne"], "square_meters": 80.0, "location": "Poznań, Jeżyce", "completion_date": "2024-03-15", "is_published": true}
+]

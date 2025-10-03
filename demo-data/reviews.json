@@ -1,0 +1,5 @@
+[
+  {"first_name": "Anna", "last_name": "Nowak", "email": "anna@example.com", "project_date": "2024-01-15", "project_type": "Posadzka dekoracyjna", "square_meters": 45.5, "rating": 5, "review_text": "Świetna jakość wykonania, bardzo polecam tę firmę!", "status": "approved", "project_location": "Warszawa"},
+  {"first_name": "Piotr", "last_name": "Wiśniewski", "email": "piotr@example.com", "project_date": "2024-02-20", "project_type": "Mikrocement", "square_meters": 32.0, "rating": 5, "review_text": "Profesjonalne podejście i terminowość. Efekt przekroczył oczekiwania.", "status": "approved", "project_location": "Kraków"},
+  {"first_name": "Maria", "last_name": "Kowalczyk", "email": "maria@example.com", "project_date": "2024-03-10", "project_type": "Żywica epoksydowa", "square_meters": 28.5, "rating": 4, "review_text": "Dobra jakość w rozsądnej cenie. Polecam!", "status": "approved", "project_location": "Gdańsk"}
+]

@@ -1,0 +1,83 @@
+[
+  {
+    "code": "RAL 1000",
+    "name": "Zielony beżowy",
+    "hex": "#C2B078",
+    "rgb_r": 194,
+    "rgb_g": 176,
+    "rgb_b": 120,
+    "category": "yellow"
+  },
+  {
+    "code": "RAL 2000",
+    "name": "Żółto-pomarańczowy",
+    "hex": "#DD7F3E",
+    "rgb_r": 221,
+    "rgb_g": 127,
+    "rgb_b": 62,
+    "category": "orange"
+  },
+  {
+    "code": "RAL 3000",
+    "name": "Czerwony ognisty",
+    "hex": "#AB2524",
+    "rgb_r": 171,
+    "rgb_g": 37,
+    "rgb_b": 36,
+    "category": "red"
+  },
+  {
+    "code": "RAL 4000",
+    "name": "Fioletowy",
+    "hex": "#6B4C93",
+    "rgb_r": 107,
+    "rgb_g": 76,
+    "rgb_b": 147,
+    "category": "purple"
+  },
+  {
+    "code": "RAL 5000",
+    "name": "Niebieski fioletowy",
+    "hex": "#354D73",
+    "rgb_r": 53,
+    "rgb_g": 77,
+    "rgb_b": 115,
+    "category": "blue"
+  },
+  {
+    "code": "RAL 6000",
+    "name": "Zielony patyna",
+    "hex": "#3E6B53",
+    "rgb_r": 62,
+    "rgb_g": 107,
+    "rgb_b": 83,
+    "category": "green"
+  },
+  {
+    "code": "RAL 7000",
+    "name": "Szary wiewiórkowy",
+    "hex": "#78858B",
+    "rgb_r": 120,
+    "rgb_g": 133,
+    "rgb_b": 139,
+    "category": "grey"
+  },
+  {
+    "code": "RAL 8000",
+    "name": "Zielono-brązowy",
+    "hex": "#826C34",
+    "rgb_r": 130,
+    "rgb_g": 108,
+    "rgb_b": 52,
+    "category": "brown"
+  },
+  {
+    "code": "RAL 9000",
+    "name": "Biały sygnałowy",
+    "hex": "#FFFFFF",
+    "rgb_r": 255,
+    "rgb_g": 255,
+    "rgb_b": 255,
+    "category": "white"
+  }
+]

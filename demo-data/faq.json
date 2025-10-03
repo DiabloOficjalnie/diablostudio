@@ -1,0 +1,7 @@
+[
+  {"question": "Jak długo trwa realizacja projektu?", "answer": "Czas realizacji zależy od wielkości projektu i wynosi zazwyczaj od 3 do 14 dni roboczych.", "category": "general", "is_active": true, "sort_order": 1},
+  {"question": "Czy oferujecie gwarancję na wykonane prace?", "answer": "Tak, udzielamy 24-miesięcznej gwarancji na wszystkie wykonane przez nas prace.", "category": "general", "is_active": true, "sort_order": 2},
+  {"question": "Jakie materiały używacie?", "answer": "Używamy najwyższej jakości materiałów od sprawdzonych producentów, takich jak Weber, Ceresit i innych renomowanych marek.", "category": "materials", "is_active": true, "sort_order": 3},
+  {"question": "Czy wykonujecie wyceny bezpłatnie?", "answer": "Tak, wycena wstępna jest całkowicie bezpłatna i niezobowiązująca.", "category": "pricing", "is_active": true, "sort_order": 4},
+  {"question": "W jakich godzinach pracujecie?", "answer": "Pracujemy od poniedziałku do piątku w godzinach 8:00-16:00.", "category": "general", "is_active": true, "sort_order": 5}
+]
