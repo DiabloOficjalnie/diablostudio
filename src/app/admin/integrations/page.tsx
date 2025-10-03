@@ -756,7 +756,7 @@ export default function IntegrationsPage() {
                   <div>
                     <span className="font-medium text-blue-800">Przykład:</span>
                     <div className="bg-gray-800 text-gray-300 p-2 rounded font-mono text-sm mt-1">
-                      curl -H "Authorization: Bearer ds_prod_xxx" \<br />
+                      curl -H "Authorization: Bearer ds_prod_xxx" \
                       &nbsp;&nbsp;https://api.diablostudio.pl/v1/clients
                     </div>
                   </div>
