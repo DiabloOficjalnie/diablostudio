@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import AdminLayout from '../components/AdminLayout'
 
@@ -86,31 +86,31 @@ export default function AdvancedRbacPage() {
     }
 
     loadData()
-  }, [])
+  }, [loadPermissions, loadRoles, loadUserPermissions])
 
-  const loadPermissions = async () => {
+  const loadPermissions = useCallback(async () => {
     return new Promise<Permission[]>(resolve => {
       setTimeout(() => {
         resolve(getMockPermissions())
       }, 800)
     })
-  }
+  }, [])
 
-  const loadRoles = async () => {
+  const loadRoles = useCallback(async () => {
     return new Promise<Role[]>(resolve => {
       setTimeout(() => {
         resolve(getMockRoles())
       }, 600)
     })
-  }
+  }, [])
 
-  const loadUserPermissions = async () => {
+  const loadUserPermissions = useCallback(async () => {
     return new Promise<UserPermission[]>(resolve => {
       setTimeout(() => {
         resolve(getMockUserPermissions())
       }, 1000)
     })
-  }
+  }, [])
 
   const getMockPermissions = (): Permission[] => [
     {

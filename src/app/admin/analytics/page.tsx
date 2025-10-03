@@ -77,7 +77,7 @@ export default function AnalyticsPage() {
     }
 
     loadData()
-  }, [timeRange])
+  }, [timeRange, getMockAnalyticsData])
 
   const loadOverviewData = async () => {
     // Load data from internal database
@@ -243,12 +243,12 @@ export default function AnalyticsPage() {
     ]
   })
 
-  const getMockAnalyticsData = (): AnalyticsData => ({
+  const getMockAnalyticsData = useCallback((): AnalyticsData => ({
     overview: getMockOverviewData(),
     traffic: getMockTrafficData(),
     sales: getMockSalesData(),
     customers: getMockCustomersData()
-  })
+  }), [])
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('pl-PL', {

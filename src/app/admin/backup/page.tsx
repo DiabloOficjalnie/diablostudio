@@ -86,6 +86,7 @@ export default function BackupManagementPage() {
 
   useEffect(() => {
     loadBackups()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const loadBackups = async () => {
