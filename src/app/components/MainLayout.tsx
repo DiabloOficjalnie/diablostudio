@@ -313,9 +313,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
               <h4 className="text-lg font-semibold mb-4">Nawigacja</h4>
               <ul className="space-y-2">
                 <li>
-                  <a href="/" className="text-gray-300 hover:text-white transition-colors">
+                  <Link href="/" className="text-gray-300 hover:text-white transition-colors">
                     Strona główna
-                  </a>
+                  </Link>
                 </li>
                 <li>
                   <a href="/valuation" className="text-gray-300 hover:text-white transition-colors">

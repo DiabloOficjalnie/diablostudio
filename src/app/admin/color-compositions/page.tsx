@@ -804,7 +804,7 @@ export default function ColorCompositionsPage() {
                         ></div>
                         <div className="p-3 text-center">
                           <div className="font-bold text-sm text-gray-900">{color.code}</div>
-                          <div className="text-xs text-gray-600 mt-1 truncate" title={color.name}>{color.name}</div>
+                                  <div className="text-xs text-gray-600 mt-1 truncate" title={color.name}>{color.name.replace(/"/g, '"')}</div>
                         </div>
                       </div>
                     ))}
