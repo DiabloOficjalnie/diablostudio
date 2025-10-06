@@ -238,7 +238,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Document updated successfully',
-      data: updateResult.data?.[0]
+      data: updateResult.data
     })
 
   } catch (error: any) {
