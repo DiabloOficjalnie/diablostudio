@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 
 // GET - Retrieve content data (pages, blog posts, media)
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Missing Supabase environment variables')
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
     const { searchParams } = new URL(request.url)
 
     // Get query parameters
@@ -237,7 +244,14 @@ export async function GET(request: NextRequest) {
 // POST - Create new content (page or blog post)
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Missing Supabase environment variables')
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
     const contentData = await request.json()
 
     // Validate content data
@@ -289,7 +303,14 @@ export async function POST(request: NextRequest) {
 // PUT - Update existing content
 export async function PUT(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Missing Supabase environment variables')
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
     const updateData = await request.json()
 
     // Validate update data
@@ -339,7 +360,14 @@ export async function PUT(request: NextRequest) {
 // DELETE - Delete content or media file
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Missing Supabase environment variables')
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
     const type = searchParams.get('type')
