@@ -59,6 +59,7 @@ interface ColorComposition {
   created_at: string
   updated_at: string
   is_active: boolean
+  is_featured: boolean
   usage_count: number
   tags: string[]
 }
@@ -857,9 +858,11 @@ export default function DetailedQuotationsPage() {
                           resin_color: selectedResinColor,
                           sand_color: selectedSandColor,
                           chips_color: selectedChipsColor,
+                          decorative_type: 'sand',
                           created_at: editingComposition?.created_at || new Date().toISOString(),
                           updated_at: new Date().toISOString(),
                           is_active: editingComposition?.is_active || true,
+                          is_featured: editingComposition?.is_featured || false,
                           usage_count: editingComposition?.usage_count || 0,
                           tags: editingComposition?.tags || []
                         }
