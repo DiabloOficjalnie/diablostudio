@@ -966,6 +966,8 @@ export interface ConsultationRequestFormData {
   preferred_date: string
   preferred_time: string
   message?: string
+  service_type?: string
+  inquiry_type?: string
 }
 
 export interface ProjectPhotoFormData {
