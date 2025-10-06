@@ -6,7 +6,14 @@ export async function GET(request: NextRequest) {
     // In a real implementation, you would integrate with Bitrix24 REST API
     // For now, we'll return mock data that represents CRM financial data
 
-    const supabase = createClient()
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Missing Supabase environment variables')
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // Get real financial data from your database
     const { data: valuations } = await supabase
@@ -94,7 +101,15 @@ export async function POST(request: NextRequest) {
   try {
     // Create new deal in Bitrix24
     const body = await request.json()
-    const supabase = createClient()
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Missing Supabase environment variables')
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // Log the new deal in our database
     const { data, error } = await supabase
