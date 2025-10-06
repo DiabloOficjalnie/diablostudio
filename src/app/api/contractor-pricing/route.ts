@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from '@/lib/env'
 import { createClient } from '@/lib/supabase'
 
 interface PricingData {
@@ -26,14 +27,7 @@ interface PricingData {
 // GET - Fetch contractor pricing data
 export async function GET(request: NextRequest) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-
-    if (!supabaseUrl || !supabaseServiceKey) {
-      throw new Error('Missing Supabase environment variables')
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabase = createClient(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
     // First, check if pricing data exists in database
     const { data: existingPricing, error } = await supabase

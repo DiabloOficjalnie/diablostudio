@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from '@/lib/env'
 import { createClient } from '@/lib/supabase'
 
 // Define the FAQ interface
@@ -20,14 +21,7 @@ interface FAQItem {
 // GET - Retrieve FAQs with filtering
 export async function GET(request: NextRequest) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-
-    if (!supabaseUrl || !supabaseServiceKey) {
-      throw new Error('Missing Supabase environment variables')
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabase = createClient(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
     const { searchParams } = new URL(request.url)
 
     // Get query parameters
@@ -130,14 +124,7 @@ export async function GET(request: NextRequest) {
 // POST - Create new FAQ
 export async function POST(request: NextRequest) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-
-    if (!supabaseUrl || !supabaseServiceKey) {
-      throw new Error('Missing Supabase environment variables')
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabase = createClient(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
     const faqData = await request.json()
 
     // Validate FAQ data
@@ -203,14 +190,7 @@ export async function POST(request: NextRequest) {
 // PUT - Update FAQ status or details
 export async function PUT(request: NextRequest) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-
-    if (!supabaseUrl || !supabaseServiceKey) {
-      throw new Error('Missing Supabase environment variables')
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabase = createClient(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
     const { searchParams } = new URL(request.url)
     const action = searchParams.get('action')
     const updateData = await request.json()
@@ -315,14 +295,7 @@ export async function PUT(request: NextRequest) {
 // DELETE - Delete FAQ
 export async function DELETE(request: NextRequest) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-
-    if (!supabaseUrl || !supabaseServiceKey) {
-      throw new Error('Missing Supabase environment variables')
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabase = createClient(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
 

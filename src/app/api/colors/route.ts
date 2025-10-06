@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from '@/lib/env'
 import { createClient } from '@/lib/supabase'
 
 // Define the Color interface
@@ -34,14 +35,7 @@ const getDefaultColors = (): InputColor[] => {
 // GET - Retrieve colors from database
 export async function GET(request: NextRequest) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-
-    if (!supabaseUrl || !supabaseServiceKey) {
-      throw new Error('Missing Supabase environment variables')
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabase = createClient(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
     const { searchParams } = new URL(request.url)
     const type = searchParams.get('type') || '' // Get the type parameter
 
@@ -120,14 +114,7 @@ export async function GET(request: NextRequest) {
 // POST - Save colors to database (simplified for now)
 export async function POST(request: NextRequest) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-
-    if (!supabaseUrl || !supabaseServiceKey) {
-      throw new Error('Missing Supabase environment variables')
-    }
-
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabase = createClient(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
     const colors = await request.json()
 
     // For now, just return success - in production this would save to database
