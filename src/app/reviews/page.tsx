@@ -253,7 +253,7 @@ export default function ReviewsPage() {
                         </div>
 
                         <p className="text-gray-700 leading-relaxed mb-6 text-lg italic">
-                          "{review.comment}"
+                          &ldquo;{review.comment}&rdquo;
                         </p>
 
                         <div className="flex items-center justify-between">

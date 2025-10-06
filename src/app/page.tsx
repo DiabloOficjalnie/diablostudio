@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import MainLayout from './components/MainLayout'
 import ReviewForm from './components/ReviewForm'
 
@@ -167,7 +168,7 @@ export default function HomePage() {
 
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  }, [navigationItems])
 
   return (
     <MainLayout>
@@ -752,10 +753,10 @@ export default function HomePage() {
                   </div>
                   <h3 className="text-2xl font-bold text-purple-900">Efekt marmuru</h3>
                 </div>
-                <p className="text-gray-700 leading-relaxed mb-4">
-                  <strong className="text-purple-800">Wielobarwny design inspirowany naturalnym kamieniem.</strong>
-                  Luksusowy wygląd do salonów, recepcji czy showroomów, łączący estetykę z trwałością żywicy.
-                </p>
+                  <p className="text-gray-700 leading-relaxed mb-4">
+                    <strong className="text-purple-800">Wielobarwny design inspirowany naturalnym kamieniem.</strong>
+                    Luksusowy wygląd do salonów, recepcji czy showroomów, łączący estetykę z trwałością żywicy.
+                  </p>
                 <div className="flex flex-wrap gap-2">
                   <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">Salony</span>
                   <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">Showroomy</span>
@@ -1178,7 +1179,7 @@ export default function HomePage() {
                 i poznać specyfikę podłoża. Badamy parametry techniczne, wilgotność, równość i stabilność podłoża.
               </p>
               <div className="bg-blue-50 rounded-lg p-4">
-                <div className="text-sm font-semibold text-blue-900 mb-2">✓ Badanie wilgotności</div>
+                    <div className="text-sm font-semibold text-blue-900 mb-2">✓ Badanie wilgotności</div>
                 <div className="text-sm font-semibold text-blue-900 mb-2">✓ Test przyczepności</div>
                 <div className="text-sm font-semibold text-blue-900">✓ Analiza podłoża</div>
               </div>

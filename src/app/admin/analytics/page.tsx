@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import AdminLayout from '../components/AdminLayout'
 
@@ -77,7 +77,7 @@ export default function AnalyticsPage() {
     }
 
     loadData()
-  }, [timeRange, getMockAnalyticsData])
+  }, [timeRange])
 
   const loadOverviewData = async () => {
     // Load data from internal database

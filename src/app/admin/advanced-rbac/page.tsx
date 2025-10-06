@@ -86,7 +86,7 @@ export default function AdvancedRbacPage() {
     }
 
     loadData()
-  }, [loadPermissions, loadRoles, loadUserPermissions])
+  }, [])
 
   const loadPermissions = useCallback(async () => {
     return new Promise<Permission[]>(resolve => {

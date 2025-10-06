@@ -19,6 +19,14 @@ interface BlogPost {
   view_count: number
   reading_time_minutes?: number
   is_featured: boolean
+  meta_title?: string
+  meta_description?: string
+  meta_keywords?: string[]
+  og_title?: string
+  og_description?: string
+  og_image?: string
+  allow_comments?: boolean
+  sort_order?: number
   blog_categories?: {
     name: string
     slug: string
@@ -213,15 +221,15 @@ export default function AdminBlogPage() {
       tags: post.tags || [],
       status: post.status,
       published_at: post.published_at || '',
-      meta_title: post.meta_title || '',
-      meta_description: post.meta_description || '',
-      meta_keywords: post.meta_keywords || [],
-      og_title: post.og_title || '',
-      og_description: post.og_description || '',
-      og_image: post.og_image || '',
-      allow_comments: post.allow_comments ?? true,
+      meta_title: (post as any).meta_title || '',
+      meta_description: (post as any).meta_description || '',
+      meta_keywords: (post as any).meta_keywords || [],
+      og_title: (post as any).og_title || '',
+      og_description: (post as any).og_description || '',
+      og_image: (post as any).og_image || '',
+      allow_comments: (post as any).allow_comments ?? true,
       is_featured: post.is_featured,
-      sort_order: post.sort_order || 0
+      sort_order: (post as any).sort_order || 0
     })
     setEditingPost(post)
     setShowPostModal(true)
