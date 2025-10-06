@@ -651,7 +651,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     </div>
                     <div className="flex items-center space-x-2">
                       <span className="text-gray-900 font-semibold text-lg">
-                        {pathname.split('/').pop()?.charAt(0).toUpperCase() + pathname.split('/').pop()?.slice(1) || 'Dashboard'}
+                        {(() => {
+                          const pathSegments = pathname.split('/');
+                          const lastSegment = pathSegments.pop();
+                          return lastSegment
+                            ? lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1)
+                            : 'Dashboard';
+                        })()}
                       </span>
                       <div className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
                         {pathname.split('/').length - 1} poziomów
