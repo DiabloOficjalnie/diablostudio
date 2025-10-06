@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
 }
 
 // Funkcja pomocnicza do obliczania statystyk klienta
-async function calculateClientStatistics(clientId: string, dbHelper: any): Promise<ClientStatistics | null> {
+async function calculateClientStatistics(clientId: string, dbHelper: ReturnType<typeof dbApiHelper>): Promise<ClientStatistics | null> {
   try {
     // Pobierz wszystkie wyceny klienta
     const quotesResult = await dbHelper.helpers.selectWithPagination(
@@ -77,15 +77,15 @@ async function calculateClientStatistics(clientId: string, dbHelper: any): Promi
       return null
     }
 
-    const quotes = quotesResult.data?.data || []
+    const quotes: any[] = quotesResult.data?.data || []
 
     // Oblicz podstawowe statystyki
-    const completedQuotes = quotes.filter(quote => quote.status === 'completed')
-    const totalSquareMeters = completedQuotes.reduce((sum, quote) => sum + quote.area, 0)
+    const completedQuotes = quotes.filter((quote: any) => quote.status === 'completed')
+    const totalSquareMeters = completedQuotes.reduce((sum: number, quote: any) => sum + quote.area, 0)
     const completedProjects = completedQuotes.length
 
     // Oblicz oszczędności (przykład: średnia różnica między max a min ceną * powierzchnia)
-    const totalSavings = completedQuotes.reduce((sum, quote) => {
+    const totalSavings = completedQuotes.reduce((sum: number, quote: any) => {
       const avgPricePerM2 = (quote.price_min + quote.price_max) / 2
       const totalPrice = avgPricePerM2 * quote.area
       return sum + totalPrice
@@ -147,7 +147,7 @@ async function calculateClientStatistics(clientId: string, dbHelper: any): Promi
 }
 
 // Funkcja pomocnicza do obliczania trendów
-async function calculateTrends(clientId: string, dbHelper: any) {
+async function calculateTrends(clientId: string, dbHelper: ReturnType<typeof dbApiHelper>) {
   try {
     // Pobierz wyceny z ostatnich 30 dni dla porównania trendów
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
@@ -355,7 +355,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Statistics updated successfully',
-      statistics: updateResult.data?.[0]
+      statistics: updateResult.data
     })
 
   } catch (error: any) {
