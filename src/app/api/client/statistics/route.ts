@@ -98,7 +98,7 @@ async function calculateClientStatistics(clientId: string, dbHelper: ReturnType<
     )
 
     const currentDiscount = affiliateResult.success && affiliateResult.data?.data?.length
-      ? affiliateResult.data.data[0].total_discount
+      ? (affiliateResult.data.data[0] as any).total_discount
       : 0
 
     // Przygotuj dane do wstawienia/aktualizacji
