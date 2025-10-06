@@ -107,7 +107,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         customerQuotes: customerQuotesRes.count || 0,
         clientProfiles: clientProfilesRes.count || 0,
         clientQuotes: clientQuotesRes.count || 0,
-        consultationRequests: consultationRequestsRes.count || 0
+        consultationRequests: consultationRequestsRes.count || 0,
+        blogPosts: 0, // TODO: Add blog posts count
+        faqItems: 0, // TODO: Add FAQ items count
+        notifications: 0, // TODO: Add notifications count
+        bulkActions: 0, // TODO: Add bulk actions count
+        integrations: 0, // TODO: Add integrations count
+        securityEvents: 0 // TODO: Add security events count
       })
 
       setDbStatus('connected')
@@ -589,7 +595,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <div className="text-sm font-medium text-gray-700 mb-1">Użytkownik:</div>
             <div className="text-xs bg-gray-50 p-2 rounded">
               <div>Email: {user?.email}</div>
-              <div>ID: {user?.id?.substring(0, 8)}...</div>
+              <div>ID: {user?.id ? user.id.substring(0, 8) + '...' : 'Brak ID'}</div>
             </div>
           </div>
 
