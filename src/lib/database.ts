@@ -50,15 +50,15 @@ export interface FilterOptions {
 
 // Database service class
 export class DatabaseService {
-  private client: SupabaseClient
+  private client: any
   private isServer: boolean
 
-  constructor(client?: SupabaseClient, isServer = false) {
+  constructor(client?: any, isServer = false) {
     this.client = client || this.createClient()
     this.isServer = isServer
   }
 
-  private createClient(): SupabaseClient {
+  private createClient() {
     if (this.isServer) {
       return createServerClient(supabaseUrl, supabaseAnonKey, {
         cookies: {
