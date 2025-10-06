@@ -19,7 +19,6 @@ module.exports = [
   // Base configuration for all files
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
-    ...js.configs.recommended,
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
