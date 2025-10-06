@@ -160,8 +160,8 @@ async function calculateTrends(clientId: string, dbHelper: ReturnType<typeof dbA
       ]
     )
 
-    const recentQuotes = recentQuotesResult.success ? recentQuotesResult.data?.data || [] : []
-    const completedRecentQuotes = recentQuotes.filter(quote => quote.status === 'completed')
+    const recentQuotes: any[] = recentQuotesResult.success ? recentQuotesResult.data?.data || [] : []
+    const completedRecentQuotes = recentQuotes.filter((quote: any) => quote.status === 'completed')
 
     // Oblicz trendy (porównanie z poprzednimi 30 dniami)
     const previousPeriodStart = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString()
@@ -176,21 +176,21 @@ async function calculateTrends(clientId: string, dbHelper: ReturnType<typeof dbA
       ]
     )
 
-    const previousQuotes = previousQuotesResult.success ? previousQuotesResult.data?.data || [] : []
-    const completedPreviousQuotes = previousQuotes.filter(quote => quote.status === 'completed')
+    const previousQuotes: any[] = previousQuotesResult.success ? previousQuotesResult.data?.data || [] : []
+    const completedPreviousQuotes = previousQuotes.filter((quote: any) => (quote as any).status === 'completed')
 
     // Oblicz wzrosty
-    const currentSquareMeters = completedRecentQuotes.reduce((sum: number, quote: any) => sum + Number((quote as Record<string, any>)?.area || 0), 0)
-    const previousSquareMeters = completedPreviousQuotes.reduce((sum: number, quote: any) => sum + Number((quote as Record<string, any>)?.area || 0), 0)
+    const currentSquareMeters = completedRecentQuotes.reduce((sum: number, quote: any) => sum + Number((quote as Record<string, any>)?.area ?? 0), 0)
+    const previousSquareMeters = completedPreviousQuotes.reduce((sum: number, quote: any) => sum + Number((quote as Record<string, any>)?.area ?? 0), 0)
 
     const currentSavings = completedRecentQuotes.reduce((sum: number, quote: any) => {
-      const avgPricePerM2 = (Number((quote as Record<string, any>)?.price_min || 0) + Number((quote as Record<string, any>)?.price_max || 0)) / 2
-      return sum + (avgPricePerM2 * Number((quote as Record<string, any>)?.area || 0))
+      const avgPricePerM2 = (Number((quote as Record<string, any>)?.price_min ?? 0) + Number((quote as Record<string, any>)?.price_max ?? 0)) / 2
+      return sum + (avgPricePerM2 * Number((quote as Record<string, any>)?.area ?? 0))
     }, 0)
 
     const previousSavings = completedPreviousQuotes.reduce((sum: number, quote: any) => {
-      const avgPricePerM2 = (Number((quote as Record<string, any>)?.price_min || 0) + Number((quote as Record<string, any>)?.price_max || 0)) / 2
-      return sum + (avgPricePerM2 * Number((quote as Record<string, any>)?.area || 0))
+      const avgPricePerM2 = (Number((quote as Record<string, any>)?.price_min ?? 0) + Number((quote as Record<string, any>)?.price_max ?? 0)) / 2
+      return sum + (avgPricePerM2 * Number((quote as Record<string, any>)?.area ?? 0))
     }, 0)
 
     const squareMetersGrowth = previousSquareMeters > 0

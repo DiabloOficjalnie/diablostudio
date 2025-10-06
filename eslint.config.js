@@ -18,6 +18,7 @@ module.exports = [
   },
   // Base JavaScript rules with Node.js environment
   {
+    files: ['**/*.{js,jsx,ts,tsx}'],
     ...js.configs.recommended,
     languageOptions: {
       ecmaVersion: 'latest',
@@ -33,7 +34,15 @@ module.exports = [
         require: 'readonly',
         module: 'readonly',
         exports: 'readonly',
+        // React globals
+        React: 'readonly',
+        JSX: 'readonly',
       },
+    },
+    rules: {
+      'react/no-unescaped-entities': 'off',
+      '@next/next/no-page-custom-font': 'off',
+      'no-undef': 'off',
     },
   },
   // TypeScript-specific configuration
@@ -59,6 +68,9 @@ module.exports = [
         require: 'readonly',
         module: 'readonly',
         exports: 'readonly',
+        // React globals
+        React: 'readonly',
+        JSX: 'readonly',
       },
     },
     plugins: {
@@ -76,30 +88,6 @@ module.exports = [
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       // Allow Node.js globals
-      'no-undef': 'off',
-    },
-  },
-  // JavaScript files (non-TypeScript)
-  {
-    files: ['**/*.{js,jsx}'],
-    languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
-      globals: {
-        process: 'readonly',
-        console: 'readonly',
-        Buffer: 'readonly',
-        __dirname: 'readonly',
-        __filename: 'readonly',
-        global: 'readonly',
-        require: 'readonly',
-        module: 'readonly',
-        exports: 'readonly',
-      },
-    },
-    rules: {
-      'react/no-unescaped-entities': 'off',
-      '@next/next/no-page-custom-font': 'off',
       'no-undef': 'off',
     },
   },

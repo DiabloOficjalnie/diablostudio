@@ -14,6 +14,18 @@ interface ReviewFormData {
   consent: boolean
 }
 
+interface ReviewFormErrors {
+  firstName?: string
+  lastName?: string
+  email?: string
+  projectDate?: string
+  projectType?: string
+  squareMeters?: string
+  rating?: string
+  reviewText?: string
+  consent?: string
+}
+
 interface ReviewFormProps {
   isOpen: boolean
   onClose: () => void
@@ -33,7 +45,7 @@ export default function ReviewForm({ isOpen, onClose, onSubmit }: ReviewFormProp
     consent: false
   })
 
-  const [errors, setErrors] = useState<Partial<ReviewFormData>>({})
+  const [errors, setErrors] = useState<ReviewFormErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const resinTypes = [
@@ -63,7 +75,7 @@ export default function ReviewForm({ isOpen, onClose, onSubmit }: ReviewFormProp
   }
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<ReviewFormData> = {}
+    const newErrors: ReviewFormErrors = {}
 
     if (!formData.firstName.trim()) newErrors.firstName = 'Imię jest wymagane'
     if (!formData.lastName.trim()) newErrors.lastName = 'Nazwisko jest wymagane'

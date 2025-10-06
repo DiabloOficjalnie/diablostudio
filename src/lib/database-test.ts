@@ -99,7 +99,7 @@ export class DatabaseTestSuite {
         return false
       }
 
-      const insertedId = insertResult.data?.id
+      const insertedId = (insertResult.data as any)?.id
       console.log('✅ Insert test passed')
 
       // Test select
@@ -283,7 +283,7 @@ export const runDatabaseTests = async (): Promise<{ [testName: string]: boolean 
 
 // Individual test functions for manual testing
 export const testDatabaseConnection = async (): Promise<boolean> => {
-  return await withDatabaseErrorHandler(async () => {
+  try {
     const db = connectionManager.getConnection('manual_test')
     const result = await db.testConnection()
 
@@ -294,11 +294,14 @@ export const testDatabaseConnection = async (): Promise<boolean> => {
       console.log('❌ Database connection failed:', result.error?.message)
       return false
     }
-  }) as Promise<boolean>
+  } catch (error: any) {
+    console.log('❌ Database connection error:', error.message)
+    return false
+  }
 }
 
 export const testDatabaseMigration = async (): Promise<boolean> => {
-  return await withDatabaseErrorHandler(async () => {
+  try {
     const migrations = [
       {
         name: 'test_migration_1',
@@ -320,5 +323,8 @@ export const testDatabaseMigration = async (): Promise<boolean> => {
     }
 
     return success
-  }) as Promise<boolean>
+  } catch (error: any) {
+    console.log('❌ Migration test error:', error.message)
+    return false
+  }
 }
