@@ -53,6 +53,7 @@ interface ColorComposition {
   created_at: string
   updated_at: string
   is_active: boolean
+  is_featured: boolean
   usage_count: number
   tags: string[]
 }
@@ -217,6 +218,7 @@ export default function ColorCompositionsPage() {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         is_active: true,
+        is_featured: false,
         usage_count: 15,
         tags: ['industrialne', 'szare', 'klasyczne']
       },
@@ -232,6 +234,7 @@ export default function ColorCompositionsPage() {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         is_active: true,
+        is_featured: true,
         usage_count: 8,
         tags: ['eleganckie', 'białe', 'marmurowe']
       }
