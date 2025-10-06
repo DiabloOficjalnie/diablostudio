@@ -573,6 +573,7 @@ export type ValuationRequest = Tables<'valuation_requests'>
 export type AdminUserInsert = Database['public']['Tables']['admin_users']['Insert']
 export type ColorInsert = Database['public']['Tables']['colors']['Insert']
 export type ConsultationInsert = Database['public']['Tables']['consultations']['Insert']
+export type ConsultationRequestInsert = Database['public']['Tables']['consultation_requests']['Insert']
 export type CustomerInsert = Database['public']['Tables']['customers']['Insert']
 export type CustomerQuoteInsert = Database['public']['Tables']['customer_quotes']['Insert']
 export type FAQInsert = Database['public']['Tables']['faq']['Insert']
@@ -1102,22 +1103,4 @@ export interface ClientNotification {
   created_at: string
 }
 
-// Export wszystkich nowych typów
-export type {
-  ClientDocument,
-  AffiliateProgram,
-  AffiliateInvitation,
-  ClientChat,
-  ProjectPhoto,
-  ClientGuide,
-  ClientStatistics,
-  ClientManager,
-  ClientProfile,
-  ClientQuote,
-  ConsultationRequest,
-  ClientDashboardData,
-  StatisticsCalculation,
-  ChatParticipant,
-  ChatConversation,
-  ClientNotification
-}
+// All types are already exported above through their interface declarations
