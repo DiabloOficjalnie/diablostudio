@@ -82,6 +82,39 @@ export class DatabaseHelpers {
     return { data: results, error: null, success: true }
   }
 
+  // Insert single record
+  async insert<T>(table: string, data: Partial<T>): Promise<DatabaseResult<T>> {
+    const result = await this.db.insert(table, data)
+    // Handle the case where db.insert returns T[] but we want T
+    if (result.success && result.data && Array.isArray(result.data)) {
+      return {
+        data: result.data[0] as T,
+        error: result.error,
+        success: result.success
+      }
+    }
+    return result as DatabaseResult<T>
+  }
+
+  // Update records
+  async update<T>(table: string, data: Partial<T>, filters: FilterOptions[]): Promise<DatabaseResult<T>> {
+    const result = await this.db.update(table, data, filters)
+    // Handle the case where db.update returns T[] but we want T
+    if (result.success && result.data && Array.isArray(result.data)) {
+      return {
+        data: result.data[0] as T,
+        error: result.error,
+        success: result.success
+      }
+    }
+    return result as DatabaseResult<T>
+  }
+
+  // Delete records
+  async delete(table: string, filters: FilterOptions[]): Promise<DatabaseResult<void>> {
+    return this.db.delete(table, filters)
+  }
+
   // Upsert operation (insert or update)
   async upsert<T>(
     table: string,
@@ -95,10 +128,19 @@ export class DatabaseHelpers {
     if (existing.success && existing.data && existing.data.length > 0) {
       // Update existing record
       const updateFilters = uniqueColumns.map(col => FilterBuilder.eq(col, (data as any)[col]))
-      return this.db.update(table, data, updateFilters)
+      const updateResult = await this.db.update(table, data, updateFilters)
+      // Handle the case where db.update returns T[] but we want T
+      if (updateResult.success && updateResult.data && Array.isArray(updateResult.data)) {
+        return {
+          data: updateResult.data[0] as T,
+          error: updateResult.error,
+          success: updateResult.success
+        }
+      }
+      return updateResult as DatabaseResult<T>
     } else {
       // Insert new record
-      return this.db.insert(table, data)
+      return this.insert(table, data)
     }
   }
 
