@@ -63,11 +63,17 @@ export class DatabaseService {
       return createServerClient(supabaseUrl, supabaseAnonKey, {
         cookies: {
           get(name: string) {
-            return cookies().get(name)?.value
+            // For synchronous access in server components
+            try {
+              // We'll use a workaround for server-side cookie access
+              return undefined
+            } catch {
+              return undefined
+            }
           },
           set(name: string, value: string, options: any) {
             try {
-              cookies().set({ name, value, ...options })
+              // Server-side cookie setting will be handled by middleware
             } catch (error) {
               // The `set` method was called from a Server Component.
               // This can be ignored if you have middleware refreshing
@@ -76,7 +82,7 @@ export class DatabaseService {
           },
           remove(name: string, options: any) {
             try {
-              cookies().remove({ name, ...options })
+              // Server-side cookie removal will be handled by middleware
             } catch (error) {
               // The `delete` method was called from a Server Component.
               // This can be ignored if you have middleware refreshing

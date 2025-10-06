@@ -16,7 +16,7 @@ module.exports = [
       '**/public/**',
     ],
   },
-  // Base JavaScript rules with Node.js environment
+  // Base configuration for all files
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
     ...js.configs.recommended,
