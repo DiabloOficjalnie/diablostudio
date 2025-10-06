@@ -125,47 +125,47 @@ export default function AdminDashboard() {
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
       const startOfWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
 
-      const totalValuations = valuationsRes.data?.length || 0
-      const totalDetailedValuations = detailedValuationsRes.data?.length || 0
-      const totalCompositions = compositionsRes.data?.length || 0
-      const totalBlogPosts = blogRes.data?.length || 0
-      const totalRealizations = realizationsRes.data?.length || 0
-      const totalReviews = reviewsRes.data?.length || 0
-      const totalColors = colorsRes.data?.length || 0
-      const totalCustomers = customersRes.data?.length || 0
-      const totalConsultations = consultationsRes.data?.length || 0
+      const totalValuations = valuationsRes.status === 'fulfilled' ? valuationsRes.value.data?.length || 0 : 0
+      const totalDetailedValuations = detailedValuationsRes.status === 'fulfilled' ? detailedValuationsRes.value.data?.length || 0 : 0
+      const totalCompositions = compositionsRes.status === 'fulfilled' ? compositionsRes.value.data?.length || 0 : 0
+      const totalBlogPosts = blogRes.status === 'fulfilled' ? blogRes.value.data?.length || 0 : 0
+      const totalRealizations = realizationsRes.status === 'fulfilled' ? realizationsRes.value.data?.length || 0 : 0
+      const totalReviews = reviewsRes.status === 'fulfilled' ? reviewsRes.value.data?.length || 0 : 0
+      const totalColors = colorsRes.status === 'fulfilled' ? colorsRes.value.data?.length || 0 : 0
+      const totalCustomers = customersRes.status === 'fulfilled' ? customersRes.value.data?.length || 0 : 0
+      const totalConsultations = consultationsRes.status === 'fulfilled' ? consultationsRes.value.data?.length || 0 : 0
 
       // Calculate monthly revenue from this month
-      const monthlyRevenue = (valuationsRes.data || [])
+      const monthlyRevenue = (valuationsData || [])
         .filter(v => new Date(v.created_at) >= startOfMonth)
         .reduce((sum, v) => sum + ((v.total_min + v.total_max) / 2), 0)
 
       // Calculate weekly revenue
-      const weeklyRevenue = (valuationsRes.data || [])
+      const weeklyRevenue = (valuationsData || [])
         .filter(v => new Date(v.created_at) >= startOfWeek)
         .reduce((sum, v) => sum + ((v.total_min + v.total_max) / 2), 0)
 
       // Calculate conversion rates and other metrics
-      const completedDetailedValuations = detailedValuationsRes.data?.filter(v => v.status === 'completed').length || 0
-      const activeCompositions = compositionsRes.data?.filter(c => c.is_active).length || 0
-      const featuredCompositions = compositionsRes.data?.filter(c => c.is_featured).length || 0
-      const publishedBlogPosts = blogRes.data?.filter(b => b.status === 'published').length || 0
-      const publishedRealizations = realizationsRes.data?.filter(r => r.status === 'published').length || 0
-      const approvedReviews = reviewsRes.data?.filter(r => r.status === 'approved').length || 0
+      const completedDetailedValuations = detailedValuationsData?.filter(v => v.status === 'completed').length || 0
+      const activeCompositions = compositionsData?.filter(c => c.is_active).length || 0
+      const featuredCompositions = compositionsData?.filter(c => c.is_featured).length || 0
+      const publishedBlogPosts = blogData?.filter(b => b.status === 'published').length || 0
+      const publishedRealizations = realizationsData?.filter(r => r.status === 'published').length || 0
+      const approvedReviews = reviewsData?.filter(r => r.status === 'approved').length || 0
 
       // Generate comprehensive recent activity
       const recentActivity = [
         // Recent valuations
-        ...(valuationsRes.data || []).slice(0, 4).map(v => ({
+        ...(valuationsData || []).slice(0, 4).map((v: any) => ({
           id: `val-${v.id}`,
           type: 'valuation',
-          title: `Nowa wycena od ${(v.customers as any)?.name || 'Klienta'}`,
+          title: `Nowa wycena od ${v.customers?.name || 'Klienta'}`,
           description: `${v.area}m² • ${v.floor_type} • ${formatCurrency((v.total_min + v.total_max) / 2)}`,
           timestamp: v.created_at,
           status: 'success'
         })),
         // Recent detailed valuations
-        ...(detailedValuationsRes.data || []).slice(0, 3).map(v => ({
+        ...(detailedValuationsData || []).slice(0, 3).map((v: any) => ({
           id: `detailed-${v.id}`,
           type: 'detailed_valuation',
           title: `Wycena szczegółowa: ${v.object_name}`,
@@ -174,7 +174,7 @@ export default function AdminDashboard() {
           status: v.status === 'completed' ? 'success' : 'info'
         })),
         // Recent compositions
-        ...(compositionsRes.data || []).slice(0, 2).map(c => ({
+        ...(compositionsData || []).slice(0, 2).map((c: any) => ({
           id: `composition-${c.id}`,
           type: 'composition',
           title: `Kompozycja: ${c.name}`,
@@ -183,7 +183,7 @@ export default function AdminDashboard() {
           status: c.is_active ? 'success' : 'warning'
         })),
         // Recent blog posts
-        ...(blogRes.data || []).slice(0, 2).map(b => ({
+        ...(blogData || []).slice(0, 2).map((b: any) => ({
           id: `blog-${b.id}`,
           type: 'blog',
           title: `Nowy post: ${b.title}`,
@@ -192,7 +192,7 @@ export default function AdminDashboard() {
           status: b.status === 'published' ? 'success' : 'info'
         })),
         // Recent realizations
-        ...(realizationsRes.data || []).slice(0, 2).map(r => ({
+        ...(realizationsData || []).slice(0, 2).map((r: any) => ({
           id: `realization-${r.id}`,
           type: 'realization',
           title: `Nowa realizacja: ${r.title}`,
@@ -219,9 +219,9 @@ export default function AdminDashboard() {
         totalReviews,
         monthlyRevenue,
         pendingTasks: Math.max(0,
-          (detailedValuationsRes.data?.filter(v => v.status !== 'completed').length || 0) +
-          (reviewsRes.data?.filter(r => r.status !== 'approved').length || 0) +
-          (consultationsRes.data?.filter(c => c.status === 'new').length || 0)
+          (detailedValuationsData?.filter(v => v.status !== 'completed').length || 0) +
+          (reviewsData?.filter(r => r.status !== 'approved').length || 0) +
+          (consultationsData?.filter(c => c.status === 'new').length || 0)
         ),
         recentActivity,
         systemHealth,
