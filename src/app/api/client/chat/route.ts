@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     )
 
     if (managerResult.success && managerResult.data?.data?.length) {
-      const manager = managerResult.data.data[0]
+      const manager = managerResult.data.data[0] as any
 
       // Pobierz informacje o adminie
       const adminResult = await dbHelper.helpers.selectWithPagination(
@@ -63,9 +63,10 @@ export async function GET(request: NextRequest) {
       )
 
       if (adminResult.success && adminResult.data?.data?.length) {
+        const adminInfo = adminResult.data.data[0]
         managerInfo = {
           ...manager,
-          admin_info: adminResult.data.data[0]
+          admin_info: adminInfo
         }
       }
     }
@@ -152,7 +153,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const manager = managerResult.data.data[0]
+    const manager = managerResult.data.data[0] as any
 
     // Utwórz wiadomość w czacie
     const chatData: ClientChatInsert = {
@@ -248,7 +249,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Message updated successfully',
-      data: updateResult.data?.[0]
+      data: updateResult.data
     })
 
   } catch (error: any) {
