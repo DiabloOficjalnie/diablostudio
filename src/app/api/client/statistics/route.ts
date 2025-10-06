@@ -180,17 +180,17 @@ async function calculateTrends(clientId: string, dbHelper: ReturnType<typeof dbA
     const completedPreviousQuotes = previousQuotes.filter(quote => quote.status === 'completed')
 
     // Oblicz wzrosty
-    const currentSquareMeters = completedRecentQuotes.reduce((sum: number, quote: any) => sum + ((quote as any)?.area ?? 0), 0)
-    const previousSquareMeters = completedPreviousQuotes.reduce((sum: number, quote: any) => sum + ((quote as any)?.area ?? 0), 0)
+    const currentSquareMeters = completedRecentQuotes.reduce((sum: number, quote: any) => sum + Number((quote as any)?.area ?? 0), 0)
+    const previousSquareMeters = completedPreviousQuotes.reduce((sum: number, quote: any) => sum + Number((quote as any)?.area ?? 0), 0)
 
     const currentSavings = completedRecentQuotes.reduce((sum: number, quote: any) => {
-      const avgPricePerM2 = (((quote as any)?.price_min ?? 0) + ((quote as any)?.price_max ?? 0)) / 2
-      return sum + (avgPricePerM2 * ((quote as any)?.area ?? 0))
+      const avgPricePerM2 = (Number((quote as any)?.price_min ?? 0) + Number((quote as any)?.price_max ?? 0)) / 2
+      return sum + (avgPricePerM2 * Number((quote as any)?.area ?? 0))
     }, 0)
 
     const previousSavings = completedPreviousQuotes.reduce((sum: number, quote: any) => {
-      const avgPricePerM2 = (((quote as any)?.price_min ?? 0) + ((quote as any)?.price_max ?? 0)) / 2
-      return sum + (avgPricePerM2 * ((quote as any)?.area ?? 0))
+      const avgPricePerM2 = (Number((quote as any)?.price_min ?? 0) + Number((quote as any)?.price_max ?? 0)) / 2
+      return sum + (avgPricePerM2 * Number((quote as any)?.area ?? 0))
     }, 0)
 
     const squareMetersGrowth = previousSquareMeters > 0
