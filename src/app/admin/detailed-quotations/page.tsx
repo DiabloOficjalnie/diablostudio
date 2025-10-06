@@ -436,8 +436,8 @@ export default function DetailedQuotationsPage() {
       return sum + numMax
     }, 0)
 
-    const additionalTotal = Object.values(formData.additional_costs).reduce((sum, cost) => {
-      const numCost = Number(cost) || 0
+    const additionalTotal = Object.values(formData.additional_costs).reduce((sum: number, cost: string | number) => {
+      const numCost = typeof cost === 'number' ? cost : (Number(cost) || 0)
       return sum + numCost
     }, 0)
 
