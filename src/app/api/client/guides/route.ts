@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { dbApiHelper } from '@/lib/database-manager'
+import { FilterBuilder, FilterOptions } from '@/lib/database-utils'
 import {
   ClientGuide,
   ClientGuideInsert,
@@ -16,12 +17,12 @@ export async function GET(request: NextRequest) {
     const search = url.searchParams.get('search')
 
     // Buduj filtry dla aktywnych poradników
-    const filters = [
-      { column: 'is_active', operator: 'eq', value: true }
+    const filters: FilterOptions[] = [
+      FilterBuilder.eq('is_active', true)
     ]
 
     if (guideType) {
-      filters.push({ column: 'guide_type', operator: 'eq', value: guideType })
+      filters.push(FilterBuilder.eq('guide_type', guideType))
     }
 
     // Pobierz poradniki
@@ -219,7 +220,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Guide updated successfully',
-      data: updateResult.data?.[0]
+      data: updateResult.data
     })
 
   } catch (error: any) {
