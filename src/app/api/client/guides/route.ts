@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { dbApiHelper } from '@/lib/database-manager'
-import { FilterBuilder, FilterOptions } from '@/lib/database-utils'
+import { FilterBuilder } from '@/lib/database-utils'
 import {
   ClientGuide,
   ClientGuideInsert,
@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     const search = url.searchParams.get('search')
 
     // Buduj filtry dla aktywnych poradników
-    const filters: FilterOptions[] = [
+    const filters = [
       FilterBuilder.eq('is_active', true)
     ]
 
