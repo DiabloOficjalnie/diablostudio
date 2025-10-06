@@ -254,6 +254,21 @@ export async function PUT(request: NextRequest) {
       )
     }
 
+    // Pobierz program afiliacyjny dla aktualizacji rabatu
+    const programResult = await dbHelper.helpers.selectWithPagination<AffiliateProgram>(
+      'affiliate_program',
+      [{ column: 'id', operator: 'eq', value: invitation.affiliate_program_id }]
+    )
+
+    if (!programResult.success || !programResult.data?.data?.length) {
+      return NextResponse.json(
+        { error: 'Affiliate program not found' },
+        { status: 404 }
+      )
+    }
+
+    const affiliateProgram = programResult.data.data[0]
+
     let newStatus: 'pending' | 'accepted' | 'completed' | 'expired' = 'pending'
 
     switch (action) {
@@ -296,7 +311,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: `Invitation ${newStatus} successfully`,
-      data: updateResult.data?.[0]
+      data: updateResult.data
     })
 
   } catch (error: any) {
