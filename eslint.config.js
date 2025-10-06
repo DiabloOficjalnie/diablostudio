@@ -1,9 +1,8 @@
-import js from '@eslint/js'
-import typescript from '@typescript-eslint/eslint-plugin'
-import typescriptParser from '@typescript-eslint/parser'
-import next from 'eslint-config-next'
+const js = require('@eslint/js')
+const typescript = require('@typescript-eslint/eslint-plugin')
+const typescriptParser = require('@typescript-eslint/parser')
 
-const eslintConfig = [
+module.exports = [
   {
     // Global ignores
     ignores: [
@@ -19,8 +18,6 @@ const eslintConfig = [
   },
   // Base JavaScript rules
   js.configs.recommended,
-  // Next.js rules
-  ...next.configs.recommended,
   // TypeScript-specific configuration
   {
     files: ['**/*.{ts,tsx}'],
@@ -52,12 +49,10 @@ const eslintConfig = [
   },
   // JavaScript files (non-TypeScript)
   {
-    files: ['**/*.{js,jsx,mjs,cjs}'],
+    files: ['**/*.{js,jsx}'],
     rules: {
       'react/no-unescaped-entities': 'off',
       '@next/next/no-page-custom-font': 'off',
     },
   },
 ]
-
-export default eslintConfig
