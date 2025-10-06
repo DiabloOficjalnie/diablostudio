@@ -562,15 +562,9 @@ export default function AdminColorsPage() {
                         <div className="text-sm text-gray-500 mt-1">Wartość HEX</div>
                       </td>
                       <td className="px-8 py-6 whitespace-nowrap text-center">
-                        <div className="flex items-center justify-center gap-3">
-                        <button
-                          onClick={() => handleDeleteColor(color.id)}
-                          className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-medium transition-colors"
-                        >
-                          Usuń
-                        </button>
+                        <div className="flex items-center justify-center">
                           <button
-                            onClick={() => handleDeleteColor(color.id!)}
+                            onClick={() => color.id && handleDeleteColor(color.id)}
                             className="px-4 py-2 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white rounded-lg font-bold text-sm transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
                           >
                             🗑️ Usuń
