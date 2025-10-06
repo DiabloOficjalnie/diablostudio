@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { dbApiHelper } from '@/lib/database-manager'
+import { FilterBuilder } from '@/lib/database-utils'
 import {
   ProjectPhoto,
   ProjectPhotoInsert,
@@ -31,19 +32,19 @@ export async function GET(request: NextRequest) {
 
     // Buduj filtry
     const filters = [
-      { column: 'client_id', operator: 'eq', value: user.id }
+      FilterBuilder.eq('client_id', user.id)
     ]
 
     if (quoteId) {
-      filters.push({ column: 'quote_id', operator: 'eq', value: quoteId })
+      filters.push(FilterBuilder.eq('quote_id', quoteId))
     }
 
     if (photoType) {
-      filters.push({ column: 'photo_type', operator: 'eq', value: photoType })
+      filters.push(FilterBuilder.eq('photo_type', photoType))
     }
 
     if (approved !== null) {
-      filters.push({ column: 'is_approved', operator: 'eq', value: approved === 'true' })
+      filters.push(FilterBuilder.eq('is_approved', approved === 'true'))
     }
 
     // Pobierz zdjęcia projektu klienta
@@ -288,7 +289,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Photo updated successfully',
-      data: updateResult.data?.[0]
+      data: updateResult.data
     })
 
   } catch (error: any) {
