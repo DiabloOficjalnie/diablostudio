@@ -138,7 +138,7 @@ async function calculateClientStatistics(clientId: string, dbHelper: ReturnType<
       return null
     }
 
-    return result.data?.[0] || result.data
+    return result.data || null
 
   } catch (error) {
     console.error('Error calculating client statistics:', error)
