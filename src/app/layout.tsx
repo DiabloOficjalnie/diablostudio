@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { Analytics } from '@vercel/analytics/next'
 import {
   ClerkProvider,
   SignInButton,
@@ -38,6 +39,7 @@ export default function RootLayout({
           </header>
           {children}
           <SpeedInsights />
+          <Analytics />
         </body>
       </html>
     </ClerkProvider>
