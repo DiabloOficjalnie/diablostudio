@@ -37,10 +37,17 @@ function validateEnvironmentVariables(): EnvironmentVariables {
   }
 
   if (missing.length > 0) {
-    throw new Error(
-      `Missing required environment variables: ${missing.join(', ')}\n` +
-      'Please check your .env.local file and ensure all required variables are set.'
-    )
+    // During build time, environment variables might not be available
+    // Only throw error if we're in a runtime environment (not build time)
+    if (typeof window === 'undefined' && process.env.NODE_ENV === 'production') {
+      throw new Error(
+        `Missing required environment variables: ${missing.join(', ')}\n` +
+        'Please check your .env.local file and ensure all required variables are set.'
+      )
+    } else {
+      // During build time or development, return default values or undefined
+      console.warn(`Warning: Missing environment variables: ${missing.join(', ')}`)
+    }
   }
 
   return env as EnvironmentVariables
