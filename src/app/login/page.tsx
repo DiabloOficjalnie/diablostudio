@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useUser, useAuth } from '@clerk/nextjs'
+import { useUser, useAuth, SignIn } from '@clerk/nextjs'
 import { createClientComponentClient } from '@/lib/supabase'
 
 export default function ClientLoginPage() {
