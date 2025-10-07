@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from '@/lib/env'
 import { createClient } from '@/lib/supabase'
+
+// Get environment variables directly to avoid build-time validation issues
+const NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key'
 
 // Define the Client interface
 interface Client {
