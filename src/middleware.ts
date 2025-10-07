@@ -1,13 +1,65 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { NextResponse } from 'next/server'
 
 const isProtectedRoute = createRouteMatcher([
   '/client(.*)',
   '/admin(.*)',
 ])
 
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/login(.*)',
+  '/contact(.*)',
+  '/colors(.*)',
+  '/realizations(.*)',
+  '/reviews(.*)',
+  '/guide(.*)',
+  '/blog(.*)',
+  '/valuation(.*)',
+  '/api/main-page-data(.*)',
+  '/api/contractor-pricing(.*)',
+])
+
 export default clerkMiddleware(async (auth, req) => {
-  if (isProtectedRoute(req)) {
-    await auth.protect()
+  try {
+    const { userId } = await auth()
+
+    // If user is not signed in and trying to access protected route
+    if (isProtectedRoute(req) && !userId) {
+      // Redirect to sign-in page with return URL
+      const signInUrl = new URL('/login', req.url)
+      signInUrl.searchParams.set('redirect_url', req.url)
+      return NextResponse.redirect(signInUrl)
+    }
+
+    // If user is signed in and trying to access login page, redirect to dashboard
+    if (userId && req.nextUrl.pathname.startsWith('/login')) {
+      return NextResponse.redirect(new URL('/client/dashboard', req.url))
+    }
+
+    // Allow access to public routes for everyone
+    if (isPublicRoute(req)) {
+      return NextResponse.next()
+    }
+
+    // For all other routes, proceed normally
+    return NextResponse.next()
+  } catch (error) {
+    console.error('Middleware error:', error)
+
+    // If middleware fails, allow access to public routes
+    if (isPublicRoute(req)) {
+      return NextResponse.next()
+    }
+
+    // For protected routes, redirect to login on error
+    if (isProtectedRoute(req)) {
+      const signInUrl = new URL('/login', req.url)
+      signInUrl.searchParams.set('redirect_url', req.url)
+      return NextResponse.redirect(signInUrl)
+    }
+
+    return NextResponse.next()
   }
 })
 
