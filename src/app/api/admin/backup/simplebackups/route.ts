@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from '@/lib/env'
 import { createClient } from '@supabase/supabase-js'
+
+// Safe environment variable access
+const NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 export async function GET(request: NextRequest) {
   try {
