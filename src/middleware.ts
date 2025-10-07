@@ -2,22 +2,14 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
 const isPublicRoute = createRouteMatcher([
   '/',
-  '/login(.*)',
-  '/sign-in(.*)',
-  '/sign-up(.*)',
-  '/contact(.*)',
-  '/guide(.*)',
-  '/realizations(.*)',
-  '/reviews(.*)',
-  '/colors(.*)',
-  '/valuation(.*)',
-  '/blog(.*)',
-  // Add other public routes as needed
+  '/((?!api|_next/static|_next/image|favicon.ico).*)',
 ])
 
-export default clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
-    await auth.protect()
+export default clerkMiddleware((auth, req) => {
+  // Don't protect public routes - let them pass through
+  // Only protect specific client and admin routes
+  if (req.nextUrl.pathname.startsWith('/client') || req.nextUrl.pathname.startsWith('/admin')) {
+    auth.protect()
   }
 })
 
