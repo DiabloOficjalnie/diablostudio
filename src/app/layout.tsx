@@ -4,8 +4,6 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Analytics } from '@vercel/analytics/next'
 import {
   ClerkProvider,
-  SignInButton,
-  SignUpButton,
   SignedIn,
   SignedOut,
   UserButton,
@@ -28,15 +26,6 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="pl">
         <body className={inter.className} suppressHydrationWarning={true}>
-          <header style={{ padding: '10px', borderBottom: '1px solid #ccc', marginBottom: '20px' }}>
-            <SignedOut>
-              <SignInButton>Zaloguj się</SignInButton>
-              <SignUpButton>Zarejestruj się</SignUpButton>
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-          </header>
           {children}
           <SpeedInsights />
           <Analytics />
