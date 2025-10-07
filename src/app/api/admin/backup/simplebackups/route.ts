@@ -7,6 +7,14 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 export async function GET(request: NextRequest) {
   try {
+    // Check if required environment variables are available
+    if (!NEXT_PUBLIC_SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      )
+    }
+
     // In a real implementation, you would integrate with SimpleBackups API
     // For now, we'll return mock data that represents backup status
 
@@ -85,6 +93,14 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if required environment variables are available
+    if (!NEXT_PUBLIC_SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      )
+    }
+
     // Trigger manual backup
     const supabase = createClient(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
@@ -108,7 +124,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Backup initiated successfully',
-      backupId: data.id,
+      backupId: data?.id || 'mock-backup-id',
       estimatedDuration: '15 minutes'
     })
 

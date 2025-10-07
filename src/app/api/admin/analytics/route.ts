@@ -8,6 +8,14 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
 // GET - Retrieve analytics data
 export async function GET(request: NextRequest) {
   try {
+    // Check if required environment variables are available
+    if (!NEXT_PUBLIC_SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      )
+    }
+
     const supabase = createClient(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
     const { searchParams } = new URL(request.url)
 
@@ -165,6 +173,14 @@ function generateDailySalesData(days: number) {
 // POST - Generate custom report
 export async function POST(request: NextRequest) {
   try {
+    // Check if required environment variables are available
+    if (!NEXT_PUBLIC_SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      )
+    }
+
     const supabase = createClient(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
     const reportConfig = await request.json()
 
