@@ -520,25 +520,6 @@ export default function ClientLoginPage() {
                           footerAction: 'hidden'
                         }
                       }}
-                      localization={{
-                        signIn: {
-                          start: {
-                            title: "Zaloguj się do swojego konta",
-                            subtitle: "Wprowadź swoje dane, aby kontynuować"
-                          },
-                          email: {
-                            label: "Adres email",
-                            placeholder: "twoj@email.com"
-                          },
-                          password: {
-                            label: "Hasło",
-                            placeholder: "Wprowadź hasło"
-                          },
-                          button: {
-                            primary: "Zaloguj się"
-                          }
-                        }
-                      }}
                       redirectUrl="/client/dashboard"
                     />
                   </div>
