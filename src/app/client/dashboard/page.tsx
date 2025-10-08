@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
-import { createClientComponentClient } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 
 // Error Boundary Component
 class DashboardErrorBoundary extends React.Component<
@@ -753,7 +753,11 @@ export default function ClientDashboard() {
   ]
 
   const router = useRouter()
-  const supabase = createClientComponentClient()
+
+  // Initialize Supabase client for data operations (not authentication)
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
   useEffect(() => {
     checkUser()
@@ -792,7 +796,15 @@ export default function ClientDashboard() {
         const data = await response.json()
         if (data.success) {
           // Transform API data to match component expectations
-          const consultations = data.consultations.map((c: any) => ({
+          const consultations = data.consultations.map((c: {
+            id: string
+            quote_id: string
+            preferred_date: string
+            preferred_time: string
+            message: string
+            status: string
+            created_at: string
+          }) => ({
             id: c.id,
             quote_id: c.quote_id,
             preferred_date: c.preferred_date,
@@ -878,7 +890,7 @@ export default function ClientDashboard() {
           first_name: user.firstName || 'Unknown',
           last_name: user.lastName || 'User',
           email: user.primaryEmailAddress?.emailAddress || '',
-          phone: user.phoneNumbers[0]?.phoneNumber || null,
+          phone: user.phoneNumbers?.[0]?.phoneNumber || null,
           company: null
         })
 
@@ -1499,6 +1511,11 @@ export default function ClientDashboard() {
         .select('*')
         .eq('client_id', user.id)
 
+      if (!user?.id) {
+        alert('Błąd użytkownika')
+        return
+      }
+
       const accountData = {
         profile: profileData,
         quotes: quotesData,
@@ -1513,7 +1530,7 @@ export default function ClientDashboard() {
       const url = URL.createObjectURL(dataBlob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `dane-konta-${user.primaryEmailAddress?.emailAddress || 'user'}-${new Date().toISOString().split('T')[0]}.json`
+      link.download = `dane-konta-${user.primaryEmailAddress?.emailAddress || user.emailAddresses?.[0]?.emailAddress || 'user'}-${new Date().toISOString().split('T')[0]}.json`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -1539,10 +1556,15 @@ export default function ClientDashboard() {
     }
 
     try {
+      if (!user?.id) {
+        alert('Błąd użytkownika')
+        return
+      }
+
       // Delete all client data
-      await supabase.from('client_quotes').delete().eq('client_id', user.id)
-      await supabase.from('consultation_requests').delete().eq('client_id', user.id)
-      await supabase.from('client_profiles').delete().eq('id', user.id)
+      await supabase.from('client_quotes').delete().eq('client_id', user!.id)
+      await supabase.from('consultation_requests').delete().eq('client_id', user!.id)
+      await supabase.from('client_profiles').delete().eq('id', user!.id)
 
       // Sign out and redirect
       await supabase.auth.signOut()
