@@ -323,14 +323,6 @@ export default function ClientDashboard() {
     } catch (error) {
       console.error('Error saving user progress:', error)
     }
-
-      if (error) {
-        console.error('Error saving user progress:', error)
-        return
-      }
-    } catch (error) {
-      console.error('Error saving user progress:', error)
-    }
   }
 
   // Available guides and instructions
@@ -1210,6 +1202,11 @@ export default function ClientDashboard() {
 
     try {
       // Update client profile to disable 2FA
+      if (!user?.id) {
+        alert('Błąd użytkownika')
+        return
+      }
+
       const { error } = await supabase
         .from('client_profiles')
         .update({
@@ -1268,7 +1265,7 @@ export default function ClientDashboard() {
 
       // Try to sign in with current password to verify it
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: user.email,
+        email: user.primaryEmailAddress?.emailAddress || user.email,
         password: passwordForm.currentPassword
       })
 
@@ -1610,7 +1607,7 @@ export default function ClientDashboard() {
                 <span className="text-white font-bold text-lg">D</span>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">DiabloStudio</h1>
+                <h1 className="text-xl font-bold text-white">DecoSol</h1>
                 <p className="text-xs text-slate-400">Panel klienta</p>
               </div>
             </div>

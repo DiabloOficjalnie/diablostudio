@@ -178,14 +178,17 @@ export default function HomePage() {
       <section id="hero" className="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat" style={{backgroundImage: 'url(/assets/hero-header.png)'}}>
         <div className="absolute inset-0 bg-black bg-opacity-60"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-2xl">
-            Posadzki żywiczne – epoksydowe i poliuretanowe.
-            <span className="block text-blue-300 drop-shadow-lg">Trwałość i design w jednym.</span>
-          </h1>
-          <p className="text-xl sm:text-2xl text-blue-100 mb-12 max-w-4xl mx-auto leading-relaxed drop-shadow-lg">
-            Tworzymy nowoczesne posadzki żywiczne: garaże, tarasy, hale i luksusowe wnętrza.
-            Zobacz nasze realizacje, przeczytaj poradniki i otrzymaj darmową wycenę.
-          </p>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-2xl">
+                DecoSol - Posadzki żywiczne – epoksydowe i poliuretanowe.
+                <span className="block text-blue-300 drop-shadow-lg">Piękno zaklęte w żywicy.</span>
+              </h1>
+              <p className="text-xl sm:text-2xl text-blue-100 mb-12 max-w-4xl mx-auto leading-relaxed drop-shadow-lg">
+                Tworzymy nowoczesne posadzki żywiczne: garaże, tarasy, hale i luksusowe wnętrza.
+                Zobacz nasze realizacje, przeczytaj poradniki i otrzymaj darmową wycenę.
+              </p>
+              <div className="text-center mb-8">
+                <p className="text-lg text-blue-200 font-medium">Piękno zaklęte w żywicy</p>
+              </div>
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <a
               href="/valuation"
@@ -2398,10 +2401,10 @@ export default function HomePage() {
                 </p>
                 <div className="space-y-3">
                   <a
-                    href="mailto:info@diablostudio.pl"
+                    href="mailto:info@decosol.pl"
                     className="block text-xl font-bold text-green-800 hover:text-green-600 transition-colors"
                   >
-                    info@diablostudio.pl
+                    info@decosol.pl
                   </a>
                   <p className="text-sm text-gray-600">
                     Odpowiedź w ciągu 24h

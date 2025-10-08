@@ -23,11 +23,11 @@ export default function LoginPage() {
 
           // Check if user is admin based on company email
           const adminEmails = [
-            'admin@diablostudio.pl',
-            'administrator@diablostudio.pl',
-            'biuro@diablostudio.pl',
-            'kontakt@diablostudio.pl',
-            'office@diablostudio.pl'
+            'admin@decosol.pl',
+            'administrator@decosol.pl',
+            'biuro@decosol.pl',
+            'kontakt@decosol.pl',
+            'office@decosol.pl'
           ]
 
           if (adminEmails.includes(email.toLowerCase())) {
@@ -93,7 +93,7 @@ export default function LoginPage() {
         {/* Header Section */}
         <div className="text-center mb-8">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-            Witaj w DiabloStudio
+            Witaj w DecoSol
           </h1>
           <p className="text-lg sm:text-xl text-gray-600">
             Zaloguj się do swojego konta lub utwórz nowe

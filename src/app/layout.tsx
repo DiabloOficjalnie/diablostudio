@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { Inter } from 'next/font/google'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Analytics } from '@vercel/analytics/next'
@@ -7,8 +8,11 @@ import {
   SignedIn,
   SignedOut,
   UserButton,
+  useUser,
 } from '@clerk/nextjs'
 import { plPL } from '@clerk/localizations'
+import { useState, useEffect } from 'react'
+import { createClientComponentClient } from '@/lib/supabase'
 import './globals.css'
 
 // Navigation Header Component
@@ -83,7 +87,7 @@ function NavigationHeader() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <Link href="/" className="text-2xl font-bold text-gray-900">
-                DiabloStudio
+                DecoSol
               </Link>
             </div>
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -99,8 +103,11 @@ function NavigationHeader() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link href="/" className="text-2xl font-bold text-gray-900">
-              DiabloStudio
+              DecoSol
             </Link>
+            <div className="ml-3 text-sm text-gray-600 font-medium">
+              Piękno zaklęte w żywicy
+            </div>
           </div>
 
           <div className="flex items-center space-x-4">
@@ -149,7 +156,7 @@ function NavigationHeader() {
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'DiabloStudio - Profesjonalne Posadzki Żywiczne',
+  title: 'DecoSol - Profesjonalne Posadzki Żywiczne',
   description: 'Kompleksowe usługi posadzek żywicznych epoksydowych i poliuretanowych. Darmowa wycena online, realizacje, przewodnik i opinie klientów.',
 }
 
