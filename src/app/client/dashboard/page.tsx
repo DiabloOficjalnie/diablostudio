@@ -1258,14 +1258,15 @@ export default function ClientDashboard() {
       // First verify the current password by attempting to sign in
       const { data: { user } } = await supabase.auth.getUser()
 
-      if (!user?.email) {
+      if (!user?.emailAddresses?.find(e => e.primary)?.emailAddress) {
         alert('Nie można zweryfikować użytkownika')
         return
       }
 
       // Try to sign in with current password to verify it
+      const primaryEmail = user.emailAddresses?.find(e => e.primary)?.emailAddress
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: user.primaryEmailAddress || user.email,
+        email: primaryEmail || '',
         password: passwordForm.currentPassword
       })
 
@@ -1483,7 +1484,7 @@ export default function ClientDashboard() {
       const url = URL.createObjectURL(dataBlob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `dane-konta-${user.email}-${new Date().toISOString().split('T')[0]}.json`
+      link.download = `dane-konta-${user.emailAddresses.find(e => e.primary)?.emailAddress || 'user'}-${new Date().toISOString().split('T')[0]}.json`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
