@@ -98,7 +98,7 @@ interface ConsultationRequest {
 }
 
 export default function ClientDashboard() {
-  const [user, setUser] = useState<any>(null)
+  const { user, isLoaded } = useUser()
   const [profile, setProfile] = useState<any>(null)
   const [quotes, setQuotes] = useState<ClientQuote[]>([])
   const [consultations, setConsultations] = useState<ConsultationRequest[]>([])
