@@ -857,7 +857,7 @@ export default function ClientDashboard() {
 
   const checkUser = async () => {
     // Use Clerk's useUser hook instead of direct Supabase auth
-    if (!user) {
+    if (!user || !user.id) {
       router.push('/login')
       return
     }
