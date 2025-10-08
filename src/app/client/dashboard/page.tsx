@@ -1292,7 +1292,7 @@ function ClientDashboardContent() {
         return
       }
 
-      const primaryEmail = user.primaryEmailAddress?.emailAddress || user.emailAddresses?.[0]?.emailAddress
+      const primaryEmail = user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || ''
 
       if (!primaryEmail) {
         alert('Nie można zweryfikować użytkownika')
