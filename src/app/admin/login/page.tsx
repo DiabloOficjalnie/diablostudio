@@ -74,7 +74,7 @@ export default function AdminLoginPage() {
           localStorage.setItem('admin_user_email', email)
         } catch {}
 
-        router.push('/admin/dashboard')
+        router.push('/admin')
         return
       }
 

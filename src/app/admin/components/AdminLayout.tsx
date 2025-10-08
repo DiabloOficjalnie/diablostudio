@@ -202,7 +202,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         {
           id: 'dashboard',
           title: 'Dashboard',
-          path: '/admin/dashboard',
+          path: '/admin',
           icon: '📊',
           description: 'Główny panel sterowania'
         },

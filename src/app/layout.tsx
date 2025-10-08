@@ -4,7 +4,6 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Analytics } from '@vercel/analytics/next'
 import { ClerkProvider } from '@clerk/nextjs'
 import { plPL } from '@clerk/localizations'
-import NavigationHeader from './components/NavigationHeader'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -24,13 +23,12 @@ export default function RootLayout({
       localization={plPL}
       publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
       signInUrl="/login"
-      signUpUrl="/register"
+      signUpUrl="/login"
       afterSignInUrl="/client/dashboard"
       afterSignUpUrl="/client/dashboard"
     >
       <html lang="pl">
         <body className={inter.className} suppressHydrationWarning={true}>
-          <NavigationHeader />
           {children}
           <SpeedInsights />
           <Analytics />

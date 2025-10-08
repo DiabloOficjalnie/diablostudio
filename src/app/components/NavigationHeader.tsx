@@ -17,8 +17,13 @@ export default function NavigationHeader() {
   const [isLoading, setIsLoading] = useState(true)
   const pathname = usePathname()
 
-  // Hide global NavigationHeader on app panels that have their own header/layout
-  if (pathname?.startsWith('/admin') || pathname?.startsWith('/client')) {
+  // Hide global NavigationHeader on routes that use their own MainLayout header
+  const hideOnMainLayout = ['/', '/valuation', '/colors', '/realizations', '/guide', '/reviews', '/contact', '/blog', '/privacy']
+  if (
+    pathname?.startsWith('/admin') ||
+    pathname?.startsWith('/client') ||
+    hideOnMainLayout.some((p) => pathname === p || pathname?.startsWith(p + '/'))
+  ) {
     return null
   }
 

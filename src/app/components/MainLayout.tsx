@@ -99,7 +99,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 overflow-x-hidden">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -177,16 +177,14 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
                 {/* Single "Logowanie" in mobile */}
                 <div className="space-y-2">
-                  <button
-                    onClick={() => {
-                      setShowLoginModal(true)
-                      setShowMobileMenu(false)
-                    }}
-                    className="w-full flex items-center justify-center px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-all shadow-md"
+                  <a
+                    href="/login"
+                    onClick={toggleMobileMenu}
+                    className="block w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg text-center transition-all shadow-md"
                   >
                     <span className="mr-2">👤</span>
                     Logowanie
-                  </button>
+                  </a>
                 </div>
               </nav>
             </div>
@@ -197,45 +195,19 @@ export default function MainLayout({ children }: MainLayoutProps) {
       {/* Main Content */}
       <main>{children}</main>
 
-      {/* Mobile Navigation Arrows */}
-      {showScrollNav && pathname === '/' && (
-        <div className="fixed bottom-20 right-4 z-40 flex flex-col gap-2 md:hidden">
-          {getNavigationOptions(getCurrentSection()).map((option) => (
-            <button
-              key={option.id}
-              onClick={() => {
-                if (option.id === 'hero') {
-                  scrollToTop()
-                } else {
-                  const element = document.getElementById(option.id)
-                  element?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-                }
-              }}
-              className={`w-12 h-12 rounded-full shadow-lg transition-all transform hover:scale-110 flex items-center justify-center ${
-                option.type === 'main' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-600 hover:bg-gray-700 text-white'
-              }`}
-              title={option.name}
-            >
-              {option.type === 'prev' && <span className="text-lg">⬆️</span>}
-              {option.type === 'next' && <span className="text-lg">⬇️</span>}
-              {option.type === 'main' && <span className="text-sm">🏠</span>}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* Mobile Navigation Arrows removed on mobile per request */}
 
-      {/* Scroll to Top Button */}
-      <div className="fixed bottom-6 right-6 z-40">
-        {showScrollTop && (
-          <button
-            onClick={scrollToTop}
-            className="w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all transform hover:scale-110 flex items-center justify-center group"
-            title="Przewiń na górę strony"
-          >
-            <span className="text-xl group-hover:animate-bounce">⬆️</span>
-          </button>
-        )}
-      </div>
+      {/* Scroll To Top */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          aria-label="Przewiń na górę"
+          title="Do góry"
+          className="fixed bottom-6 right-6 z-50 inline-flex items-center justify-center w-12 h-12 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          ↑
+        </button>
+      )}
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white mt-16">
@@ -318,49 +290,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
         </div>
       </footer>
 
-      {/* Login Modal */}
-      {showLoginModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-8">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">Wybierz typ konta</h2>
-              <p className="text-gray-600">Zaloguj się jako administrator lub klient</p>
-            </div>
-
-            <div className="space-y-4 mb-8">
-              <Link
-                href="/admin/login"
-                onClick={() => setShowLoginModal(false)}
-                className="block w-full p-4 bg-blue-600 hover:bg-blue-700 text-white text-center font-semibold rounded-lg transition-all transform hover:scale-105 shadow-lg"
-              >
-                <div className="flex items-center justify-center mb-2">
-                  <span className="text-2xl mr-3">👨‍💼</span>
-                  <span className="text-xl">Administrator</span>
-                </div>
-                <p className="text-sm opacity-90">Panel zarządzania, realizacje, wyceny</p>
-              </Link>
-
-              <Link
-                href="/login"
-                onClick={() => setShowLoginModal(false)}
-                className="block w-full p-4 bg-green-600 hover:bg-green-700 text-white text-center font-semibold rounded-lg transition-all transform hover:scale-105 shadow-lg"
-              >
-                <div className="flex items-center justify-center mb-2">
-                  <span className="text-2xl mr-3">👤</span>
-                  <span className="text-xl">Klient</span>
-                </div>
-                <p className="text-sm opacity-90">Moje projekty, historia zamówień</p>
-              </Link>
-            </div>
-
-            <div className="text-center">
-              <button onClick={() => setShowLoginModal(false)} className="text-gray-600 hover:text-gray-800 transition-colors">
-                Zamknij
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Login Modal removed - unified login flow to /login on all devices */}
     </div>
   )
 }

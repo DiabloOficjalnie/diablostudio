@@ -1,6 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase'
 
 // 🔒 Ścieżki chronione (wymagają logowania)
 const isProtectedRoute = createRouteMatcher([
@@ -12,6 +11,8 @@ const isProtectedRoute = createRouteMatcher([
 const isPublicRoute = createRouteMatcher([
     '/',
     '/login(.*)',
+    '/admin/login(.*)',
+    '/client/login(.*)',
     '/contact(.*)',
     '/colors(.*)',
     '/realizations(.*)',
@@ -25,10 +26,17 @@ export default clerkMiddleware(async (auth, req) => {
     const { userId, redirectToSignIn } = await auth()
     const path = req.nextUrl.pathname
 
+    // Jeśli użytkownik jest zalogowany i wchodzi na stronę logowania → przekieruj do panelu klienta
+    // (musi być przed sprawdzeniem tras publicznych)
+    if (userId && path.startsWith('/login')) {
+        return NextResponse.redirect(new URL('/client/dashboard', req.url))
+    }
+
     // ⚙️ Pomijanie PUBLICZNYCH endpointów API
     if (
         path.startsWith('/api/main-page-data') ||
-        path.startsWith('/api/contractor-pricing')
+        path.startsWith('/api/contractor-pricing') ||
+        path.startsWith('/api/reviews/public')
     ) {
         return NextResponse.next()
     }
@@ -40,14 +48,11 @@ export default clerkMiddleware(async (auth, req) => {
 
     // 🔒 Jeśli użytkownik nie jest zalogowany, a próbuje wejść na chronioną stronę
     if (isProtectedRoute(req) && !userId) {
-        return redirectToSignIn()
+        // Zamiast domyślnego /sign-in wymuszamy /login, by uniknąć 404
+        return NextResponse.redirect(new URL('/login', req.url))
     }
 
-    // 🚫 Jeśli użytkownik jest zalogowany i próbuje wejść na stronę logowania → pozwól stronie obsłużyć przekierowanie
-    // Nie przekierowuj automatycznie, aby strona logowania mogła sprawdzić profil klienta
-    if (userId && path.startsWith('/login')) {
-        return NextResponse.next()
-    }
+    
 
     // ✅ Pozwól na dostęp do pozostałych (niechronionych) ścieżek
     return NextResponse.next()

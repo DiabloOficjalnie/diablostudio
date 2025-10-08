@@ -97,19 +97,7 @@ interface ConsultationRequest {
   created_at: string
 }
 
-export default async function ClientDashboard() {
-  const { user } = useUser();
-
-  if (!user) return <div>Nie jesteś zalogowany</div>;
-
-  // teraz możesz bezpiecznie używać user.id
-  const supabase = createClientComponentClient()
-  const { data: profileData, error } = await supabase
-    .from('client_profiles')
-    .select('*')
-    .eq('id', user.id)
-    .single();
-
+export default function ClientDashboard() {
   return <ClientDashboardContent />
 }
 

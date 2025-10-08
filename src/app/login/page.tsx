@@ -13,70 +13,12 @@ export default function LoginPage() {
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin')
   const [showFullBenefits, setShowFullBenefits] = useState(false)
 
-  // Handle user redirection after authentication
+  // Handle user redirection after authentication (unified flow)
   useEffect(() => {
     if (isLoaded && user) {
-      // Check user type and redirect accordingly
-      const checkUserTypeAndRedirect = async () => {
-        try {
-          const email = user.primaryEmailAddress?.emailAddress || ''
-
-          // Check if user is admin based on company email
-          const adminEmails = [
-            'admin@decosol.pl',
-            'administrator@decosol.pl',
-            'biuro@decosol.pl',
-            'kontakt@decosol.pl',
-            'office@decosol.pl'
-          ]
-
-          if (adminEmails.includes(email.toLowerCase())) {
-            // User is admin - redirect to admin panel
-            router.push('/admin')
-          } else {
-            // User is client - check/create profile and redirect to client dashboard
-            const { data: profile, error: profileError } = await supabase
-              .from('client_profiles')
-              .select('*')
-              .eq('id', user.id)
-              .single()
-
-            if (profileError && profileError.code !== 'PGRST116') {
-              console.error('Profile check error:', profileError)
-            }
-
-            if (profile) {
-              router.push('/client/dashboard')
-            } else {
-              // Create profile from Clerk user data
-              const { error: createProfileError } = await supabase
-                .from('client_profiles')
-                .insert({
-                  id: user.id,
-                  first_name: user.firstName || 'Unknown',
-                  last_name: user.lastName || 'User',
-                  email: email,
-                  phone: user.phoneNumbers[0]?.phoneNumber || null,
-                  company: null
-                })
-
-              if (createProfileError) {
-                console.error('Error creating profile:', createProfileError)
-              } else {
-                router.push('/client/dashboard')
-              }
-            }
-          }
-        } catch (error) {
-          console.error('Error in user type check:', error)
-          // Default to client dashboard on error
-          router.push('/client/dashboard')
-        }
-      }
-
-      checkUserTypeAndRedirect()
+      router.replace('/client/dashboard')
     }
-  }, [isLoaded, user, router, supabase])
+  }, [isLoaded, user, router])
 
   // Show loading spinner while Clerk is loading
   if (!isLoaded) {
@@ -135,6 +77,8 @@ export default function LoginPage() {
             <div className="w-full max-w-md">
               {authMode === 'signin' ? (
                 <SignIn
+                  afterSignInUrl="/client/dashboard"
+                  redirectUrl="/client/dashboard"
                   appearance={{
                     elements: {
                       formButtonPrimary: 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-xl text-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full',
@@ -151,6 +95,8 @@ export default function LoginPage() {
                 />
               ) : (
                 <SignUp
+                  afterSignUpUrl="/client/dashboard"
+                  redirectUrl="/client/dashboard"
                   appearance={{
                     elements: {
                       formButtonPrimary: 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 px-6 rounded-xl text-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full',

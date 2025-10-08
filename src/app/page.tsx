@@ -62,21 +62,30 @@ export default function HomePage() {
   const [pricingData, setPricingData] = useState<PricingData | null>(null)
   const [blogPosts, setBlogPosts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [helpfulClicked, setHelpfulClicked] = useState<Record<string, boolean>>({})
 
   const handleReviewSubmit = async (reviewData: any) => {
     try {
-      // Here you would typically send the review to your backend/API
-      console.log('Review submitted:', reviewData)
-
-      // For now, we'll simulate a successful submission
-      alert('Dziękujemy za opinię! Zostanie ona zweryfikowana w ciągu 24-48 godzin.')
-
-      // In a real application, you would:
-      // 1. Send the review to your backend
-      // 2. Store it in pending status
-      // 3. Notify admin for verification
-      // 4. Send confirmation email to user
-
+      const res = await fetch('/api/reviews/public', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: reviewData.firstName,
+          lastName: reviewData.lastName,
+          email: reviewData.email,
+          projectDate: reviewData.projectDate,
+          projectType: reviewData.projectType,
+          squareMeters: Number(reviewData.squareMeters),
+          rating: reviewData.rating,
+          reviewText: reviewData.reviewText
+        })
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || 'Błąd podczas zapisu opinii')
+      }
+      alert('Dziękujemy! Twoja opinia została zapisana i czeka na weryfikację.')
+      setShowReviewForm(false)
     } catch (error) {
       console.error('Error submitting review:', error)
       alert('Wystąpił błąd podczas wysyłania opinii. Spróbuj ponownie.')
@@ -179,16 +188,12 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-black bg-opacity-60"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-2xl">
-                DecoSol - Posadzki żywiczne – epoksydowe i poliuretanowe.
-                <span className="block text-blue-300 drop-shadow-lg">Piękno zaklęte w żywicy.</span>
+                DecoSol — Profesjonalne posadzki żywiczne
               </h1>
               <p className="text-xl sm:text-2xl text-blue-100 mb-12 max-w-4xl mx-auto leading-relaxed drop-shadow-lg">
                 Tworzymy nowoczesne posadzki żywiczne: garaże, tarasy, hale i luksusowe wnętrza.
                 Zobacz nasze realizacje, przeczytaj poradniki i otrzymaj darmową wycenę.
               </p>
-              <div className="text-center mb-8">
-                <p className="text-lg text-blue-200 font-medium">Piękno zaklęte w żywicy</p>
-              </div>
           <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <a
               href="/valuation"
@@ -418,7 +423,7 @@ export default function HomePage() {
 
             {/* Mobile Accordion */}
             <div className="lg:hidden space-y-4">
-              <details className="bg-white rounded-xl shadow-lg">
+              <details className="bg-white rounded-xl shadow-lg" open>
                 <summary className="p-6 font-bold text-lg cursor-pointer hover:bg-blue-50 transition-colors">
                   <span className="mr-3">🧪</span> Epoksyd - właściwości i zastosowanie
                 </summary>
@@ -432,7 +437,7 @@ export default function HomePage() {
                 </div>
               </details>
 
-              <details className="bg-white rounded-xl shadow-lg">
+              <details className="bg-white rounded-xl shadow-lg" open>
                 <summary className="p-6 font-bold text-lg cursor-pointer hover:bg-green-50 transition-colors">
                   <span className="mr-3">🌊</span> Poliuretan - właściwości i zastosowanie
                 </summary>
@@ -575,7 +580,7 @@ export default function HomePage() {
 
             {/* Mobile Accordion for Traditional */}
             <div className="md:hidden space-y-4">
-              <details className="bg-white rounded-xl shadow-lg">
+              <details className="bg-white rounded-xl shadow-lg" open>
                 <summary className="p-6 font-bold text-lg cursor-pointer hover:bg-blue-50 transition-colors">
                   <span className="mr-3">🧪</span> Posadzki żywiczne - vs tradycyjne
                 </summary>
@@ -597,7 +602,7 @@ export default function HomePage() {
                 </div>
               </details>
 
-              <details className="bg-white rounded-xl shadow-lg">
+              <details className="bg-white rounded-xl shadow-lg" open>
                 <summary className="p-6 font-bold text-lg cursor-pointer hover:bg-orange-50 transition-colors">
                   <span className="mr-3">🏠</span> Panele laminowane - właściwości
                 </summary>
@@ -615,7 +620,7 @@ export default function HomePage() {
                 </div>
               </details>
 
-              <details className="bg-white rounded-xl shadow-lg">
+              <details className="bg-white rounded-xl shadow-lg" open>
                 <summary className="p-6 font-bold text-lg cursor-pointer hover:bg-gray-50 transition-colors">
                   <span className="mr-3">🧱</span> Płytki ceramiczne - właściwości
                 </summary>
@@ -973,7 +978,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="mb-6">
-                  <div className="text-4xl font-bold text-gray-900 mb-2">200–400 PLN/m²</div>
+                  <div className="text-4xl font-bold text-gray-900 mb-2">od {pricingData?.material_costs?.resin_types?.epoxy_premium?.cost_per_sqm || 200} PLN/m²</div>
                   <p className="text-gray-700 leading-relaxed">
                     W zależności od wybranego systemu, grubości powłoki oraz dodatkowych efektów dekoracyjnych,
                     takich jak płatki, efekty marmuru czy metallic.
@@ -1023,7 +1028,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="mb-6">
-                  <div className="text-4xl font-bold text-gray-900 mb-2">od 150 PLN/m²</div>
+                  <div className="text-4xl font-bold text-gray-900 mb-2">od {pricingData?.material_costs?.resin_types?.pu_standard?.cost_per_sqm || 180} PLN/m²</div>
                   <p className="text-gray-700 leading-relaxed">
                     Podstawowe powłoki poliuretanowe o dobrych właściwościach mechanicznych.
                     Odpowiednie dla standardowych zastosowań wewnętrznych i zewnętrznych.
@@ -1059,7 +1064,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="mb-6">
-                  <div className="text-4xl font-bold text-gray-900 mb-2">od 500 PLN/m²</div>
+                  <div className="text-4xl font-bold text-gray-900 mb-2">od {pricingData?.material_costs?.resin_types?.pu_premium?.cost_per_sqm || 320} PLN/m²</div>
                   <p className="text-gray-700 leading-relaxed">
                     W zależności od specyfikacji technicznych, takich jak odporność na UV,
                     elastyczność czy dodatkowe właściwości antypoślizgowe.
@@ -1394,15 +1399,32 @@ export default function HomePage() {
                             <span className="text-gray-600 text-sm ml-2">{review.service} • {new Date(review.date).toLocaleDateString('pl-PL')}</span>
                           </div>
                         </div>
-                        <div className="text-green-600 text-sm font-medium bg-green-100 px-2 py-1 rounded-full">
-                          ✓ Zweryfikowana
-                        </div>
+                        
                       </div>
                       <p className="text-gray-700 leading-relaxed mb-3">
                         "{review.comment}"
                       </p>
                       <div className="flex items-center text-sm text-gray-500">
-                        <button className="flex items-center hover:text-blue-600 transition-colors">
+                        <button
+                          disabled={!!helpfulClicked[review.id]}
+                          onClick={async () => {
+                            if (helpfulClicked[review.id]) return
+                            setHelpfulClicked(prev => ({ ...prev, [review.id]: true }))
+                            // optimistic UI update
+                            setPageData(prev => ({
+                              ...prev,
+                              reviews: prev.reviews.map(r => r.id === review.id ? { ...r, helpful: (r.helpful || 0) + 1 } : r)
+                            }))
+                            try {
+                              await fetch(`/api/reviews?id=${encodeURIComponent(review.id)}&action=helpful`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' }
+                              })
+                            } catch {}
+                          }}
+                          className={`flex items-center transition-colors text-sm ${helpfulClicked[review.id] ? 'text-green-600 cursor-default' : 'text-gray-500 hover:text-blue-600'}`}
+                          aria-pressed={!!helpfulClicked[review.id]}
+                        >
                           👍 Pomocna ({review.helpful})
                         </button>
                       </div>
@@ -2483,7 +2505,7 @@ export default function HomePage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Typ projektu
                 </label>
-                <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <select className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 bg-white text-gray-900">
                   <option>Garaż</option>
                   <option>Taras/balkon</option>
                   <option>Salon/sypialnia</option>
@@ -2502,6 +2524,28 @@ export default function HomePage() {
                   placeholder="Opisz swój projekt, wymiary, oczekiwania..."
                   required
                 />
+              </div>
+              {/* Consents */}
+              <div className="md:col-span-2 space-y-3">
+                <label className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="mt-1 w-4 h-4 text-blue-600"
+                  />
+                  <span className="text-sm text-gray-700">
+                    Wyrażam zgodę na kontakt telefoniczny w celu realizacji zapytania.
+                  </span>
+                </label>
+
+                <label className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="mt-1 w-4 h-4 text-blue-600"
+                  />
+                  <span className="text-sm text-gray-700">
+                    Wyrażam zgodę na otrzymywanie informacji handlowych i materiałów marketingowych (opcjonalnie).
+                  </span>
+                </label>
               </div>
               <div className="md:col-span-2">
                 <button

@@ -37,7 +37,7 @@ export async function GET() {
       comment: review.review_text,
       date: review.created_at,
       service: review.project_type,
-      verified: true,
+      verified: false,
       helpful: review.helpful || 0,
       project: review.project_location || 'Projekt'
     })) || []

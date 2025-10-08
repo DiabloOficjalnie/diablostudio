@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import MainLayout from '../components/MainLayout'
+import ReviewForm from '../components/ReviewForm'
 
 interface Review {
   id: string
@@ -67,6 +68,36 @@ export default function ReviewsPage() {
     setLoading(false)
   }
 
+  const handleReviewSubmit = async (reviewData: any) => {
+    try {
+      const res = await fetch('/api/reviews/public', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: reviewData.firstName,
+          lastName: reviewData.lastName,
+          email: reviewData.email,
+          projectDate: reviewData.projectDate,
+          projectType: reviewData.projectType,
+          squareMeters: Number(reviewData.squareMeters),
+          rating: reviewData.rating,
+          reviewText: reviewData.reviewText
+        })
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || 'Błąd podczas zapisu opinii')
+      }
+      alert('Dziękujemy! Twoja opinia została zapisana i czeka na weryfikację.')
+      setShowReviewForm(false)
+      // Reload reviews to include any changes post-submission (after approval will appear)
+      loadReviews()
+    } catch (error) {
+      console.error('Error submitting review:', error)
+      alert('Wystąpił błąd podczas wysyłania opinii. Spróbuj ponownie.')
+    }
+  }
+
   // Transform database reviews to display format
   const displayReviews = reviews.map(review => ({
     id: review.id,
@@ -76,7 +107,6 @@ export default function ReviewsPage() {
     comment: review.reviewText,
     date: review.createdAt,
     service: review.projectType,
-    verified: true,
     helpful: review.helpful,
     project: review.projectLocation || 'Projekt'
   }))
@@ -143,7 +173,7 @@ export default function ReviewsPage() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 overflow-x-hidden">
         {/* Hero Section */}
         <section className="relative bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white py-20">
           <div className="absolute inset-0 bg-black bg-opacity-30"></div>
@@ -235,11 +265,6 @@ export default function ReviewsPage() {
                             <div>
                               <div className="flex items-center mb-2">
                                 <h3 className="font-bold text-xl text-gray-900 mr-3">{review.name}</h3>
-                                {review.verified && (
-                                  <span className="bg-green-100 text-green-800 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
-                                    ✓ Zweryfikowana
-                                  </span>
-                                )}
                               </div>
                               <p className="text-gray-600 text-sm mb-2">{review.company}</p>
                               <p className="text-gray-500 text-sm">{review.project} • {new Date(review.date).toLocaleDateString('pl-PL')}</p>
@@ -652,6 +677,11 @@ export default function ReviewsPage() {
           </div>
         )}
       </div>
+      <ReviewForm
+        isOpen={showReviewForm}
+        onClose={() => setShowReviewForm(false)}
+        onSubmit={handleReviewSubmit}
+      />
     </MainLayout>
   )
 }

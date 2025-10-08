@@ -1,167 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from '@/lib/env'
-import { createClient } from '@/lib/supabase'
+import { auth } from '@clerk/nextjs/server'
+import { createAdminClient } from '@/lib/supabase-server'
 
-interface PricingData {
-  id?: string
-  category: 'materials' | 'labor' | 'additional' | 'templates' | 'technical'
-  subcategory: string
-  name: string
-  cost_per_sqm?: number
-  cost_per_kg?: number
-  cost_per_liter?: number
-  cost_per_meter?: number
-  cost_per_day?: number
-  cost_per_person?: number
-  base_cost?: number
-  per_km?: number
-  description?: string
-  duration_days?: number
-  duration_hours?: number
-  critical?: boolean
-  is_active: boolean
-  created_at: string
-  updated_at: string
+type ContractorPricingPayload = {
+  pricing_data?: any
+  version?: number
+} | any
+
+// Helper: default empty structure if DB has no rows yet
+function emptyPricing() {
+  return {
+    material_costs: {},
+    labor_costs: {},
+    additional_costs: {},
+    schedule_templates: {},
+    technical_defaults: {
+      drying_time_hours: 24,
+      curing_time_hours: 72,
+      temperature_range: { min: 15, max: 25 },
+      humidity_max: 75,
+      warranty_years: 5
+    },
+    version: 1,
+    total_items: 0
+  }
 }
 
-// GET - Fetch contractor pricing data
-export async function GET(request: NextRequest) {
+// GET - Fetch latest contractor pricing data from JSONB table
+export async function GET(_request: NextRequest) {
   try {
-    const supabase = createClient(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+    const supabase = createAdminClient()
 
-    // First, check if pricing data exists in database
-    const { data: existingPricing, error } = await supabase
+    const { data, error } = await supabase
       .from('contractor_pricing')
-      .select('*')
-      .eq('is_active', true)
-      .order('category', { ascending: true })
-      .order('subcategory', { ascending: true })
+      .select('id, pricing_data, version, updated_at')
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
 
     if (error) {
       console.error('Error fetching contractor pricing:', error)
       return NextResponse.json({ error: 'Failed to fetch contractor pricing data' }, { status: 500 })
     }
 
-    let pricing = existingPricing || []
-
-    // If no pricing data exists, return empty structure - no mock data
-    if (pricing.length === 0) {
+    if (!data) {
+      // No rows yet -> return empty structure
       return NextResponse.json({
         success: true,
-        pricing_data: {
-          material_costs: {},
-          labor_costs: {},
-          additional_costs: {},
-          schedule_templates: {},
-          technical_defaults: {
-            drying_time_hours: 24,
-            curing_time_hours: 72,
-            temperature_range: { min: 15, max: 25 },
-            humidity_max: 75,
-            warranty_years: 5
-          },
-          version: 1,
-          total_items: 0
-        }
+        pricing_data: emptyPricing()
       })
     }
 
-    // Transform database format back to API format
-    const transformedPricing = pricing.map(item => ({
-      id: item.id,
-      category: item.category,
-      subcategory: item.subcategory,
-      name: item.name,
-      cost_per_sqm: item.cost_per_sqm || undefined,
-      cost_per_kg: item.cost_per_kg || undefined,
-      cost_per_liter: item.cost_per_liter || undefined,
-      cost_per_meter: item.cost_per_meter || undefined,
-      cost_per_day: item.cost_per_day || undefined,
-      cost_per_person: item.cost_per_person || undefined,
-      base_cost: item.base_cost || undefined,
-      per_km: item.per_km || undefined,
-      description: item.description || undefined,
-      duration_days: item.duration_days || undefined,
-      duration_hours: item.duration_hours || undefined,
-      critical: item.critical || undefined,
-      is_active: item.is_active,
-      created_at: item.created_at,
-      updated_at: item.updated_at
-    }))
-
-    // Organize data by categories
-    const materialCosts: any = {}
-    const laborCosts: any = {}
-    const additionalCosts: any = {}
-    const scheduleTemplates: any = {}
-
-    transformedPricing.forEach((item: any) => {
-      switch (item.category) {
-        case 'materials':
-          if (!materialCosts[item.subcategory]) {
-            materialCosts[item.subcategory] = {}
-          }
-          materialCosts[item.subcategory][item.name.toLowerCase().replace(/\s+/g, '_')] = {
-            cost_per_sqm: item.cost_per_sqm,
-            cost_per_kg: item.cost_per_kg,
-            cost_per_liter: item.cost_per_liter,
-            name: item.name,
-            description: item.description
-          }
-          break
-        case 'labor':
-          laborCosts[item.name.toLowerCase().replace(/\s+/g, '_')] = {
-            cost_per_sqm: item.cost_per_sqm,
-            name: item.name,
-            description: item.description
-          }
-          break
-        case 'additional':
-          additionalCosts[item.name.toLowerCase().replace(/\s+/g, '_')] = {
-            cost_per_kg: item.cost_per_kg,
-            cost_per_meter: item.cost_per_meter,
-            cost_per_day: item.cost_per_day,
-            cost_per_person: item.cost_per_person,
-            base_cost: item.base_cost,
-            per_km: item.per_km,
-            name: item.name,
-            description: item.description
-          }
-          break
-        case 'templates':
-          if (!scheduleTemplates[item.subcategory]) {
-            scheduleTemplates[item.subcategory] = { stages: {} }
-          }
-          scheduleTemplates[item.subcategory].stages[item.name.toLowerCase().replace(/\s+/g, '_')] = {
-            duration_days: item.duration_days,
-            duration_hours: item.duration_hours,
-            critical: item.critical
-          }
-          break
-      }
-    })
-
-    const pricingData = {
+    return NextResponse.json({
       success: true,
-      pricing_data: {
-        material_costs: materialCosts,
-        labor_costs: laborCosts,
-        additional_costs: additionalCosts,
-        schedule_templates: scheduleTemplates,
-        technical_defaults: {
-          drying_time_hours: 24,
-          curing_time_hours: 72,
-          temperature_range: { min: 15, max: 25 },
-          humidity_max: 75,
-          warranty_years: 5
-        },
-        version: 1,
-        total_items: transformedPricing.length
-      }
-    }
-
-    return NextResponse.json(pricingData)
-
+      pricing_data: data.pricing_data ?? emptyPricing(),
+      version: data.version ?? 1,
+      updated_at: data.updated_at
+    })
   } catch (error) {
     console.error('Error fetching contractor pricing:', error)
     return NextResponse.json(
@@ -171,22 +66,94 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Update contractor pricing data
+// Internal helper to require admin for write operations
+async function requireAdmin(supabase: ReturnType<typeof createAdminClient>) {
+  const { userId } = await auth()
+  if (!userId) {
+    return { ok: false, res: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) }
+  }
+
+  const { data: adminData, error: adminError } = await supabase
+    .from('admin_users')
+    .select('*')
+    .eq('id', userId)
+    .eq('is_active', true)
+    .maybeSingle()
+
+  if (adminError || !adminData) {
+    return { ok: false, res: NextResponse.json({ error: 'Admin access required' }, { status: 403 }) }
+  }
+
+  return { ok: true as const }
+}
+
+// POST - Create/update contractor pricing data (admin only)
 export async function POST(request: NextRequest) {
   try {
-    // For now, return success response
-    // In production, this would update the contractor_pricing table
-    const body = await request.json()
+    const supabase = createAdminClient()
+    const adminCheck = await requireAdmin(supabase)
+    if (!('ok' in adminCheck) || !adminCheck.ok) return adminCheck.res
 
-    const result = {
-      success: true,
-      message: 'Cennik wykonawcy został zaktualizowany',
-      pricing_data: body.pricing_data || body,
-      count: Array.isArray(body) ? body.length : 1
+    const body: ContractorPricingPayload = await request.json()
+    const pricingData = body.pricing_data ?? body
+
+    // Read latest row
+    const { data: existing, error: readError } = await supabase
+      .from('contractor_pricing')
+      .select('id, version')
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (readError) {
+      console.error('Read pricing error:', readError)
+      return NextResponse.json({ error: 'Failed to read current pricing' }, { status: 500 })
     }
 
-    return NextResponse.json(result)
+    // If exists -> update latest row with incremented version (or body.version if provided)
+    if (existing?.id) {
+      const nextVersion = typeof body.version === 'number' ? body.version : (existing.version ?? 1) + 1
+      const { data: updated, error: updateError } = await supabase
+        .from('contractor_pricing')
+        .update({ pricing_data: pricingData, version: nextVersion })
+        .eq('id', existing.id)
+        .select('id, version, updated_at')
+        .single()
 
+      if (updateError) {
+        console.error('Update pricing error:', updateError)
+        return NextResponse.json({ error: 'Failed to update pricing' }, { status: 500 })
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: 'Cennik wykonawcy został zaktualizowany',
+        pricing_data: pricingData,
+        version: updated.version,
+        updated_at: updated.updated_at
+      })
+    }
+
+    // No existing -> insert new row
+    const initialVersion = typeof body.version === 'number' ? body.version : 1
+    const { data: inserted, error: insertError } = await supabase
+      .from('contractor_pricing')
+      .insert({ pricing_data: pricingData, version: initialVersion })
+      .select('id, version, updated_at')
+      .single()
+
+    if (insertError) {
+      console.error('Insert pricing error:', insertError)
+      return NextResponse.json({ error: 'Failed to save pricing' }, { status: 500 })
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Cennik wykonawcy został zapisany',
+      pricing_data: pricingData,
+      version: inserted.version,
+      updated_at: inserted.updated_at
+    })
   } catch (error) {
     console.error('Error updating contractor pricing:', error)
     return NextResponse.json(
@@ -196,20 +163,72 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PUT - Update contractor pricing data (alternative method)
+// PUT - Update contractor pricing data (admin only)
 export async function PUT(request: NextRequest) {
   try {
-    const body = await request.json()
+    const supabase = createAdminClient()
+    const adminCheck = await requireAdmin(supabase)
+    if (!('ok' in adminCheck) || !adminCheck.ok) return adminCheck.res
 
-    const result = {
-      success: true,
-      message: 'Cennik wykonawcy został zaktualizowany',
-      pricing_data: body.pricing_data || body,
-      count: 1
+    const body: ContractorPricingPayload = await request.json()
+    const pricingData = body.pricing_data ?? body
+
+    // Same semantics as POST
+    const { data: existing, error: readError } = await supabase
+      .from('contractor_pricing')
+      .select('id, version')
+      .order('updated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (readError) {
+      console.error('Read pricing error:', readError)
+      return NextResponse.json({ error: 'Failed to read current pricing' }, { status: 500 })
     }
 
-    return NextResponse.json(result)
+    if (existing?.id) {
+      const nextVersion = typeof body.version === 'number' ? body.version : (existing.version ?? 1) + 1
+      const { data: updated, error: updateError } = await supabase
+        .from('contractor_pricing')
+        .update({ pricing_data: pricingData, version: nextVersion })
+        .eq('id', existing.id)
+        .select('id, version, updated_at')
+        .single()
 
+      if (updateError) {
+        console.error('Update pricing error:', updateError)
+        return NextResponse.json({ error: 'Failed to update pricing' }, { status: 500 })
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: 'Cennik wykonawcy został zaktualizowany',
+        pricing_data: pricingData,
+        version: updated.version,
+        updated_at: updated.updated_at
+      })
+    }
+
+    // No existing -> insert new
+    const initialVersion = typeof body.version === 'number' ? body.version : 1
+    const { data: inserted, error: insertError } = await supabase
+      .from('contractor_pricing')
+      .insert({ pricing_data: pricingData, version: initialVersion })
+      .select('id, version, updated_at')
+      .single()
+
+    if (insertError) {
+      console.error('Insert pricing error:', insertError)
+      return NextResponse.json({ error: 'Failed to save pricing' }, { status: 500 })
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Cennik wykonawcy został zapisany',
+      pricing_data: pricingData,
+      version: inserted.version,
+      updated_at: inserted.updated_at
+    })
   } catch (error) {
     console.error('Error updating contractor pricing:', error)
     return NextResponse.json(
