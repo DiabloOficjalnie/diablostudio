@@ -3,14 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
-import { currentUser } from '@clerk/nextjs/server'
-import { createClient } from '@supabase/supabase-js'
-import { redirect } from 'next/navigation'
-
-// Initialize Supabase client for data operations (not authentication)
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-const supabase = createClient(supabaseUrl, supabaseAnonKey)
+import { createClient } from '@/lib/supabase'
 
 // Error Boundary Component
 class DashboardErrorBoundary extends React.Component<
@@ -110,6 +103,7 @@ export default async function ClientDashboard() {
   if (!user) return <div>Nie jesteś zalogowany</div>;
 
   // teraz możesz bezpiecznie używać user.id
+  const supabase = createClient()
   const { data: profileData, error } = await supabase
     .from('client_profiles')
     .select('*')
@@ -120,8 +114,8 @@ export default async function ClientDashboard() {
 }
 
 function ClientDashboardContent() {
-
-  const { user: existingUser, isLoaded } = useUser()
+  const { user, isLoaded } = useUser()
+  const supabase = createClient()
   const [profile, setProfile] = useState<any>(null)
   const [quotes, setQuotes] = useState<ClientQuote[]>([])
   const [consultations, setConsultations] = useState<ConsultationRequest[]>([])
@@ -1553,7 +1547,7 @@ function ClientDashboardContent() {
       const url = URL.createObjectURL(dataBlob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `dane-konta-${user.primaryEmailAddress?.emailAddress || user.emailAddresses?.[0]?.emailAddress || 'user'}-${new Date().toISOString().split('T')[0]}.json`
+      link.download = `dane-konta-${user?.primaryEmailAddress?.emailAddress || user?.emailAddresses?.[0]?.emailAddress || 'user'}-${new Date().toISOString().split('T')[0]}.json`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
