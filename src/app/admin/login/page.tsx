@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@/lib/supabase'
+import { useSignIn } from '@clerk/nextjs'
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('m.mejza@proton.me')
@@ -12,6 +13,7 @@ export default function AdminLoginPage() {
   const [debugInfo, setDebugInfo] = useState('')
   const router = useRouter()
   const supabase = createClientComponentClient()
+  const { isLoaded, signIn, setActive } = useSignIn()
 
   // Debug function to test database connection
   const testDatabaseConnection = async () => {
@@ -52,93 +54,35 @@ export default function AdminLoginPage() {
     setError('')
 
     try {
-      console.log('Attempting login with:', email)
-
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-
-      if (error) {
-        console.error('Auth error:', error)
-        throw error
+      if (!isLoaded) {
+        throw new Error('Usługa logowania nie jest gotowa. Spróbuj ponownie za chwilę.')
       }
 
-      console.log('Auth successful, user ID:', data.user.id)
+      // Clerk password auth
+      const result = await signIn.create({
+        identifier: email,
+        password
+      })
 
-      // DEVELOPMENT BYPASS: Allow specific admin email to access admin panel
-      if (data.user.email === 'm.mejza@proton.me') {
-        console.log('Development bypass: Allowing admin access for m.mejza@proton.me')
-        // Set admin session flag in localStorage
-        localStorage.setItem('admin_session', 'true')
-        localStorage.setItem('admin_user_id', data.user.id)
-        localStorage.setItem('admin_user_email', data.user.email)
+      if (result.status === 'complete') {
+        // Activate Clerk session
+        await setActive({ session: result.createdSessionId })
+
+        // Optional: development/local flags used elsewhere in app
+        try {
+          localStorage.setItem('admin_session', 'true')
+          localStorage.setItem('admin_user_email', email)
+        } catch {}
+
         router.push('/admin/dashboard')
         return
       }
 
-      // Check if user is admin
-      console.log('Checking admin permissions for user:', data.user.id)
-
-      try {
-        // Check if user exists in admin_users table
-        const { data: adminCheck, error: adminCheckError } = await supabase
-          .from('admin_users')
-          .select('id, email, is_active')
-          .eq('id', data.user.id)
-          .single()
-
-        console.log('Admin check result:', { adminCheck, adminCheckError })
-
-        if (adminCheckError && adminCheckError.code !== 'PGRST116') {
-          console.error('Admin table error:', adminCheckError)
-          // If it's a policy error, try to create the admin record anyway
-          if (adminCheckError.message.includes('infinite recursion') || adminCheckError.message.includes('policy')) {
-            console.log('Policy error detected, creating admin record...')
-            const { error: insertError } = await supabase
-              .from('admin_users')
-              .insert({
-                id: data.user.id,
-                email: data.user.email,
-                is_active: true
-              })
-
-            if (insertError) {
-              console.error('Failed to create admin record:', insertError)
-              // Don't throw error, just log it and continue to bypass
-              console.log('Continuing with development bypass...')
-            }
-          } else {
-            throw adminCheckError
-          }
-        }
-
-        // If no admin record found, create one (for development)
-        if (!adminCheck) {
-          console.log('No admin record found, creating one...')
-          const { error: insertError } = await supabase
-            .from('admin_users')
-            .insert({
-              id: data.user.id,
-              email: data.user.email,
-              is_active: true
-            })
-
-          if (insertError) {
-            console.error('Failed to create admin record:', insertError)
-            // Don't throw error, just log it and continue to bypass
-            console.log('Continuing with development bypass...')
-          }
-        }
-      } catch (policyError) {
-        console.error('Policy error, but continuing with development bypass:', policyError)
-      }
-
-      console.log('Admin login successful, redirecting to dashboard')
-      router.push('/admin/dashboard')
-    } catch (error: any) {
-      console.error('Login error:', error)
-      setError(error.message || 'Wystąpił błąd podczas logowania')
+      // If not complete, show generic error
+      setError('Nie udało się zakończyć logowania. Spróbuj ponownie.')
+    } catch (err: any) {
+      console.error('Login error:', err)
+      setError(err?.errors?.[0]?.message || err?.message || 'Wystąpił błąd podczas logowania')
     } finally {
       setLoading(false)
     }

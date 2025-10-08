@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { auth } from '@clerk/nextjs/server'
+import { createAdminClient } from '@/lib/supabase-server'
 
 // Get environment variables directly to avoid build-time validation issues
 const NEXT_PUBLIC_SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
@@ -22,7 +23,11 @@ interface Client {
 // GET - Retrieve clients with filtering
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    const supabase = createAdminClient()
     const { searchParams } = new URL(request.url)
 
     // Get query parameters
@@ -122,7 +127,11 @@ export async function GET(request: NextRequest) {
 // POST - Create new client
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    const supabase = createAdminClient()
     const clientData = await request.json()
 
     // Validate client data
@@ -184,7 +193,11 @@ export async function POST(request: NextRequest) {
 // PUT - Update client details or status
 export async function PUT(request: NextRequest) {
   try {
-    const supabase = createClient(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    const supabase = createAdminClient()
     const { searchParams } = new URL(request.url)
     const action = searchParams.get('action')
     const updateData = await request.json()
@@ -262,7 +275,11 @@ export async function PUT(request: NextRequest) {
 // DELETE - Delete client
 export async function DELETE(request: NextRequest) {
   try {
-    const supabase = createClient(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+    const supabase = createAdminClient()
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
 

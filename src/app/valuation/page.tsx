@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
-import { createClientComponentClient } from '@/lib/supabase'
+import { useUser } from '@clerk/nextjs'
 import { CONTENT, getDecorativeOption, getFloorSystemData } from '@/lib/content'
 import generateQuotePDF from '@/lib/pdfGenerator'
 import MainLayout from '../components/MainLayout'
@@ -269,6 +269,7 @@ interface DecorativeOption {
 }
 
 export default function ValuationPage() {
+  const { user } = useUser()
   // Initialize state with consistent values for SSR
   const [priceRange, setPriceRange] = useState<PriceRange | null>(null)
   const [showContactForm, setShowContactForm] = useState(false)
@@ -336,7 +337,6 @@ export default function ValuationPage() {
     }
   }
 
-  const supabase = createClientComponentClient()
 
   // Load pricing data from database
   useEffect(() => {
@@ -697,8 +697,8 @@ export default function ValuationPage() {
         return
       }
 
-      // Check if user is logged in
-      const { data: { user } } = await supabase.auth.getUser()
+      // Check if user is logged in (Clerk)
+      // Using Clerk user from useUser()
 
       if (user) {
         // User is logged in - save to client account

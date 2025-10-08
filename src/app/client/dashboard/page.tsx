@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useUser } from '@clerk/nextjs'
+import { useUser, useAuth, useClerk } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase'
+import { createClientComponentClient } from '@/lib/supabase'
 
 // Error Boundary Component
 class DashboardErrorBoundary extends React.Component<
@@ -103,7 +103,7 @@ export default async function ClientDashboard() {
   if (!user) return <div>Nie jesteś zalogowany</div>;
 
   // teraz możesz bezpiecznie używać user.id
-  const supabase = createClient()
+  const supabase = createClientComponentClient()
   const { data: profileData, error } = await supabase
     .from('client_profiles')
     .select('*')
@@ -115,7 +115,9 @@ export default async function ClientDashboard() {
 
 function ClientDashboardContent() {
   const { user, isLoaded } = useUser()
-  const supabase = createClient()
+  const supabase = createClientComponentClient()
+  const { getToken } = useAuth()
+  const { signOut } = useClerk()
   const [profile, setProfile] = useState<any>(null)
   const [quotes, setQuotes] = useState<ClientQuote[]>([])
   const [consultations, setConsultations] = useState<ConsultationRequest[]>([])
@@ -771,10 +773,6 @@ function ClientDashboardContent() {
 
   const router = useRouter()
 
-  // Initialize Supabase client for data operations (not authentication)
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
   useEffect(() => {
     checkUser()
@@ -795,16 +793,16 @@ function ClientDashboardContent() {
   // Load consultations using API endpoint with fallback
   const loadConsultationsFromAPI = async () => {
     try {
-      const { data: { session } } = await supabase.auth.getSession()
+      const token = await getToken()
 
-      if (!session?.access_token) {
+      if (!token) {
         console.error('No session found')
         return
       }
 
       const response = await fetch('/api/client/consultations', {
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       })
@@ -853,16 +851,16 @@ function ClientDashboardContent() {
 
   const checkAvailableSlots = async (date: string) => {
     try {
-      const { data: { session } } = await supabase.auth.getSession()
+      const token = await getToken()
 
-      if (!session?.access_token) {
+      if (!token) {
         console.error('No session found')
         return
       }
 
       const response = await fetch(`/api/client/consultations?date=${date}`, {
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       })
@@ -932,24 +930,6 @@ function ClientDashboardContent() {
     setLoading(false)
   }
 
-  // Auto-logout when leaving the page
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      supabase.auth.signOut()
-    }
-
-    const handleUnload = () => {
-      // Additional cleanup if needed
-    }
-
-    window.addEventListener('beforeunload', handleBeforeUnload)
-    window.addEventListener('unload', handleUnload)
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload)
-      window.removeEventListener('unload', handleUnload)
-    }
-  }, [])
 
   const loadQuotes = async () => {
     if (!user || !user.id) return
@@ -1036,7 +1016,7 @@ function ClientDashboardContent() {
   // Logout function
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut()
+      await signOut()
       router.push('/')
     } catch (error) {
       console.error('Error during logout:', error)
@@ -1076,9 +1056,9 @@ function ClientDashboardContent() {
       button.disabled = true
 
       // Get session token for API call
-      const { data: { session } } = await supabase.auth.getSession()
+      const token = await getToken()
 
-      if (!session?.access_token) {
+      if (!token) {
         alert('Sesja wygasła. Zaloguj się ponownie.')
         return
       }
@@ -1097,7 +1077,7 @@ function ClientDashboardContent() {
       const response = await fetch('/api/client/consultations', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${session.access_token}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(requestData)
@@ -1169,12 +1149,12 @@ function ClientDashboardContent() {
       return
     }
 
-    setIsLoadingTwoFactor(true)
+    alert('Skonfiguruj 2FA w profilu konta (Clerk).'); setShowTwoFactorModal(false); return
+    alert('Zweryfikuj 2FA w profilu konta (Clerk).'); setShowTwoFactorModal(false); return
     try {
       // Send verification code to phone number
-      const { error } = await supabase.auth.updateUser({
-        phone: twoFactorForm.phone
-      })
+      // Clerk handles 2FA; removed Supabase Auth call
+      const error = null as any
 
       if (error) {
         console.error('Error setting up 2FA:', error)
@@ -1201,11 +1181,8 @@ function ClientDashboardContent() {
     setIsLoadingTwoFactor(true)
     try {
       // Verify the code and enable 2FA
-      const { data, error } = await supabase.auth.verifyOtp({
-        phone: twoFactorForm.phone,
-        token: twoFactorForm.verificationCode,
-        type: 'sms'
-      })
+      // Clerk handles 2FA verification; removed Supabase Auth call
+      const data = null as any, error = null as any
 
       if (error) {
         console.error('Error verifying 2FA code:', error)
@@ -1306,7 +1283,7 @@ function ClientDashboardContent() {
       return
     }
 
-    setIsLoadingPassword(true)
+    alert('Zarządzaj hasłem w profilu konta (Clerk).'); setShowPasswordModal(false); return
 
     try {
       // First verify the current password by attempting to sign in
@@ -1323,10 +1300,8 @@ function ClientDashboardContent() {
       }
 
       // Try to sign in with current password to verify it
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: primaryEmail,
-        password: passwordForm.currentPassword
-      })
+      // Clerk handles password auth; removed Supabase Auth call
+      const signInError = null as any
 
       if (signInError) {
         alert('Obecne hasło jest nieprawidłowe')
@@ -1334,9 +1309,8 @@ function ClientDashboardContent() {
       }
 
       // If current password is correct, update to new password
-      const { error: updateError } = await supabase.auth.updateUser({
-        password: passwordForm.newPassword
-      })
+      // Clerk handles password updates; removed Supabase Auth call
+      const updateError = null as any
 
       if (updateError) {
         console.error('Error changing password:', updateError)
@@ -1372,12 +1346,11 @@ function ClientDashboardContent() {
       return
     }
 
-    setIsLoadingEmail(true)
+    alert('Zarządzaj adresem e-mail w profilu konta (Clerk).'); setShowEmailModal(false); return
 
     try {
-      const { error } = await supabase.auth.updateUser({
-        email: emailForm.newEmail
-      })
+      // Clerk handles email updates; removed Supabase Auth call
+      const error = null as any
 
       if (error) {
         console.error('Error changing email:', error)
@@ -1510,28 +1483,28 @@ function ClientDashboardContent() {
 
   // Download account data
   const handleDownloadData = async () => {
+    if (!user?.id) {
+      alert('Błąd użytkownika')
+      return
+    }
+    const userId = user.id
     try {
       // Get all client data
       const { data: profileData } = await supabase
         .from('client_profiles')
         .select('*')
-        .eq('id', user.id)
+        .eq('id', userId)
         .single()
 
       const { data: quotesData } = await supabase
         .from('client_quotes')
         .select('*')
-        .eq('client_id', user.id)
+        .eq('client_id', userId)
 
       const { data: consultationsData } = await supabase
         .from('consultation_requests')
         .select('*')
-        .eq('client_id', user.id)
-
-      if (!user?.id) {
-        alert('Błąd użytkownika')
-        return
-      }
+        .eq('client_id', userId)
 
       const accountData = {
         profile: profileData,
@@ -1578,13 +1551,15 @@ function ClientDashboardContent() {
         return
       }
 
+      const userId = user.id
+
       // Delete all client data
-      await supabase.from('client_quotes').delete().eq('client_id', user!.id)
-      await supabase.from('consultation_requests').delete().eq('client_id', user!.id)
-      await supabase.from('client_profiles').delete().eq('id', user!.id)
+      await supabase.from('client_quotes').delete().eq('client_id', userId)
+      await supabase.from('consultation_requests').delete().eq('client_id', userId)
+      await supabase.from('client_profiles').delete().eq('id', userId)
 
       // Sign out and redirect
-      await supabase.auth.signOut()
+      await signOut()
       router.push('/')
 
       alert('Konto zostało usunięte')

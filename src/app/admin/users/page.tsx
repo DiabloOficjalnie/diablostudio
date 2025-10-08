@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClientComponentClient } from '@/lib/supabase'
 import AdminLayout from '../components/AdminLayout'
 
 interface User {
@@ -35,7 +34,6 @@ export default function UsersPage() {
   const [creating, setCreating] = useState(false)
   const [editing, setEditing] = useState(false)
   const router = useRouter()
-  const supabase = createClientComponentClient()
 
   useEffect(() => {
     loadUsers()
@@ -45,31 +43,14 @@ export default function UsersPage() {
     try {
       setLoading(true)
 
-      // Load users from Supabase Auth
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers()
-
-      if (authError) {
-        console.error('Error loading users:', authError)
-        // Fallback to mock data if auth fails
+      const res = await fetch('/api/admin/users')
+      if (!res.ok) {
+        console.error('Error loading users:', await res.text())
+        // Fallback to mock data if API fails
         setUsers(generateMockUsers())
       } else {
-        // Transform auth users to our interface
-        const transformedUsers: User[] = (authUsers.users || []).map(user => ({
-          id: user.id,
-          email: user.email || '',
-          name: user.user_metadata?.name || user.user_metadata?.full_name,
-          role: user.user_metadata?.role || 'user',
-          status: user.email_confirmed_at ? 'active' : 'inactive',
-          created_at: user.created_at,
-          last_login: user.last_sign_in_at || undefined,
-          profile: {
-            first_name: user.user_metadata?.first_name,
-            last_name: user.user_metadata?.last_name,
-            phone: user.user_metadata?.phone,
-            avatar_url: user.user_metadata?.avatar_url
-          }
-        }))
-        setUsers(transformedUsers)
+        const { users } = await res.json()
+        setUsers(users || [])
       }
     } catch (error) {
       console.error('Error in loadUsers:', error)

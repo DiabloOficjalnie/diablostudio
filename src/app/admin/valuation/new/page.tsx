@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useUser } from '@clerk/nextjs'
 import { createClientComponentClient } from '@/lib/supabase'
 
 const valuationSchema = z.object({
@@ -59,6 +60,7 @@ function NewValuationPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClientComponentClient()
+  const { user } = useUser()
 
   const {
     register,
@@ -226,7 +228,7 @@ function NewValuationPageContent() {
           tools_cost: data.tools_cost,
           discount_percentage: data.discount_percentage,
           ...costs,
-          created_by: (await supabase.auth.getUser()).data.user?.id
+          created_by: user?.id
         })
         .select()
         .single()

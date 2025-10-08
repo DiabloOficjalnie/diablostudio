@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
+import { useUser, useClerk } from '@clerk/nextjs'
 import { createClientComponentClient } from '@/lib/supabase'
 
 interface AdminLayoutProps {
@@ -76,6 +77,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter()
   const pathname = usePathname()
   const supabase = createClientComponentClient()
+  const { user: clerkUser } = useUser()
+  const { signOut } = useClerk()
 
   useEffect(() => {
     checkAuth()
@@ -125,37 +128,37 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const checkAuth = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        console.log('No user found, redirecting to login')
+      const email = clerkUser?.primaryEmailAddress?.emailAddress
+      if (!clerkUser || !email) {
+        console.log('No Clerk user, redirecting to login')
         router.push('/admin/login')
         return
       }
 
-      console.log('User found:', user.email)
+      console.log('User found:', email)
 
       // DEVELOPMENT BYPASS: Allow specific admin email to access admin panel
-      if (user.email === 'm.mejza@proton.me') {
-        console.log('✅ Development bypass: Allowing admin access for m.mejza@proton.me')
-        setUser(user)
+      if (email === 'm.mejza@proton.me') {
+        console.log('✅ Development bypass: Allowing admin access for', email)
+        setUser({ email })
         setLoading(false)
         return
       }
 
       // CHECK LOCALSTORAGE FLAG: If admin session is set, allow access
-      const adminSession = localStorage.getItem('admin_session')
-      const adminUserEmail = localStorage.getItem('admin_user_email')
+      const adminSession = typeof window !== 'undefined' ? localStorage.getItem('admin_session') : null
+      const adminUserEmail = typeof window !== 'undefined' ? localStorage.getItem('admin_user_email') : null
 
-      if (adminSession === 'true' && adminUserEmail === user.email) {
+      if (adminSession === 'true' && adminUserEmail === email) {
         console.log('✅ Admin session flag found, allowing access')
-        setUser(user)
+        setUser({ email })
         setLoading(false)
         return
       }
 
       // SKIP DATABASE CHECK: Rely entirely on bypass mechanisms to avoid RLS issues
       console.log('✅ Skipping database admin check to avoid RLS policy issues')
-      setUser(user)
+      setUser({ email })
       setLoading(false)
     } catch (error) {
       console.error('Auth check error:', error)
@@ -166,7 +169,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
+    await signOut()
     router.push('/admin/login')
   }
 

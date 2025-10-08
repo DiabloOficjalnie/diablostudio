@@ -1,166 +1,96 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from '@/lib/env'
-import { createClient } from '@supabase/supabase-js'
+import { NextResponse } from 'next/server';
+import { auth, clerkClient } from '@clerk/nextjs/server';
+import { createAdminClient } from '@/lib/supabase-server';
 
-// GET - Retrieve users with filtering and pagination
-export async function GET(request: NextRequest) {
-  try {
-    const supabase = createClient(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-    const { searchParams } = new URL(request.url)
-
-    // Get query parameters
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '20')
-    const search = searchParams.get('search') || ''
-    const role = searchParams.get('role') || 'all'
-    const status = searchParams.get('status') || 'all'
-
-    const offset = (page - 1) * limit
-
-    // For now, return mock data since Supabase Auth admin functions
-    // require special configuration in production
-    const mockUsers = [
-      {
-        id: '1',
-        email: 'admin@diablostudio.pl',
-        name: 'Administrator',
-        role: 'admin',
-        status: 'active',
-        created_at: '2024-01-01T00:00:00Z',
-        last_login: '2024-01-20T10:30:00Z',
-        profile: {
-          first_name: 'Admin',
-          last_name: 'DiabloStudio',
-          phone: '+48 123 456 789'
-        }
-      },
-      {
-        id: '2',
-        email: 'moderator@diablostudio.pl',
-        name: 'Moderator Systemu',
-        role: 'moderator',
-        status: 'active',
-        created_at: '2024-01-05T09:00:00Z',
-        last_login: '2024-01-19T15:45:00Z',
-        profile: {
-          first_name: 'Moderator',
-          last_name: 'User',
-          phone: '+48 987 654 321'
-        }
-      },
-      {
-        id: '3',
-        email: 'editor@diablostudio.pl',
-        name: 'Edytor Treści',
-        role: 'editor',
-        status: 'active',
-        created_at: '2024-01-10T14:20:00Z',
-        last_login: '2024-01-18T11:20:00Z',
-        profile: {
-          first_name: 'Editor',
-          last_name: 'Content',
-          phone: '+48 555 123 456'
-        }
-      },
-      {
-        id: '4',
-        email: 'user@diablostudio.pl',
-        name: 'Zwykły Użytkownik',
-        role: 'user',
-        status: 'inactive',
-        created_at: '2024-01-15T16:30:00Z',
-        profile: {
-          first_name: 'User',
-          last_name: 'Test',
-          phone: '+48 444 789 012'
-        }
-      }
-    ]
-
-    // Apply filters
-    let filteredUsers = mockUsers
-
-    if (search) {
-      filteredUsers = filteredUsers.filter(user =>
-        user.email.toLowerCase().includes(search.toLowerCase()) ||
-        user.name?.toLowerCase().includes(search.toLowerCase()) ||
-        user.profile?.first_name?.toLowerCase().includes(search.toLowerCase()) ||
-        user.profile?.last_name?.toLowerCase().includes(search.toLowerCase())
-      )
-    }
-
-    if (role !== 'all') {
-      filteredUsers = filteredUsers.filter(user => user.role === role)
-    }
-
-    if (status !== 'all') {
-      filteredUsers = filteredUsers.filter(user => user.status === status)
-    }
-
-    // Apply pagination
-    const totalUsers = filteredUsers.length
-    const paginatedUsers = filteredUsers.slice(offset, offset + limit)
-
-    return NextResponse.json({
-      users: paginatedUsers,
-      pagination: {
-        page,
-        limit,
-        total: totalUsers,
-        pages: Math.ceil(totalUsers / limit)
-      }
-    })
-
-  } catch (error) {
-    console.error('Error fetching users:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch users' },
-      { status: 500 }
-    )
-  }
+// Shape expected by the Admin UI
+interface AdminUser {
+  id: string;
+  email: string;
+  name?: string;
+  role: 'admin' | 'moderator' | 'editor' | 'user';
+  status: 'active' | 'inactive' | 'blocked';
+  created_at: string;
+  last_login?: string;
+  permissions?: string[];
+  profile?: {
+    first_name?: string;
+    last_name?: string;
+    phone?: string;
+    avatar_url?: string;
+  };
 }
 
-// POST - Create new user
-export async function POST(request: NextRequest) {
+export async function GET() {
   try {
-    const supabase = createClient(NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-    const userData = await request.json()
-
-    // Validate required fields
-    if (!userData.email || !userData.password || !userData.first_name || !userData.last_name) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      )
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // For now, return success with mock data
-    // In production, this would create user in Supabase Auth
-    const newUser = {
-      id: Date.now().toString(),
-      email: userData.email,
-      name: `${userData.first_name} ${userData.last_name}`,
-      role: userData.role || 'user',
-      status: userData.status || 'active',
-      created_at: new Date().toISOString(),
-      profile: {
-        first_name: userData.first_name,
-        last_name: userData.last_name,
-        phone: userData.phone || ''
+    // Optional: verify current user is admin using your existing admin_users table
+    try {
+      const supabase = createAdminClient();
+      const { data: adminData, error: adminError } = await supabase
+        .from('admin_users')
+        .select('*')
+        .eq('id', userId)
+        .eq('is_active', true)
+        .single();
+
+      if (adminError || !adminData) {
+        return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
       }
+    } catch (e) {
+      // If admin table not set up, fail closed here or allow based on your policy
+      // For safety, fail closed:
+      return NextResponse.json({ error: 'Admin verification failed' }, { status: 403 });
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'User created successfully',
-      user: newUser
-    })
+    // List users from Clerk
+    const list = await clerkClient.users.getUserList({ limit: 200 });
 
+    const users: AdminUser[] = (list?.data || []).map((u) => {
+      const primaryEmail = u.emailAddresses?.[0]?.emailAddress || '';
+      const firstName = u.firstName || (u.publicMetadata?.first_name as string | undefined);
+      const lastName = u.lastName || (u.publicMetadata?.last_name as string | undefined);
+      const phone = u.phoneNumbers?.[0]?.phoneNumber || (u.publicMetadata?.phone as string | undefined);
+      const avatarUrl =
+        (typeof u.imageUrl === 'string' ? u.imageUrl : undefined) ||
+        (u.profileImageUrl as string | undefined);
+
+      // Role from publicMetadata.role if present, otherwise 'user'
+      const role =
+        (u.publicMetadata?.role as AdminUser['role'] | undefined) || 'user';
+
+      // Status heuristic
+      // Clerk doesn't expose 'blocked' directly here; adapt as needed if you use bans/suspensions
+      const status: AdminUser['status'] = u.emailAddresses?.some((e) => e.verification?.status === 'verified')
+        ? 'active'
+        : 'inactive';
+
+      return {
+        id: u.id,
+        email: primaryEmail,
+        name: u.username || [firstName, lastName].filter(Boolean).join(' ') || primaryEmail,
+        role,
+        status,
+        created_at: new Date(u.createdAt).toISOString(),
+        last_login: u.lastSignInAt ? new Date(u.lastSignInAt).toISOString() : undefined,
+        permissions: Array.isArray(u.publicMetadata?.permissions)
+          ? (u.publicMetadata.permissions as string[])
+          : undefined,
+        profile: {
+          first_name: firstName,
+          last_name: lastName,
+          phone,
+          avatar_url: avatarUrl,
+        },
+      };
+    });
+
+    return NextResponse.json({ users });
   } catch (error) {
-    console.error('Error creating user:', error)
-    return NextResponse.json(
-      { error: 'Failed to create user' },
-      { status: 500 }
-    )
+    console.error('Error listing admin users:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

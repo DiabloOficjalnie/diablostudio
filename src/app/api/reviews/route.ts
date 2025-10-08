@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClientComponentClient } from '@/lib/supabase'
+import { auth } from '@clerk/nextjs/server'
+import { createAdminClient } from '@/lib/supabase-server'
 
 interface Review {
   id?: string
@@ -19,7 +20,7 @@ interface Review {
 // GET - Retrieve reviews from database
 export async function GET() {
   try {
-    const supabase = createClientComponentClient()
+    const supabase = createAdminClient()
 
     const { data: reviews, error } = await supabase
       .from('reviews')
@@ -64,7 +65,14 @@ export async function GET() {
 // POST - Save reviews to database
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClientComponentClient()
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+    const supabase = createAdminClient()
     const reviews: Review[] = await request.json()
 
     // Validate the reviews data
@@ -76,20 +84,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user is authenticated (admin)
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
-    }
+    // Clerk authentication is handled above via userId
 
     // Verify user is admin
     const { data: adminData, error: adminError } = await supabase
       .from('admin_users')
       .select('*')
-      .eq('id', user.id)
+      .eq('id', userId)
       .eq('is_active', true)
       .single()
 
