@@ -1,5 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase'
 
 // 🔒 Ścieżki chronione (wymagają logowania)
 const isProtectedRoute = createRouteMatcher([

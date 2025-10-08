@@ -247,7 +247,7 @@ export default function ClientDashboard() {
 
   // Load user progress from database
   const loadUserProgress = async () => {
-    if (!user || !user.id) return
+    if (!user?.id) return
 
     try {
       const { data, error } = await supabase
@@ -302,7 +302,7 @@ export default function ClientDashboard() {
 
   // Save user progress to database
   const saveUserProgress = async (guideId: string, step: number, completed: boolean = false, quizResults: any = {}) => {
-    if (!user) return
+    if (!user?.id) return
 
     try {
       const { error } = await supabase
@@ -315,6 +315,14 @@ export default function ClientDashboard() {
           quiz_results: quizResults,
           updated_at: new Date().toISOString()
         })
+
+      if (error) {
+        console.error('Error saving user progress:', error)
+        return
+      }
+    } catch (error) {
+      console.error('Error saving user progress:', error)
+    }
 
       if (error) {
         console.error('Error saving user progress:', error)
@@ -857,7 +865,7 @@ export default function ClientDashboard() {
 
   const checkUser = async () => {
     // Use Clerk's useUser hook instead of direct Supabase auth
-    if (!user || !user.id) {
+    if (!user?.id) {
       router.push('/login')
       return
     }
@@ -919,6 +927,11 @@ export default function ClientDashboard() {
   }
 
   const loadConsultations = async () => {
+    if (!user?.id) {
+      console.error('User not authenticated')
+      return
+    }
+
     try {
       // Load client consultations
       const { data: clientConsultations, error: clientError } = await supabase
@@ -1155,6 +1168,11 @@ export default function ClientDashboard() {
       }
 
       // Save 2FA status in client profile
+      if (!user?.id) {
+        alert('Błąd użytkownika')
+        return
+      }
+
       const { error: updateError } = await supabase
         .from('client_profiles')
         .update({
@@ -1162,6 +1180,12 @@ export default function ClientDashboard() {
           phone_verified: twoFactorForm.phone
         })
         .eq('id', user.id)
+
+      if (updateError) {
+        console.error('Error updating 2FA status:', updateError)
+        alert('Wystąpił błąd podczas zapisywania ustawień 2FA')
+        return
+      }
 
       if (updateError) {
         console.error('Error updating 2FA status:', updateError)

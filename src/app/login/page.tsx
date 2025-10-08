@@ -16,46 +16,65 @@ export default function LoginPage() {
   // Handle user redirection after authentication
   useEffect(() => {
     if (isLoaded && user) {
-      // Check if user has a client profile in Supabase
-      const checkAndCreateProfile = async () => {
+      // Check user type and redirect accordingly
+      const checkUserTypeAndRedirect = async () => {
         try {
-          const { data: profile, error: profileError } = await supabase
-            .from('client_profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single()
+          const email = user.primaryEmailAddress?.emailAddress || ''
 
-          if (profileError && profileError.code !== 'PGRST116') {
-            console.error('Profile check error:', profileError)
-          }
+          // Check if user is admin based on company email
+          const adminEmails = [
+            'admin@diablostudio.pl',
+            'administrator@diablostudio.pl',
+            'biuro@diablostudio.pl',
+            'kontakt@diablostudio.pl',
+            'office@diablostudio.pl'
+          ]
 
-          if (profile) {
-            router.push('/client/dashboard')
+          if (adminEmails.includes(email.toLowerCase())) {
+            // User is admin - redirect to admin panel
+            router.push('/admin')
           } else {
-            // Create profile from Clerk user data
-            const { error: createProfileError } = await supabase
+            // User is client - check/create profile and redirect to client dashboard
+            const { data: profile, error: profileError } = await supabase
               .from('client_profiles')
-              .insert({
-                id: user.id,
-                first_name: user.firstName || 'Unknown',
-                last_name: user.lastName || 'User',
-                email: user.primaryEmailAddress?.emailAddress || '',
-                phone: user.phoneNumbers[0]?.phoneNumber || null,
-                company: null
-              })
+              .select('*')
+              .eq('id', user.id)
+              .single()
 
-            if (createProfileError) {
-              console.error('Error creating profile:', createProfileError)
-            } else {
+            if (profileError && profileError.code !== 'PGRST116') {
+              console.error('Profile check error:', profileError)
+            }
+
+            if (profile) {
               router.push('/client/dashboard')
+            } else {
+              // Create profile from Clerk user data
+              const { error: createProfileError } = await supabase
+                .from('client_profiles')
+                .insert({
+                  id: user.id,
+                  first_name: user.firstName || 'Unknown',
+                  last_name: user.lastName || 'User',
+                  email: email,
+                  phone: user.phoneNumbers[0]?.phoneNumber || null,
+                  company: null
+                })
+
+              if (createProfileError) {
+                console.error('Error creating profile:', createProfileError)
+              } else {
+                router.push('/client/dashboard')
+              }
             }
           }
         } catch (error) {
-          console.error('Error in profile check:', error)
+          console.error('Error in user type check:', error)
+          // Default to client dashboard on error
+          router.push('/client/dashboard')
         }
       }
 
-      checkAndCreateProfile()
+      checkUserTypeAndRedirect()
     }
   }, [isLoaded, user, router, supabase])
 
