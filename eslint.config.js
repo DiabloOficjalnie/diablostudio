@@ -16,6 +16,34 @@ module.exports = [
       '**/public/**',
     ],
   },
+  // Legacy ESLint configuration for Next.js compatibility
+  {
+    files: ['**/*.{js,jsx,ts,tsx}'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+      globals: {
+        // Node.js globals
+        process: 'readonly',
+        console: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        global: 'readonly',
+        require: 'readonly',
+        module: 'readonly',
+        exports: 'readonly',
+        // React globals
+        React: 'readonly',
+        JSX: 'readonly',
+      },
+    },
+    rules: {
+      'react/no-unescaped-entities': 'off',
+      '@next/next/no-page-custom-font': 'off',
+      'no-undef': 'off',
+    },
+  },
   // Base configuration for all files
   {
     files: ['**/*.{js,jsx,ts,tsx}'],

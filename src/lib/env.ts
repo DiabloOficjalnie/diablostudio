@@ -21,18 +21,18 @@ interface EnvironmentVariables {
  */
 function validateEnvironmentVariables(): EnvironmentVariables {
   const env = {
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key',
   }
 
-  // Check for missing required variables
+  // Check for missing required variables (using placeholder values)
   const missing: string[] = []
 
-  if (!env.NEXT_PUBLIC_SUPABASE_URL) {
+  if (env.NEXT_PUBLIC_SUPABASE_URL === 'https://placeholder.supabase.co') {
     missing.push('NEXT_PUBLIC_SUPABASE_URL')
   }
 
-  if (!env.SUPABASE_SERVICE_ROLE_KEY) {
+  if (env.SUPABASE_SERVICE_ROLE_KEY === 'placeholder-key') {
     missing.push('SUPABASE_SERVICE_ROLE_KEY')
   }
 
@@ -45,8 +45,8 @@ function validateEnvironmentVariables(): EnvironmentVariables {
         'Please check your .env.local file and ensure all required variables are set.'
       )
     } else {
-      // During build time or development, return default values or undefined
-      console.warn(`Warning: Missing environment variables: ${missing.join(', ')}`)
+      // During build time or development, use placeholder values
+      console.warn(`Warning: Using placeholder values for missing environment variables: ${missing.join(', ')}`)
     }
   }
 
