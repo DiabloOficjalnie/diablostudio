@@ -44,9 +44,10 @@ export default clerkMiddleware(async (auth, req) => {
         return redirectToSignIn()
     }
 
-    // 🚫 Jeśli użytkownik jest zalogowany i próbuje wejść na stronę logowania → przekieruj
+    // 🚫 Jeśli użytkownik jest zalogowany i próbuje wejść na stronę logowania → pozwól stronie obsłużyć przekierowanie
+    // Nie przekierowuj automatycznie, aby strona logowania mogła sprawdzić profil klienta
     if (userId && path.startsWith('/login')) {
-        return NextResponse.redirect(new URL('/client/dashboard', req.url))
+        return NextResponse.next()
     }
 
     // ✅ Pozwól na dostęp do pozostałych (niechronionych) ścieżek
