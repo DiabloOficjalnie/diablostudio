@@ -763,8 +763,14 @@ function ClientDashboardContent() {
 
 
   useEffect(() => {
+    if (!isLoaded) return
+    if (!user) {
+      setLoading(false)
+      router.replace('/login')
+      return
+    }
     checkUser()
-  }, [])
+  }, [isLoaded, user])
 
   useEffect(() => {
     if (user && profile) {
@@ -873,7 +879,8 @@ function ClientDashboardContent() {
   const checkUser = async () => {
     // Use Clerk's useUser hook for authentication
     if (!user?.id) {
-      router.push('/login')
+      setLoading(false)
+      router.replace('/login')
       return
     }
 
@@ -899,7 +906,8 @@ function ClientDashboardContent() {
 
       if (createProfileError) {
         console.error('Error creating profile:', createProfileError)
-        router.push('/login')
+        setLoading(false)
+        router.replace('/login')
         return
       }
 

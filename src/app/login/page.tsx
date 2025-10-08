@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useUser } from '@clerk/nextjs'
+import { SignedIn, SignedOut, useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { SignIn, SignUp } from '@clerk/nextjs'
 import { createClientComponentClient } from '@/lib/supabase'
@@ -20,14 +20,6 @@ export default function LoginPage() {
     }
   }, [isLoaded, user, router])
 
-  // Show loading spinner while Clerk is loading
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    )
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-6 px-4 sm:py-12 sm:px-6 lg:px-8">
