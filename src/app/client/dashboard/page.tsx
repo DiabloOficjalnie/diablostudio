@@ -856,13 +856,13 @@ export default function ClientDashboard() {
   }
 
   const checkUser = async () => {
-    // Use Clerk's useUser hook instead of direct Supabase auth
+    // Use Clerk's useUser hook for authentication
     if (!user?.id) {
       router.push('/login')
       return
     }
 
-    // Check if user has a client profile
+    // Check if user has a client profile using Clerk user data
     const { data: profile } = await supabase
       .from('client_profiles')
       .select('*')
@@ -870,11 +870,36 @@ export default function ClientDashboard() {
       .single()
 
     if (!profile) {
-      router.push('/login')
-      return
+      // Create profile from Clerk user data if it doesn't exist
+      const { error: createProfileError } = await supabase
+        .from('client_profiles')
+        .insert({
+          id: user.id,
+          first_name: user.firstName || 'Unknown',
+          last_name: user.lastName || 'User',
+          email: user.primaryEmailAddress?.emailAddress || '',
+          phone: user.phoneNumbers[0]?.phoneNumber || null,
+          company: null
+        })
+
+      if (createProfileError) {
+        console.error('Error creating profile:', createProfileError)
+        router.push('/login')
+        return
+      }
+
+      // Fetch the newly created profile
+      const { data: newProfile } = await supabase
+        .from('client_profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+
+      setProfile(newProfile)
+    } else {
+      setProfile(profile)
     }
 
-    setProfile(profile)
     setLoading(false)
   }
 
@@ -1256,17 +1281,21 @@ export default function ClientDashboard() {
 
     try {
       // First verify the current password by attempting to sign in
-      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        alert('Nie można zweryfikować użytkownika')
+        return
+      }
 
-      if (!user?.emailAddresses?.find(e => e.primary)?.emailAddress) {
+      const primaryEmail = user.primaryEmailAddress?.emailAddress || user.emailAddresses?.[0]?.emailAddress
+
+      if (!primaryEmail) {
         alert('Nie można zweryfikować użytkownika')
         return
       }
 
       // Try to sign in with current password to verify it
-      const primaryEmail = user.emailAddresses?.find(e => e.primary)?.emailAddress
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: primaryEmail || '',
+        email: primaryEmail,
         password: passwordForm.currentPassword
       })
 
@@ -1484,7 +1513,7 @@ export default function ClientDashboard() {
       const url = URL.createObjectURL(dataBlob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `dane-konta-${user.emailAddresses.find(e => e.primary)?.emailAddress || 'user'}-${new Date().toISOString().split('T')[0]}.json`
+      link.download = `dane-konta-${user.primaryEmailAddress?.emailAddress || 'user'}-${new Date().toISOString().split('T')[0]}.json`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -3071,7 +3100,7 @@ export default function ClientDashboard() {
                         Adres e-mail
                       </label>
                       <div className="p-3 bg-gray-50 rounded-lg border">
-                        <p className="font-medium text-gray-900">{user?.email || 'Nie podano'}</p>
+                        <p className="font-medium text-gray-900">{user?.primaryEmailAddress?.emailAddress || 'Nie podano'}</p>
                       </div>
                     </div>
 
@@ -3806,7 +3835,7 @@ export default function ClientDashboard() {
                 <div className="bg-yellow-50 rounded-lg p-4">
                   <h5 className="text-sm font-medium text-yellow-900 mb-2">⚠️ Uwaga</h5>
                   <p className="text-sm text-yellow-700">
-                    Obecny adres e-mail: <strong>{user?.email}</strong> będzie aktywny do czasu potwierdzenia nowego adresu.
+                    Obecny adres e-mail: <strong>{user?.primaryEmailAddress?.emailAddress || 'Nie podano'}</strong> będzie aktywny do czasu potwierdzenia nowego adresu.
                   </p>
                 </div>
 
