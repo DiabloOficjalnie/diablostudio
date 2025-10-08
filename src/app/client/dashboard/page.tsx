@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useUser, useAuth, useClerk } from '@clerk/nextjs'
+import { useUser, useAuth, useClerk, UserProfile } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@/lib/supabase'
 
@@ -885,12 +885,26 @@ function ClientDashboardContent() {
     }
 
     // Check if user has a client profile using Clerk user data
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from('client_profiles')
       .select('*')
       .eq('id', user.id)
       .single()
 
+    if (profileError) {
+      console.error('Error loading profile:', profileError)
+      // Proceed with a safe in-memory profile based on Clerk user, don't bounce to /login
+      setProfile({
+        id: user.id,
+        first_name: user.firstName || 'Unknown',
+        last_name: user.lastName || 'User',
+        email: user.primaryEmailAddress?.emailAddress || '',
+        phone: user.phoneNumbers?.[0]?.phoneNumber || null,
+        company: null
+      })
+      setLoading(false)
+      return
+    }
     if (!profile) {
       // Create profile from Clerk user data if it doesn't exist
       const { error: createProfileError } = await supabase
@@ -906,19 +920,40 @@ function ClientDashboardContent() {
 
       if (createProfileError) {
         console.error('Error creating profile:', createProfileError)
+        // Fall back to Clerk-derived profile to avoid redirect loop
+        setProfile({
+          id: user.id,
+          first_name: user.firstName || 'Unknown',
+          last_name: user.lastName || 'User',
+          email: user.primaryEmailAddress?.emailAddress || '',
+          phone: user.phoneNumbers?.[0]?.phoneNumber || null,
+          company: null
+        })
         setLoading(false)
-        router.replace('/login')
         return
       }
 
       // Fetch the newly created profile
-      const { data: newProfile } = await supabase
+      const { data: newProfile, error: newProfileError } = await supabase
         .from('client_profiles')
         .select('*')
         .eq('id', user.id)
         .single()
 
-      setProfile(newProfile)
+      if (newProfileError || !newProfile) {
+        // Fall back if RLS or other DB policy blocks reading
+        console.warn('Using fallback profile after insert due to error:', newProfileError)
+        setProfile({
+          id: user.id,
+          first_name: user.firstName || 'Unknown',
+          last_name: user.lastName || 'User',
+          email: user.primaryEmailAddress?.emailAddress || '',
+          phone: user.phoneNumbers?.[0]?.phoneNumber || null,
+          company: null
+        })
+      } else {
+        setProfile(newProfile)
+      }
     } else {
       setProfile(profile)
     }
@@ -1012,8 +1047,7 @@ function ClientDashboardContent() {
   // Logout function
   const handleLogout = async () => {
     try {
-      await signOut()
-      router.push('/')
+      await signOut({ redirectUrl: '/login' })
     } catch (error) {
       console.error('Error during logout:', error)
     }
@@ -1554,9 +1588,8 @@ function ClientDashboardContent() {
       await supabase.from('consultation_requests').delete().eq('client_id', userId)
       await supabase.from('client_profiles').delete().eq('id', userId)
 
-      // Sign out and redirect
-      await signOut()
-      router.push('/')
+      // Sign out and redirect via Clerk
+      await signOut({ redirectUrl: '/login' })
 
       alert('Konto zostało usunięte')
     } catch (error) {
@@ -3142,6 +3175,11 @@ function ClientDashboardContent() {
                     <span className="text-2xl mr-3">🔐</span>
                     Bezpieczeństwo
                   </h3>
+
+                  {/* Clerk account management embeds: 2FA, password, email, delete account */}
+                  <div className="mb-10">
+                    <UserProfile routing="hash" />
+                  </div>
 
                   <div className="space-y-6">
                     {/* Change Password */}
