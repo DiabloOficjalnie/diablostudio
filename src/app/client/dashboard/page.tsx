@@ -1265,7 +1265,7 @@ export default function ClientDashboard() {
 
       // Try to sign in with current password to verify it
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: user.primaryEmailAddress?.emailAddress || user.email,
+        email: user.primaryEmailAddress || user.email,
         password: passwordForm.currentPassword
       })
 
