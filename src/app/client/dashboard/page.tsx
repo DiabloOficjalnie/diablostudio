@@ -247,7 +247,7 @@ export default function ClientDashboard() {
 
   // Load user progress from database
   const loadUserProgress = async () => {
-    if (!user) return
+    if (!user || !user.id) return
 
     try {
       const { data, error } = await supabase
@@ -898,6 +898,8 @@ export default function ClientDashboard() {
   }, [])
 
   const loadQuotes = async () => {
+    if (!user || !user.id) return
+
     try {
       const { data, error } = await supabase
         .from('client_quotes')
