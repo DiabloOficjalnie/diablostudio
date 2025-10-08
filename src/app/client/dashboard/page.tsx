@@ -1,9 +1,7 @@
-'use client'
-
-import React, { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useUser } from '@clerk/nextjs'
+import { currentUser } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
+import { redirect } from 'next/navigation'
+import ClientDashboard from './ClientDashboard'
 
 // Error Boundary Component
 class DashboardErrorBoundary extends React.Component<
@@ -1293,7 +1291,7 @@ export default function ClientDashboard() {
 
     try {
       // First verify the current password by attempting to sign in
-      if (!user) {
+      if (!user?.id) {
         alert('Nie można zweryfikować użytkownika')
         return
       }
