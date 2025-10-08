@@ -1,7 +1,16 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useUser } from '@clerk/nextjs'
+import { useRouter } from 'next/navigation'
 import { currentUser } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 import { redirect } from 'next/navigation'
-import ClientDashboard from './ClientDashboard'
+
+// Initialize Supabase client for data operations (not authentication)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Error Boundary Component
 class DashboardErrorBoundary extends React.Component<
@@ -95,8 +104,24 @@ interface ConsultationRequest {
   created_at: string
 }
 
-export default function ClientDashboard() {
-  const { user, isLoaded } = useUser()
+export default async function ClientDashboard() {
+  const { user } = useUser();
+
+  if (!user) return <div>Nie jesteś zalogowany</div>;
+
+  // teraz możesz bezpiecznie używać user.id
+  const { data: profileData, error } = await supabase
+    .from('client_profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single();
+
+  return <ClientDashboardContent />
+}
+
+function ClientDashboardContent() {
+
+  const { user: existingUser, isLoaded } = useUser()
   const [profile, setProfile] = useState<any>(null)
   const [quotes, setQuotes] = useState<ClientQuote[]>([])
   const [consultations, setConsultations] = useState<ConsultationRequest[]>([])
