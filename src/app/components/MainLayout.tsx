@@ -13,6 +13,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const [showScrollTop, setShowScrollTop] = useState(false)
   const [showScrollNav, setShowScrollNav] = useState(false)
   const [showLoginModal, setShowLoginModal] = useState(false)
+  const [newsletterEmail, setNewsletterEmail] = useState('')
+  const [newsletterStatus, setNewsletterStatus] = useState<string | null>(null)
   const pathname = usePathname()
 
   const navigation = [
@@ -27,37 +29,24 @@ export default function MainLayout({ children }: MainLayoutProps) {
   ]
 
   const isActive = (href: string) => {
-    if (href === '/') {
-      return pathname === '/'
-    }
+    if (href === '/') return pathname === '/'
     return pathname.startsWith(href)
   }
 
-  const toggleMobileMenu = () => {
-    setShowMobileMenu(!showMobileMenu)
-  }
+  const toggleMobileMenu = () => setShowMobileMenu((v) => !v)
 
-  // Scroll to top function
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    })
-  }
+  const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' })
 
-  // Handle scroll events
   useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.pageYOffset || document.documentElement.scrollTop
       setShowScrollTop(scrollTop > 300)
       setShowScrollNav(scrollTop > 500)
     }
-
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Dynamic navigation based on current section
   const getCurrentSection = () => {
     if (pathname !== '/') return null
 
@@ -85,13 +74,11 @@ export default function MainLayout({ children }: MainLayoutProps) {
         }
       }
     }
-
-    return sections[0] // Default to first section
+    return sections[0]
   }
 
   const getNavigationOptions = (currentSection: any) => {
     if (!currentSection) return []
-
     const allSections = [
       { id: 'hero', name: 'Strona główna', icon: '🏠' },
       { id: 'why-resin', name: 'Dlaczego żywiczne?', icon: '🏗️' },
@@ -104,24 +91,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
       { id: 'why-us', name: 'Dlaczego my?', icon: '🏆' },
       { id: 'contact', name: 'Kontakt', icon: '📞' }
     ]
-
-    const currentIndex = allSections.findIndex(section => section.id === currentSection.id)
-
-    // Always show main page
-    const options = [
-      { id: 'hero', name: 'Strona główna', icon: '🏠', type: 'main' }
-    ]
-
-    // Add previous section if available
-    if (currentIndex > 0) {
-      options.push({ ...allSections[currentIndex - 1], type: 'prev' })
-    }
-
-    // Add next section if available
-    if (currentIndex < allSections.length - 1) {
-      options.push({ ...allSections[currentIndex + 1], type: 'next' })
-    }
-
+    const currentIndex = allSections.findIndex((s) => s.id === currentSection.id)
+    const options: any[] = [{ id: 'hero', name: 'Strona główna', icon: '🏠', type: 'main' }]
+    if (currentIndex > 0) options.push({ ...allSections[currentIndex - 1], type: 'prev' })
+    if (currentIndex < allSections.length - 1) options.push({ ...allSections[currentIndex + 1], type: 'next' })
     return options
   }
 
@@ -131,10 +104,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            {/* Logo */}
             <div className="flex items-center">
               <Link href="/" className="text-2xl font-bold text-blue-800 hover:text-blue-900 transition-colors">
-                DiabloStudio
+                DecoSol
               </Link>
             </div>
 
@@ -145,26 +117,20 @@ export default function MainLayout({ children }: MainLayoutProps) {
                   key={item.name}
                   href={item.href}
                   className={`text-sm font-medium transition-colors whitespace-nowrap ${
-                    isActive(item.href)
-                      ? 'text-blue-800 border-b-2 border-blue-800 pb-1'
-                      : 'text-gray-600 hover:text-blue-600'
+                    isActive(item.href) ? 'text-blue-800 border-b-2 border-blue-800 pb-1' : 'text-gray-600 hover:text-blue-600'
                   }`}
                 >
                   {item.name}
                 </Link>
               ))}
-
-              {/* Separator */}
-              <div className="h-6 w-px bg-gray-300"></div>
-
-              {/* Single Login Button */}
+              <div className="h-6 w-px bg-gray-300" />
               <Link
                 href="/login"
                 className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-all hover:scale-105 shadow-md"
                 title="Zaloguj się lub zarejestruj"
               >
                 <span className="mr-2">👤</span>
-                Zaloguj
+                Logowanie
               </Link>
             </nav>
 
@@ -188,11 +154,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
             <div className="p-4">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-lg font-bold text-gray-900">Menu</h2>
-                <button
-                  onClick={toggleMobileMenu}
-                  className="p-2 text-gray-600 hover:text-gray-900"
-                  aria-label="Zamknij menu"
-                >
+                <button onClick={toggleMobileMenu} className="p-2 text-gray-600 hover:text-gray-900" aria-label="Zamknij menu">
                   <span className="text-xl">✕</span>
                 </button>
               </div>
@@ -204,40 +166,26 @@ export default function MainLayout({ children }: MainLayoutProps) {
                     href={item.href}
                     onClick={toggleMobileMenu}
                     className={`block py-2 px-3 text-sm font-medium rounded transition-colors ${
-                      isActive(item.href)
-                        ? 'text-blue-800 bg-blue-50'
-                        : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
+                      isActive(item.href) ? 'text-blue-800 bg-blue-50' : 'text-gray-700 hover:text-blue-600 hover:bg-gray-50'
                     }`}
                   >
                     {item.name}
                   </Link>
                 ))}
 
-                {/* Separator in Mobile Menu */}
-                <div className="border-t border-gray-200 my-4"></div>
+                <div className="border-t border-gray-200 my-4" />
 
-                {/* Account Section in Mobile Menu - Compact */}
+                {/* Single "Logowanie" in mobile */}
                 <div className="space-y-2">
-                  <Link
-                    href="/client/register"
-                    onClick={toggleMobileMenu}
-                    className="block w-full p-3 bg-green-600 hover:bg-green-700 text-white text-center font-bold rounded-lg transition-all shadow-md"
-                  >
-                    <div className="flex items-center justify-center">
-                      <span className="text-base mr-2">✨</span>
-                      <span className="text-sm">Rejestracja</span>
-                    </div>
-                  </Link>
-
                   <button
                     onClick={() => {
                       setShowLoginModal(true)
                       setShowMobileMenu(false)
                     }}
-                    className="w-full flex items-center justify-center px-3 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold rounded-lg transition-all shadow-md"
+                    className="w-full flex items-center justify-center px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-all shadow-md"
                   >
                     <span className="mr-2">👤</span>
-                    Login
+                    Logowanie
                   </button>
                 </div>
               </nav>
@@ -247,9 +195,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       )}
 
       {/* Main Content */}
-      <main>
-        {children}
-      </main>
+      <main>{children}</main>
 
       {/* Mobile Navigation Arrows */}
       {showScrollNav && pathname === '/' && (
@@ -266,11 +212,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 }
               }}
               className={`w-12 h-12 rounded-full shadow-lg transition-all transform hover:scale-110 flex items-center justify-center ${
-                option.type === 'main'
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                  : option.type === 'prev'
-                  ? 'bg-gray-600 hover:bg-gray-700 text-white'
-                  : 'bg-gray-600 hover:bg-gray-700 text-white'
+                option.type === 'main' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-600 hover:bg-gray-700 text-white'
               }`}
               title={option.name}
             >
@@ -301,10 +243,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Company Info */}
             <div className="lg:col-span-2">
-              <h3 className="text-2xl font-bold mb-4">DiabloStudio</h3>
+              <h3 className="text-2xl font-bold mb-4">DecoSol</h3>
               <p className="text-gray-300 mb-4 max-w-md">
-                Profesjonalne posadzki żywiczne – epoksydowe i poliuretanowe.
-                Tworzymy trwałe i estetyczne rozwiązania dla domu, biura i przemysłu.
+                Profesjonalne posadzki żywiczne – epoksydowe i poliuretanowe. Tworzymy trwałe i estetyczne rozwiązania dla domu, biura i przemysłu.
               </p>
             </div>
 
@@ -312,41 +253,13 @@ export default function MainLayout({ children }: MainLayoutProps) {
             <div>
               <h4 className="text-lg font-semibold mb-4">Nawigacja</h4>
               <ul className="space-y-2">
-                <li>
-                  <Link href="/" className="text-gray-300 hover:text-white transition-colors">
-                    Strona główna
-                  </Link>
-                </li>
-                <li>
-                  <a href="/valuation" className="text-gray-300 hover:text-white transition-colors">
-                    Darmowa wycena
-                  </a>
-                </li>
-                <li>
-                  <a href="/colors" className="text-gray-300 hover:text-white transition-colors">
-                    Paleta kolorów
-                  </a>
-                </li>
-                <li>
-                  <a href="/realizations" className="text-gray-300 hover:text-white transition-colors">
-                    Realizacje
-                  </a>
-                </li>
-                <li>
-                  <a href="/guide" className="text-gray-300 hover:text-white transition-colors">
-                    Przewodnik
-                  </a>
-                </li>
-                <li>
-                  <a href="/reviews" className="text-gray-300 hover:text-white transition-colors">
-                    Opinie
-                  </a>
-                </li>
-                <li>
-                  <a href="/contact" className="text-gray-300 hover:text-white transition-colors">
-                    Kontakt
-                  </a>
-                </li>
+                <li><Link href="/" className="text-gray-300 hover:text-white transition-colors">Strona główna</Link></li>
+                <li><a href="/valuation" className="text-gray-300 hover:text-white transition-colors">Darmowa wycena</a></li>
+                <li><a href="/colors" className="text-gray-300 hover:text-white transition-colors">Paleta kolorów</a></li>
+                <li><a href="/realizations" className="text-gray-300 hover:text-white transition-colors">Realizacje</a></li>
+                <li><a href="/guide" className="text-gray-300 hover:text-white transition-colors">Przewodnik</a></li>
+                <li><a href="/reviews" className="text-gray-300 hover:text-white transition-colors">Opinie</a></li>
+                <li><a href="/contact" className="text-gray-300 hover:text-white transition-colors">Kontakt</a></li>
               </ul>
             </div>
 
@@ -354,29 +267,53 @@ export default function MainLayout({ children }: MainLayoutProps) {
             <div>
               <h4 className="text-lg font-semibold mb-4">Kontakt</h4>
               <div className="space-y-3 text-gray-300">
-                <div className="flex items-center">
-                  <span className="text-xl mr-3">📞</span>
-                  <span>+48 123 456 789</span>
-                </div>
-                <div className="flex items-center">
-                  <span className="text-xl mr-3">✉️</span>
-                  <span>info@diablostudio.pl</span>
-                </div>
-                <div className="flex items-center">
-                  <span className="text-xl mr-3">📍</span>
-                  <span>Warszawa, Polska</span>
-                </div>
+                <div className="flex items-center"><span className="text-xl mr-3">📞</span><span>+48 123 456 789</span></div>
+                <div className="flex items-center"><span className="text-xl mr-3">✉️</span><span>info@diablostudio.pl</span></div>
+                <div className="flex items-center"><span className="text-xl mr-3">📍</span><span>Warszawa, Polska</span></div>
               </div>
             </div>
           </div>
 
-          {/* Bottom Bar */}
-          <div className="border-t border-gray-800 mt-8 pt-8">
-            <div className="flex flex-col md:flex-row justify-between items-center">
-              <p className="text-gray-400 text-sm">
-                © 2024 DiabloStudio. Wszystkie prawa zastrzeżone.
-              </p>
-            </div>
+          {/* Newsletter */}
+          <div className="mt-8">
+            <h4 className="text-lg font-semibold mb-4">Newsletter</h4>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault()
+                try {
+                  const res = await fetch('/api/newsletter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: newsletterEmail })
+                  })
+                  const data = await res.json()
+                  setNewsletterStatus(data.message || 'Dziękujemy za zapis!')
+                  setNewsletterEmail('')
+                } catch {
+                  setNewsletterStatus('Wystąpił błąd. Spróbuj ponownie.')
+                }
+              }}
+              className="flex flex-col sm:flex-row items-center gap-3"
+            >
+              <input
+                type="email"
+                required
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
+                placeholder="Twój e-mail"
+                className="w-full sm:w-auto flex-1 px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-400 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                aria-label="Adres e-mail do newslettera"
+              />
+              <button type="submit" className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors">
+                Zapisz się
+              </button>
+            </form>
+            {newsletterStatus && <p className="mt-2 text-sm text-gray-400">{newsletterStatus}</p>}
+          </div>
+
+          {/* Bottom bar */}
+          <div className="mt-8 flex flex-col md:flex-row justify-between items-center">
+            <p className="text-gray-400 text-sm">© 2024 DecoSol. Wszystkie prawa zastrzeżone.</p>
           </div>
         </div>
       </footer>
@@ -391,7 +328,6 @@ export default function MainLayout({ children }: MainLayoutProps) {
             </div>
 
             <div className="space-y-4 mb-8">
-              {/* Administrator Login */}
               <Link
                 href="/admin/login"
                 onClick={() => setShowLoginModal(false)}
@@ -404,7 +340,6 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 <p className="text-sm opacity-90">Panel zarządzania, realizacje, wyceny</p>
               </Link>
 
-              {/* Client Login */}
               <Link
                 href="/login"
                 onClick={() => setShowLoginModal(false)}
@@ -419,10 +354,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
             </div>
 
             <div className="text-center">
-              <button
-                onClick={() => setShowLoginModal(false)}
-                className="text-gray-600 hover:text-gray-800 transition-colors"
-              >
+              <button onClick={() => setShowLoginModal(false)} className="text-gray-600 hover:text-gray-800 transition-colors">
                 Zamknij
               </button>
             </div>

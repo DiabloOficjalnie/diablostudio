@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { auth, clerkClient } from '@clerk/nextjs/server';
 import { createAdminClient } from '@/lib/supabase-server';
 
+type ClerkClientType = Awaited<ReturnType<typeof clerkClient>>;
+
 // Shape expected by the Admin UI
 interface AdminUser {
   id: string;
@@ -46,10 +48,11 @@ export async function GET() {
       return NextResponse.json({ error: 'Admin verification failed' }, { status: 403 });
     }
 
-    // List users from Clerk
-    const list = await clerkClient.users.getUserList({ limit: 200 });
+    // List users from Clerk (clerkClient is async in this SDK version)
+    const client: ClerkClientType = await clerkClient();
+    const list = await client.users.getUserList({ limit: 200 });
 
-    const users: AdminUser[] = (list?.data || []).map((u) => {
+    const users: AdminUser[] = (list?.data || []).map((u: any) => {
       const primaryEmail = u.emailAddresses?.[0]?.emailAddress || '';
       const firstName = u.firstName || (u.publicMetadata?.first_name as string | undefined);
       const lastName = u.lastName || (u.publicMetadata?.last_name as string | undefined);
@@ -64,7 +67,7 @@ export async function GET() {
 
       // Status heuristic
       // Clerk doesn't expose 'blocked' directly here; adapt as needed if you use bans/suspensions
-      const status: AdminUser['status'] = u.emailAddresses?.some((e) => e.verification?.status === 'verified')
+      const status: AdminUser['status'] = u.emailAddresses?.some((e: any) => e.verification?.status === 'verified')
         ? 'active'
         : 'inactive';
 

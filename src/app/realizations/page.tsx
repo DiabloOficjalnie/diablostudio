@@ -479,19 +479,16 @@ export default function RealizationsPage() {
                 {selectedRealization.youtubeVideoId && (
                   <div className="mb-8">
                     <h3 className="text-2xl font-bold text-gray-900 mb-4">Film z realizacji</h3>
-                    <div className="bg-gray-100 rounded-lg h-96 flex items-center justify-center">
-                      <div className="text-center">
-                        <span className="text-6xl text-red-500 mb-4 block">🎥</span>
-                        <p className="text-gray-600 mb-4">Film dostępny na YouTube</p>
-                        <a
-                          href={`https://www.youtube.com/watch?v=${selectedRealization.youtubeVideoId}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                        >
-                          Otwórz film na YouTube
-                          <span className="ml-2">▶️</span>
-                        </a>
+                    <div className="w-full rounded-lg overflow-hidden bg-black">
+                      <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+                        <iframe
+                          className="absolute inset-0 w-full h-full"
+                          src={`https://www.youtube.com/embed/${selectedRealization.youtubeVideoId}`}
+                          title="YouTube video player"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowFullScreen
+                        ></iframe>
                       </div>
                     </div>
                   </div>

@@ -9,7 +9,9 @@ export default function ContactPage() {
     email: '',
     phone: '',
     subject: '',
-    message: ''
+    message: '',
+    marketingConsent: false,
+    phoneConsent: false,
   })
 
   const contactInfo = [
@@ -102,7 +104,7 @@ export default function ContactPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
               {/* Contact Form */}
-              <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+              <div className="bg-white rounded-2xl shadow-xl p-8 border-2 border-gray-200">
                 <div className="mb-8">
                   <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
                     <span className="text-3xl">💬</span>
@@ -167,7 +169,7 @@ export default function ContactPage() {
                       name="subject"
                       value={formData.subject}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white text-gray-900 placeholder-gray-500"
                       required
                     >
                       <option value="">Wybierz temat</option>
@@ -188,10 +190,37 @@ export default function ContactPage() {
                       value={formData.message}
                       onChange={handleInputChange}
                       rows={6}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none bg-white text-gray-900 placeholder-gray-500"
                       placeholder="Opisz swój projekt lub zadaj pytanie..."
                       required
                     ></textarea>
+                  </div>
+
+                  {/* Consents */}
+                  <div className="space-y-3">
+                    <label className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="mt-1 w-4 h-4 text-blue-600"
+                        checked={formData.phoneConsent}
+                        onChange={(e) => setFormData({ ...formData, phoneConsent: e.target.checked })}
+                      />
+                      <span className="text-sm text-gray-700">
+                        Wyrażam zgodę na kontakt telefoniczny w celu realizacji zapytania.
+                      </span>
+                    </label>
+
+                    <label className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="mt-1 w-4 h-4 text-blue-600"
+                        checked={formData.marketingConsent}
+                        onChange={(e) => setFormData({ ...formData, marketingConsent: e.target.checked })}
+                      />
+                      <span className="text-sm text-gray-700">
+                        Wyrażam zgodę na otrzymywanie informacji handlowych i materiałów marketingowych (opcjonalnie).
+                      </span>
+                    </label>
                   </div>
 
                   <button
@@ -243,16 +272,18 @@ export default function ContactPage() {
                 </div>
 
                 {/* Interactive Map */}
-                <div className="bg-white rounded-2xl shadow-lg overflow-hidden group cursor-pointer hover:shadow-xl transition-all duration-300">
-                  <div className="bg-gradient-to-br from-gray-100 to-gray-200 h-64 flex items-center justify-center relative">
-                    <div className="text-center text-gray-600">
-                      <div className="text-5xl mb-3 group-hover:scale-110 transition-transform">🗺️</div>
-                      <p className="text-lg font-semibold text-gray-800 mb-1">Interaktywna mapa</p>
-                      <p className="text-sm">ul. Przykładowa 123, Warszawa</p>
-                    </div>
-                    <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all flex items-center justify-center">
-                      <span className="text-white opacity-0 group-hover:opacity-100 text-3xl">🔍</span>
-                    </div>
+                <div className="bg-white rounded-2xl shadow-lg overflow-hidden group hover:shadow-xl transition-all duration-300">
+                  <div className="relative w-full h-64">
+                    <iframe
+                      src="https://www.google.com/maps?q=ul.+Przyk%C5%82adowa+123,+Warszawa&output=embed"
+                      width="100%"
+                      height="100%"
+                      className="absolute inset-0"
+                      style={{ border: 0 }}
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      aria-label="Mapa - ul. Przykładowa 123, Warszawa"
+                    ></iframe>
                   </div>
                   <div className="p-4 bg-gray-50">
                     <div className="flex items-center justify-between">
@@ -260,9 +291,14 @@ export default function ContactPage() {
                         <h4 className="font-bold text-gray-900">Biuro główne</h4>
                         <p className="text-sm text-gray-600">ul. Przykładowa 123, 00-001 Warszawa</p>
                       </div>
-                      <button className="text-blue-600 hover:text-blue-800 font-medium">
+                      <a
+                        href="https://maps.google.com/?q=ul.+Przyk%C5%82adowa+123,+Warszawa"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:text-blue-800 font-medium"
+                      >
                         Otwórz w mapach →
-                      </button>
+                      </a>
                     </div>
                   </div>
                 </div>

@@ -1832,7 +1832,7 @@ function ClientDashboardContent() {
                   </div>
                   <div className="text-right">
                     <div className="text-4xl mb-2">🏠</div>
-                    <div className="text-sm text-blue-200">DiabloStudio</div>
+                    <div className="text-sm text-blue-200">DecoSol</div>
                   </div>
                 </div>
               </div>
@@ -3900,7 +3900,7 @@ function ClientDashboardContent() {
 
               <div className="space-y-6">
                 <div className="bg-blue-50 rounded-lg p-4">
-                  <h5 className="text-sm font-medium text-blue-900 mb-2">Newsletter DiabloStudio</h5>
+                      <h5 className="text-sm font-medium text-blue-900 mb-2">Newsletter DecoSol</h5>
                   <p className="text-sm text-blue-700">
                     Wybierz, które informacje chcesz otrzymywać na swój adres e-mail.
                   </p>

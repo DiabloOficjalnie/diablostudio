@@ -398,7 +398,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </div>
               {!sidebarCollapsed && (
                 <div className="ml-3">
-                  <h1 className="text-xl font-bold text-white">DiabloStudio</h1>
+                  <h1 className="text-xl font-bold text-white">DecoSol</h1>
                   <p className="text-xs text-slate-400">Panel Administratora</p>
                 </div>
               )}

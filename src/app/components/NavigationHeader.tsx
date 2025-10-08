@@ -8,12 +8,19 @@ import {
   useUser,
 } from '@clerk/nextjs'
 import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { createClientComponentClient } from '@/lib/supabase'
 
 export default function NavigationHeader() {
   const { user, isLoaded } = useUser()
   const [userType, setUserType] = useState<'client' | 'admin' | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const pathname = usePathname()
+
+  // Hide global NavigationHeader on app panels that have their own header/layout
+  if (pathname?.startsWith('/admin') || pathname?.startsWith('/client')) {
+    return null
+  }
 
   useEffect(() => {
     const checkUserType = async () => {
@@ -110,7 +117,7 @@ export default function NavigationHeader() {
                 href="/login"
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors shadow-lg"
               >
-                🔑 Zaloguj się
+                🔑 Logowanie
               </Link>
             </SignedOut>
 

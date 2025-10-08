@@ -167,3 +167,53 @@ export async function POST(request: NextRequest) {
     )
   }
 }
+
+// PUT - Update review interactions (e.g., helpful)
+export async function PUT(request: NextRequest) {
+  try {
+    const supabase = createAdminClient()
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+    const action = searchParams.get('action')
+
+    if (!action) {
+      return NextResponse.json({ error: 'Missing action' }, { status: 400 })
+    }
+
+    if (action === 'helpful') {
+      if (!id) {
+        return NextResponse.json({ error: 'Missing id' }, { status: 400 })
+      }
+
+      // Read current helpful value
+      const { data: existing, error: selectError } = await supabase
+        .from('reviews')
+        .select('helpful')
+        .eq('id', id)
+        .single()
+
+      if (selectError || !existing) {
+        return NextResponse.json({ error: 'Review not found' }, { status: 404 })
+      }
+
+      const newHelpful = (existing.helpful || 0) + 1
+
+      const { error: updateError } = await supabase
+        .from('reviews')
+        .update({ helpful: newHelpful })
+        .eq('id', id)
+
+      if (updateError) {
+        console.error('Error updating helpful count:', updateError)
+        return NextResponse.json({ error: 'Failed to update review' }, { status: 500 })
+      }
+
+      return NextResponse.json({ success: true, id, helpful: newHelpful })
+    }
+
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
+  } catch (error) {
+    console.error('Error in reviews PUT:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}

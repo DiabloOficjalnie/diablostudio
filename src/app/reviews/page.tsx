@@ -24,6 +24,7 @@ export default function ReviewsPage() {
   const [selectedRealization, setSelectedRealization] = useState<any>(null)
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
+  const [helpfulClicked, setHelpfulClicked] = useState<Record<string, boolean>>({})
   const [pageData, setPageData] = useState({
     reviews: [] as Review[],
     realizations: [] as any[],
@@ -138,7 +139,7 @@ export default function ReviewsPage() {
     ))
   }
 
-  const averageRating = reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+  const averageRating = reviews.length ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length) : 0
 
   return (
     <MainLayout>
@@ -235,7 +236,7 @@ export default function ReviewsPage() {
                               <div className="flex items-center mb-2">
                                 <h3 className="font-bold text-xl text-gray-900 mr-3">{review.name}</h3>
                                 {review.verified && (
-                                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                                  <span className="bg-green-100 text-green-800 px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
                                     ✓ Zweryfikowana
                                   </span>
                                 )}
@@ -257,12 +258,30 @@ export default function ReviewsPage() {
                         </p>
 
                         <div className="flex items-center justify-between">
-                          <button className="flex items-center text-gray-500 hover:text-blue-600 transition-colors text-sm">
+                          <button
+                            disabled={!!helpfulClicked[review.id]}
+                            onClick={async () => {
+                              if (helpfulClicked[review.id]) return
+                              setHelpfulClicked(prev => ({ ...prev, [review.id]: true }))
+                              // optimistic UI update
+                              setReviews(prev =>
+                                prev.map(r => r.id === review.id ? { ...r, helpful: (r.helpful || 0) + 1 } : r)
+                              )
+                              try {
+                                await fetch(`/api/reviews?id=${encodeURIComponent(review.id)}&action=helpful`, {
+                                  method: 'PUT',
+                                  headers: { 'Content-Type': 'application/json' }
+                                })
+                              } catch {}
+                            }}
+                            className={`flex items-center transition-colors text-sm ${helpfulClicked[review.id] ? 'text-green-600 cursor-default' : 'text-gray-500 hover:text-blue-600'}`}
+                            aria-pressed={!!helpfulClicked[review.id]}
+                          >
                             👍 Pomocna ({review.helpful})
                           </button>
-                          <div className="flex items-center text-gray-400 text-sm">
-                            <span>Udostępnij</span>
-                            <span className="ml-4">Zgłoś</span>
+                          {/* Usunięto Udostępnij i Zgłoś */}
+                          <div className="text-xs text-gray-400">
+                            Dziękujemy za opinię
                           </div>
                         </div>
                       </div>
@@ -301,8 +320,8 @@ export default function ReviewsPage() {
                 )}
               </div>
 
-              {/* Sidebar - Realizations */}
-              <div className="lg:col-span-1">
+              {/* Sidebar - Realizations (hidden as per TODO) */}
+              <div className="lg:col-span-1 hidden">
                 <div className="sticky top-8">
                   <h3 className="text-2xl font-bold text-gray-900 mb-6">Nasze realizacje</h3>
 
@@ -366,18 +385,18 @@ export default function ReviewsPage() {
         {/* Average Rating Section */}
         <section className="py-16 bg-gradient-to-br from-blue-50 to-indigo-50">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-4xl font-bold text-gray-900 mb-8">Średnia ocena klientów</h2>
-            <div className="bg-white rounded-2xl p-8 shadow-xl">
-              <div className="flex items-center justify-center mb-6">
-                <div className="flex text-yellow-400 text-5xl mr-6">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-8">Średnia ocena klientów</h2>
+            <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-xl">
+              <div className="flex flex-col sm:flex-row items-center justify-center mb-6 gap-3 sm:gap-0">
+                <div className="flex text-yellow-400 text-4xl sm:text-5xl sm:mr-6">
                   {'★★★★★'.split('').map((star, i) => (
                     <span key={i}>{star}</span>
                   ))}
                 </div>
-                <div className="text-6xl font-bold text-blue-900">{averageRating.toFixed(1)}</div>
-                <div className="text-2xl text-gray-600 ml-2">/ 5.0</div>
+                <div className="text-5xl sm:text-6xl font-bold text-blue-900">{averageRating.toFixed(1)}</div>
+                <div className="text-xl sm:text-2xl text-gray-600 sm:ml-2">/ 5.0</div>
               </div>
-              <p className="text-xl text-gray-600 mb-8">
+              <p className="text-lg sm:text-xl text-gray-600 mb-8">
                 Na podstawie <strong className="text-blue-800">{reviews.length} opinii</strong> klientów
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
