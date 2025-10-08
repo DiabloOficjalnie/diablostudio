@@ -82,12 +82,12 @@ export default function LoginPage() {
         </div>
 
         {/* Auth Mode Selection */}
-        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 mb-8">
+        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 mb-8 mx-auto max-w-lg">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">
               Co chcesz zrobić?
             </h2>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 onClick={() => setAuthMode('signin')}
                 className={`px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 ${
@@ -112,40 +112,42 @@ export default function LoginPage() {
           </div>
 
           {/* Authentication Form */}
-          <div className="max-w-md mx-auto">
-            {authMode === 'signin' ? (
-              <SignIn
-                appearance={{
-                  elements: {
-                    formButtonPrimary: 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-xl text-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full',
-                    card: 'shadow-none border-none',
-                    headerTitle: 'hidden',
-                    headerSubtitle: 'hidden',
-                    socialButtonsBlockButton: 'border-2 border-gray-300 hover:border-blue-500 rounded-xl py-3 text-base font-semibold transition-all duration-300 w-full',
-                    formFieldInput: 'px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 text-base bg-gray-50 w-full',
-                    formFieldLabel: 'text-sm font-semibold text-gray-700 mb-2',
-                    footerAction: 'hidden'
-                  }
-                }}
-                redirectUrl="/client/dashboard"
-              />
-            ) : (
-              <SignUp
-                appearance={{
-                  elements: {
-                    formButtonPrimary: 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 px-6 rounded-xl text-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full',
-                    card: 'shadow-none border-none',
-                    headerTitle: 'hidden',
-                    headerSubtitle: 'hidden',
-                    socialButtonsBlockButton: 'border-2 border-gray-300 hover:border-green-500 rounded-xl py-3 text-base font-semibold transition-all duration-300 w-full',
-                    formFieldInput: 'px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900 text-base bg-gray-50 w-full',
-                    formFieldLabel: 'text-sm font-semibold text-gray-700 mb-2',
-                    footerAction: 'hidden'
-                  }
-                }}
-                redirectUrl="/client/dashboard"
-              />
-            )}
+          <div className="w-full flex justify-center">
+            <div className="w-full max-w-md">
+              {authMode === 'signin' ? (
+                <SignIn
+                  appearance={{
+                    elements: {
+                      formButtonPrimary: 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-xl text-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full',
+                      card: 'shadow-none border-none bg-transparent',
+                      headerTitle: 'hidden',
+                      headerSubtitle: 'hidden',
+                      socialButtonsBlockButton: 'border-2 border-gray-300 hover:border-blue-500 rounded-xl py-3 text-base font-semibold transition-all duration-300 w-full',
+                      formFieldInput: 'px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 text-base bg-gray-50 w-full',
+                      formFieldLabel: 'text-sm font-semibold text-gray-700 mb-2',
+                      footerAction: 'hidden',
+                      form: 'bg-transparent p-0'
+                    }
+                  }}
+                />
+              ) : (
+                <SignUp
+                  appearance={{
+                    elements: {
+                      formButtonPrimary: 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 px-6 rounded-xl text-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full',
+                      card: 'shadow-none border-none bg-transparent',
+                      headerTitle: 'hidden',
+                      headerSubtitle: 'hidden',
+                      socialButtonsBlockButton: 'border-2 border-gray-300 hover:border-green-500 rounded-xl py-3 text-base font-semibold transition-all duration-300 w-full',
+                      formFieldInput: 'px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900 text-base bg-gray-50 w-full',
+                      formFieldLabel: 'text-sm font-semibold text-gray-700 mb-2',
+                      footerAction: 'hidden',
+                      form: 'bg-transparent p-0'
+                    }
+                  }}
+                />
+              )}
+            </div>
           </div>
         </div>
 

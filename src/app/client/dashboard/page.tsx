@@ -1,8 +1,74 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useUser } from '@clerk/nextjs'
 import { createClientComponentClient } from '@/lib/supabase'
+
+// Error Boundary Component
+class DashboardErrorBoundary extends React.Component<
+  { children: React.ReactNode; fallback?: React.ComponentType<{ error: Error; resetError: () => void }> },
+  { hasError: boolean; error: Error | null }
+> {
+  constructor(props: any) {
+    super(props)
+    this.state = { hasError: false, error: null }
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error('Dashboard Error:', error, errorInfo)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      const FallbackComponent = this.props.fallback || DefaultErrorFallback
+      return <FallbackComponent error={this.state.error!} resetError={() => this.setState({ hasError: false, error: null })} />
+    }
+
+    return this.props.children
+  }
+}
+
+// Default Error Fallback Component
+function DefaultErrorFallback({ error, resetError }: { error: Error; resetError: () => void }) {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center">
+        <div className="text-4xl mb-4">⚠️</div>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Wystąpił błąd</h2>
+        <p className="text-gray-600 mb-6">
+          Przepraszamy, wystąpił nieoczekiwany błąd podczas ładowania panelu klienta.
+        </p>
+        <div className="space-y-3">
+          <button
+            onClick={resetError}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-colors"
+          >
+            Spróbuj ponownie
+          </button>
+          <button
+            onClick={() => window.location.href = '/login'}
+            className="w-full bg-gray-600 hover:bg-gray-700 text-white py-3 px-4 rounded-lg font-medium transition-colors"
+          >
+            Wróć do logowania
+          </button>
+        </div>
+        {process.env.NODE_ENV === 'development' && (
+          <details className="mt-4 text-left">
+            <summary className="text-sm text-gray-500 cursor-pointer">Szczegóły błędu (tylko dla deweloperów)</summary>
+            <pre className="text-xs text-red-600 mt-2 whitespace-pre-wrap break-words">
+              {error.message}
+            </pre>
+          </details>
+        )}
+      </div>
+    </div>
+  )
+}
 
 interface ClientQuote {
   id: string
@@ -790,10 +856,9 @@ export default function ClientDashboard() {
   }
 
   const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-
+    // Use Clerk's useUser hook instead of direct Supabase auth
     if (!user) {
-      router.push('/client/login')
+      router.push('/login')
       return
     }
 
@@ -805,11 +870,10 @@ export default function ClientDashboard() {
       .single()
 
     if (!profile) {
-      router.push('/client/login')
+      router.push('/login')
       return
     }
 
-    setUser(user)
     setProfile(profile)
     setLoading(false)
   }
@@ -1505,7 +1569,8 @@ export default function ClientDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <DashboardErrorBoundary>
+      <div className="min-h-screen bg-gray-50">
 
 
       {/* Main Layout */}
@@ -4015,5 +4080,6 @@ export default function ClientDashboard() {
         </div>
       )}
     </div>
+    </DashboardErrorBoundary>
   )
 }

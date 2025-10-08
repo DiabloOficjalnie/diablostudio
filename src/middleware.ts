@@ -58,5 +58,8 @@ export const config = {
     matcher: [
         '/((?!_next|.*\\..*).*)',
         '/(api|trpc)(.*)',
+        '/sign-in(.*)',
+        '/sign-up(.*)',
+        '/sso-callback(.*)',
     ],
 }
