@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@clerk/localizations": "^3.25.7",
     "@clerk/nextjs": "^6.33.3",
     "@hookform/resolvers": "^3.3.2",
     "@supabase/ssr": "^0.1.0",

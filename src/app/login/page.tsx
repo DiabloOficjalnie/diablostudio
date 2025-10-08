@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { SignIn, SignUp } from '@clerk/nextjs'
@@ -10,6 +10,8 @@ export default function LoginPage() {
   const { user, isLoaded } = useUser()
   const router = useRouter()
   const supabase = createClientComponentClient()
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin')
+  const [showFullBenefits, setShowFullBenefits] = useState(false)
 
   // Handle user redirection after authentication
   useEffect(() => {
@@ -67,192 +69,222 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-12 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          {/* Left Side - Benefits */}
-          <div className="space-y-8">
-            <div className="text-center lg:text-left">
-              <h2 className="text-4xl font-bold text-gray-900 mb-6">
-                Dlaczego warto założyć konto?
-              </h2>
-              <p className="text-xl text-gray-600 mb-12 leading-relaxed">
-                Dołącz do grona zadowolonych klientów i zyskaj dostęp do ekskluzywnych korzyści
-              </p>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-6 px-4 sm:py-12 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Header Section */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+            Witaj w DiabloStudio
+          </h1>
+          <p className="text-lg sm:text-xl text-gray-600">
+            Zaloguj się do swojego konta lub utwórz nowe
+          </p>
+        </div>
 
-            {/* Benefits Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {/* Warranty Status */}
-              <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-blue-500 transform hover:-translate-y-1">
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-blue-100 rounded-xl mr-4">
-                    <span className="text-2xl">📋</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900">Status gwarancji</h3>
-                </div>
-                <p className="text-gray-600 leading-relaxed">
-                  Śledź terminy i warunki gwarancji na swoje realizacje w czasie rzeczywistym
-                </p>
-              </div>
-
-              {/* Project Manager */}
-              <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-green-500 transform hover:-translate-y-1">
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-green-100 rounded-xl mr-4">
-                    <span className="text-2xl">👨‍💼</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900">Opiekun projektu</h3>
-                </div>
-                <p className="text-gray-600 leading-relaxed">
-                  Bezpośredni kontakt z dedykowanym specjalistą przez cały okres współpracy
-                </p>
-              </div>
-
-              {/* Before/After Photos */}
-              <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-purple-500 transform hover:-translate-y-1">
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-purple-100 rounded-xl mr-4">
-                    <span className="text-2xl">📸</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900">Efekt "przed i po"</h3>
-                </div>
-                <p className="text-gray-600 leading-relaxed">
-                  Galeria zdjęć z realizacji Twojego projektu dostępna online
-                </p>
-              </div>
-
-              {/* Online Documents */}
-              <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-orange-500 transform hover:-translate-y-1">
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-orange-100 rounded-xl mr-4">
-                    <span className="text-2xl">📄</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900">Dokumenty online</h3>
-                </div>
-                <p className="text-gray-600 leading-relaxed">
-                  Umowy, faktury i dokumentacja w jednym bezpiecznym miejscu
-                </p>
-              </div>
-
-              {/* Discounts */}
-              <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-pink-500 transform hover:-translate-y-1">
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-pink-100 rounded-xl mr-4">
-                    <span className="text-2xl">💰</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900">Rabaty</h3>
-                </div>
-                <p className="text-gray-600 leading-relaxed">
-                  Ekskluzywne zniżki dla stałych klientów i program lojalnościowy
-                </p>
-              </div>
-
-              {/* Post-warranty Service */}
-              <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border-l-4 border-indigo-500 transform hover:-translate-y-1">
-                <div className="flex items-center mb-4">
-                  <div className="p-3 bg-indigo-100 rounded-xl mr-4">
-                    <span className="text-2xl">🔧</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900">Serwis pogwarancyjny</h3>
-                </div>
-                <p className="text-gray-600 leading-relaxed">
-                  Profesjonalne wsparcie techniczne po zakończeniu gwarancji
-                </p>
-              </div>
-            </div>
-
-            {/* Additional Info */}
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-white shadow-2xl">
-              <h3 className="text-2xl font-bold mb-4">🚀 Rozpocznij swoją podróż z nami</h3>
-              <p className="text-blue-100 mb-6 text-lg leading-relaxed">
-                Założenie konta to pierwszy krok do profesjonalnej współpracy i dostępu do ekskluzywnych korzyści.
-              </p>
-              <div className="space-y-3">
-                <div className="flex items-center">
-                  <span className="text-yellow-300 mr-3 text-xl">✓</span>
-                  <span className="text-lg">Bezpieczeństwo i poufność danych</span>
-                </div>
-                <div className="flex items-center">
-                  <span className="text-yellow-300 mr-3 text-xl">✓</span>
-                  <span className="text-lg">Łatwy dostęp do historii projektów</span>
-                </div>
-                <div className="flex items-center">
-                  <span className="text-yellow-300 mr-3 text-xl">✓</span>
-                  <span className="text-lg">Priorytetowe wsparcie klienta</span>
-                </div>
-              </div>
+        {/* Auth Mode Selection */}
+        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 mb-8">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              Co chcesz zrobić?
+            </h2>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+              <button
+                onClick={() => setAuthMode('signin')}
+                className={`px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 ${
+                  authMode === 'signin'
+                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                🔑 Zalogować się
+              </button>
+              <button
+                onClick={() => setAuthMode('signup')}
+                className={`px-8 py-4 rounded-xl text-lg font-semibold transition-all duration-300 ${
+                  authMode === 'signup'
+                    ? 'bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                ✨ Założyć konto
+              </button>
             </div>
           </div>
 
-          {/* Right Side - Clerk Authentication */}
-          <div className="flex flex-col justify-center">
-            <div className="bg-white py-12 px-10 shadow-2xl rounded-3xl border border-gray-100">
-              {/* Header */}
-              <div className="text-center mb-10">
-                <h1 className="text-4xl font-bold text-gray-900 mb-3">
-                  Logowanie i rejestracja
-                </h1>
-                <p className="text-gray-600 text-lg">
-                  Zaloguj się do swojego konta lub utwórz nowe
-                </p>
+          {/* Authentication Form */}
+          <div className="max-w-md mx-auto">
+            {authMode === 'signin' ? (
+              <SignIn
+                appearance={{
+                  elements: {
+                    formButtonPrimary: 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-xl text-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full',
+                    card: 'shadow-none border-none',
+                    headerTitle: 'hidden',
+                    headerSubtitle: 'hidden',
+                    socialButtonsBlockButton: 'border-2 border-gray-300 hover:border-blue-500 rounded-xl py-3 text-base font-semibold transition-all duration-300 w-full',
+                    formFieldInput: 'px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 text-base bg-gray-50 w-full',
+                    formFieldLabel: 'text-sm font-semibold text-gray-700 mb-2',
+                    footerAction: 'hidden'
+                  }
+                }}
+                redirectUrl="/client/dashboard"
+              />
+            ) : (
+              <SignUp
+                appearance={{
+                  elements: {
+                    formButtonPrimary: 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 px-6 rounded-xl text-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full',
+                    card: 'shadow-none border-none',
+                    headerTitle: 'hidden',
+                    headerSubtitle: 'hidden',
+                    socialButtonsBlockButton: 'border-2 border-gray-300 hover:border-green-500 rounded-xl py-3 text-base font-semibold transition-all duration-300 w-full',
+                    formFieldInput: 'px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900 text-base bg-gray-50 w-full',
+                    formFieldLabel: 'text-sm font-semibold text-gray-700 mb-2',
+                    footerAction: 'hidden'
+                  }
+                }}
+                redirectUrl="/client/dashboard"
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Benefits Section - Collapsible */}
+        <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Dlaczego warto założyć konto?
+            </h2>
+            <button
+              onClick={() => setShowFullBenefits(!showFullBenefits)}
+              className="text-blue-600 hover:text-blue-800 font-semibold text-lg underline"
+            >
+              {showFullBenefits ? 'Ukryj szczegóły' : 'Zobacz wszystkie korzyści'}
+            </button>
+          </div>
+
+          {/* Short Benefits Preview */}
+          {!showFullBenefits && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl text-center">
+                <span className="text-2xl mb-2 block">📋</span>
+                <h3 className="font-semibold text-gray-900">Status gwarancji</h3>
               </div>
-
-              {/* Clerk Authentication Components */}
-              <div className="space-y-8">
-                <SignIn
-                  appearance={{
-                    elements: {
-                      formButtonPrimary: 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-5 px-8 rounded-xl text-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full',
-                      card: 'shadow-none border-none',
-                      headerTitle: 'hidden',
-                      headerSubtitle: 'hidden',
-                      socialButtonsBlockButton: 'border-2 border-gray-300 hover:border-blue-500 rounded-xl py-4 text-lg font-semibold transition-all duration-300 w-full',
-                      formFieldInput: 'px-6 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 text-lg bg-gray-50 w-full',
-                      formFieldLabel: 'text-sm font-semibold text-gray-700 mb-3',
-                      footerAction: 'hidden'
-                    }
-                  }}
-                  redirectUrl="/client/dashboard"
-                />
-
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300" />
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-white text-gray-500">lub</span>
-                  </div>
-                </div>
-
-                <SignUp
-                  appearance={{
-                    elements: {
-                      formButtonPrimary: 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-5 px-8 rounded-xl text-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full',
-                      card: 'shadow-none border-none',
-                      headerTitle: 'hidden',
-                      headerSubtitle: 'hidden',
-                      socialButtonsBlockButton: 'border-2 border-gray-300 hover:border-green-500 rounded-xl py-4 text-lg font-semibold transition-all duration-300 w-full',
-                      formFieldInput: 'px-6 py-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900 text-lg bg-gray-50 w-full',
-                      formFieldLabel: 'text-sm font-semibold text-gray-700 mb-3',
-                      footerAction: 'hidden'
-                    }
-                  }}
-                  redirectUrl="/client/dashboard"
-                />
+              <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl text-center">
+                <span className="text-2xl mb-2 block">👨‍💼</span>
+                <h3 className="font-semibold text-gray-900">Opiekun projektu</h3>
               </div>
-
-              {/* Help Link */}
-              <div className="mt-8 text-center">
-                <p className="text-gray-600 text-lg">
-                  Potrzebujesz pomocy?{' '}
-                  <a href="/contact" className="text-blue-600 hover:text-blue-800 font-semibold underline text-lg">
-                    Skontaktuj się z nami
-                  </a>
-                </p>
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-xl text-center">
+                <span className="text-2xl mb-2 block">📸</span>
+                <h3 className="font-semibold text-gray-900">Galeria zdjęć</h3>
               </div>
             </div>
-          </div>
+          )}
+
+          {/* Full Benefits Grid */}
+          {showFullBenefits && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Warranty Status */}
+                <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500">
+                  <div className="flex items-center mb-3">
+                    <span className="text-2xl mr-3">📋</span>
+                    <h3 className="text-lg font-bold text-gray-900">Status gwarancji</h3>
+                  </div>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    Śledź terminy i warunki gwarancji na swoje realizacje w czasie rzeczywistym
+                  </p>
+                </div>
+
+                {/* Project Manager */}
+                <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-green-500">
+                  <div className="flex items-center mb-3">
+                    <span className="text-2xl mr-3">👨‍💼</span>
+                    <h3 className="text-lg font-bold text-gray-900">Opiekun projektu</h3>
+                  </div>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    Bezpośredni kontakt z dedykowanym specjalistą przez cały okres współpracy
+                  </p>
+                </div>
+
+                {/* Before/After Photos */}
+                <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-purple-500">
+                  <div className="flex items-center mb-3">
+                    <span className="text-2xl mr-3">📸</span>
+                    <h3 className="text-lg font-bold text-gray-900">Efekt "przed i po"</h3>
+                  </div>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    Galeria zdjęć z realizacji Twojego projektu dostępna online
+                  </p>
+                </div>
+
+                {/* Online Documents */}
+                <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-orange-500">
+                  <div className="flex items-center mb-3">
+                    <span className="text-2xl mr-3">📄</span>
+                    <h3 className="text-lg font-bold text-gray-900">Dokumenty online</h3>
+                  </div>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    Umowy, faktury i dokumentacja w jednym bezpiecznym miejscu
+                  </p>
+                </div>
+
+                {/* Discounts */}
+                <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-pink-500">
+                  <div className="flex items-center mb-3">
+                    <span className="text-2xl mr-3">💰</span>
+                    <h3 className="text-lg font-bold text-gray-900">Rabaty</h3>
+                  </div>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    Ekskluzywne zniżki dla stałych klientów i program lojalnościowy
+                  </p>
+                </div>
+
+                {/* Post-warranty Service */}
+                <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-indigo-500">
+                  <div className="flex items-center mb-3">
+                    <span className="text-2xl mr-3">🔧</span>
+                    <h3 className="text-lg font-bold text-gray-900">Serwis pogwarancyjny</h3>
+                  </div>
+                  <p className="text-gray-600 text-sm leading-relaxed">
+                    Profesjonalne wsparcie techniczne po zakończeniu gwarancji
+                  </p>
+                </div>
+              </div>
+
+              {/* Additional Info */}
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-6 text-white">
+                <h3 className="text-xl font-bold mb-3">🚀 Rozpocznij swoją podróż z nami</h3>
+                <p className="text-blue-100 mb-4 leading-relaxed">
+                  Założenie konta to pierwszy krok do profesjonalnej współpracy i dostępu do ekskluzywnych korzyści.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="flex items-center">
+                    <span className="text-yellow-300 mr-2">✓</span>
+                    <span className="text-sm">Bezpieczeństwo danych</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="text-yellow-300 mr-2">✓</span>
+                    <span className="text-sm">Historia projektów</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="text-yellow-300 mr-2">✓</span>
+                    <span className="text-sm">Priorytetowe wsparcie</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Help Section */}
+        <div className="text-center mt-8">
+          <p className="text-gray-600">
+            Potrzebujesz pomocy?{' '}
+            <a href="/contact" className="text-blue-600 hover:text-blue-800 font-semibold underline">
+              Skontaktuj się z nami
+            </a>
+          </p>
         </div>
       </div>
     </div>

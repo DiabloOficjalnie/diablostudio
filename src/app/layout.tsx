@@ -8,6 +8,7 @@ import {
   SignedOut,
   UserButton,
 } from '@clerk/nextjs'
+import { plPL } from '@clerk/localizations'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -23,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider localization={plPL}>
       <html lang="pl">
         <body className={inter.className} suppressHydrationWarning={true}>
           {children}
