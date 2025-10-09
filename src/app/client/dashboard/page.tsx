@@ -109,6 +109,9 @@ function ClientDashboardContent() {
   const [profile, setProfile] = useState<any>(null)
   const [quotes, setQuotes] = useState<ClientQuote[]>([])
   const [consultations, setConsultations] = useState<ConsultationRequest[]>([])
+  const [documents, setDocuments] = useState<Array<{ id: string; title: string; url: string; type?: string; created_at: string }>>([])
+  const [photos, setPhotos] = useState<Array<{ id: string; title: string; url: string; thumbnail_url?: string; created_at: string }>>([])
+  const [affiliate, setAffiliate] = useState<{ referral_code: string; referrals_count: number; discount_percentage: number; points: number; created_at: string } | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('overview')
   const [showValuationForm, setShowValuationForm] = useState(false)
@@ -776,6 +779,9 @@ function ClientDashboardContent() {
     if (user && profile) {
       loadQuotes()
       loadConsultationsFromAPI()
+      loadDocumentsFromAPI()
+      loadPhotosFromAPI()
+      loadAffiliateFromAPI()
       loadUserProgress() // Load user progress from database
       // Check if 2FA is enabled for this user
       if (profile.two_factor_enabled) {
@@ -783,6 +789,83 @@ function ClientDashboardContent() {
       }
     }
   }, [user, profile])
+
+  // Load documents using API
+  const loadDocumentsFromAPI = async () => {
+    try {
+      const token = await getToken()
+      if (!token) return
+      const res = await fetch('/api/client/documents', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.success) {
+          setDocuments(data.documents || [])
+        }
+      }
+    } catch (e) {
+      console.error('Error loading documents:', e)
+    }
+  }
+
+  // Load photos using API
+  const loadPhotosFromAPI = async () => {
+    try {
+      const token = await getToken()
+      if (!token) return
+      const res = await fetch('/api/client/photos', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.success) {
+          setPhotos(data.photos || [])
+        }
+      }
+    } catch (e) {
+      console.error('Error loading photos:', e)
+    }
+  }
+
+  // Load affiliate using API
+  const loadAffiliateFromAPI = async () => {
+    try {
+      const token = await getToken()
+      if (!token) return
+      const res = await fetch('/api/client/affiliate', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (data.success) {
+          setAffiliate(data.affiliate)
+        }
+      }
+    } catch (e) {
+      console.error('Error loading affiliate:', e)
+    }
+  }
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      if (navigator?.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text)
+        addNotification('success', 'Skopiowano', 'Link został skopiowany do schowka')
+      }
+    } catch (e) {
+      console.error('Clipboard error:', e)
+    }
+  }
 
   // Load consultations using API endpoint with fallback
   const loadConsultationsFromAPI = async () => {
@@ -1169,6 +1252,36 @@ function ClientDashboardContent() {
     } catch (error) {
       console.error('Error deleting quote:', error)
       alert('Wystąpił błąd podczas usuwania wyceny')
+    }
+  }
+
+  // Cancel consultation
+  const cancelConsultation = async (consultationId: string) => {
+    try {
+      const token = await getToken()
+      if (!token) {
+        alert('Sesja wygasła. Zaloguj się ponownie.')
+        return
+      }
+      const res = await fetch('/api/client/consultations', {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id: consultationId, action: 'cancel' })
+      })
+      const result = await res.json()
+      if (!res.ok || !result.success) {
+        console.error('Cancel consultation error:', result)
+        alert(result.error || 'Nie udało się odwołać konsultacji')
+        return
+      }
+      addNotification('success', 'Konsultacja odwołana', 'Twoja konsultacja została odwołana.')
+      loadConsultations()
+    } catch (error) {
+      console.error('Error cancelling consultation:', error)
+      alert('Wystąpił błąd podczas odwoływania konsultacji')
     }
   }
 
@@ -2476,9 +2589,19 @@ function ClientDashboardContent() {
                           }`}>
                             {consultation.status === 'pending' ? 'Oczekująca' :
                              consultation.status === 'confirmed' ? 'Potwierdzona' :
-                             consultation.status === 'completed' ? 'Zakończona' :
+                             consultation.status === 'completed' ? 'Konsultacja zakończona' :
                              'Anulowana'}
                           </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {(consultation.status === 'pending' || consultation.status === 'confirmed') && (
+                            <button
+                              onClick={() => cancelConsultation(consultation.id)}
+                              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-bold transition-colors shadow-lg"
+                            >
+                              Odwołaj
+                            </button>
+                          )}
                         </div>
                       </div>
 
@@ -2520,20 +2643,42 @@ function ClientDashboardContent() {
             <div className="p-8">
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Moje dokumenty</h3>
-                <div className="text-center py-20">
-                  <div className="text-6xl mb-6">📄</div>
-                  <h4 className="text-xl font-bold text-gray-900 mb-4">
-                    Brak dokumentów
-                  </h4>
+                {documents.length === 0 ? (
+                  <div className="text-center py-20">
+                    <div className="text-6xl mb-6">📄</div>
+                    <h4 className="text-xl font-bold text-gray-900 mb-4">
+                      Brak dokumentów
+                    </h4>
                   <p className="text-gray-600 mb-8 max-w-md mx-auto">
                     W tej sekcji będą dostępne Twoje dokumenty: umowy, gwarancje, faktury i protokoły odbioru.
                   </p>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
-                    <p className="text-sm text-blue-800">
-                      📋 Dokumenty będą dostępne po realizacji projektu
-                    </p>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md mx-auto">
+                      <p className="text-sm text-blue-800">
+                        📋 Dokumenty będą dostępne po realizacji projektu
+                      </p>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {documents.map(doc => (
+                      <div key={doc.id} className="border rounded-lg p-4 bg-white shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                          <h4 className="font-semibold text-gray-900 truncate pr-2">{doc.title || 'Dokument'}</h4>
+                          <span className="text-xs text-gray-500">{new Date(doc.created_at).toLocaleDateString('pl-PL')}</span>
+                        </div>
+                        <div className="text-xs text-gray-600 mb-3">{doc.type || 'plik'}</div>
+                        <div className="flex items-center gap-2">
+                          <a href={doc.url} target="_blank" rel="noopener noreferrer" className="flex-1 text-center px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors">
+                            Pobierz
+                          </a>
+                          <a href={doc.url} target="_blank" rel="noopener noreferrer" className="flex-1 text-center px-3 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg text-sm font-medium transition-colors">
+                            Podgląd
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -2543,20 +2688,41 @@ function ClientDashboardContent() {
             <div className="p-8">
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Galeria zdjęć</h3>
-                <div className="text-center py-20">
-                  <div className="text-6xl mb-6">📷</div>
-                  <h4 className="text-xl font-bold text-gray-900 mb-4">
-                    Brak zdjęć
-                  </h4>
+                {photos.length === 0 ? (
+                  <div className="text-center py-20">
+                    <div className="text-6xl mb-6">📷</div>
+                    <h4 className="text-xl font-bold text-gray-900 mb-4">
+                      Brak zdjęć
+                    </h4>
                   <p className="text-gray-600 mb-8 max-w-md mx-auto">
                     Tutaj będą dostępne zdjęcia przed i po realizacji Twoich projektów.
                   </p>
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 max-w-md mx-auto">
-                    <p className="text-sm text-green-800">
-                      🏗️ Zdjęcia będą dostępne po rozpoczęciu realizacji projektu
-                    </p>
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 max-w-md mx-auto">
+                      <p className="text-sm text-green-800">
+                        🏗️ Zdjęcia będą dostępne po rozpoczęciu realizacji projektu
+                      </p>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {photos.map(photo => (
+                      <a key={photo.id} href={photo.url} target="_blank" rel="noopener noreferrer" className="block group border rounded-lg overflow-hidden bg-white shadow-sm">
+                        <div className="aspect-square bg-gray-100 overflow-hidden">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={photo.thumbnail_url || photo.url}
+                            alt={photo.title || 'Zdjęcie'}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          />
+                        </div>
+                        <div className="p-2">
+                          <div className="text-sm font-medium text-gray-900 truncate">{photo.title || 'Zdjęcie'}</div>
+                          <div className="text-xs text-gray-500">{new Date(photo.created_at).toLocaleDateString('pl-PL')}</div>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -2566,18 +2732,45 @@ function ClientDashboardContent() {
             <div className="p-8">
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-4">Program afiliacyjny</h3>
-                <div className="text-center py-20">
-                  <div className="text-6xl mb-6">🎯</div>
-                  <h4 className="text-xl font-bold text-gray-900 mb-4">
-                    Program afiliacyjny
-                  </h4>
-                  <p className="text-gray-600 mb-8 max-w-md mx-auto">
-                    Zapraszaj znajomych i zdobywaj rabaty na nasze usługi. Za każde zrealizowane zlecenie otrzymasz 1% rabatu (max 10%).
-                  </p>
-                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4 max-w-md mx-auto">
-                    <p className="text-sm text-purple-800">
-                      🔗 Twój kod referencyjny będzie dostępny po pierwszym zrealizowanym projekcie
-                    </p>
+                <div className="grid gap-6">
+                  <div className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-sm opacity-80">Twój kod referencyjny</div>
+                        <div className="text-2xl font-bold">{affiliate?.referral_code || 'DS-XXXXXX'}</div>
+                      </div>
+                      <button
+                        onClick={() => {
+                          const origin = typeof window !== 'undefined' ? window.location.origin : 'https://decosol.pl'
+                          const link = `${origin}/?ref=${affiliate?.referral_code || ''}`
+                          copyToClipboard(link)
+                        }}
+                        className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm font-semibold transition-colors"
+                      >
+                        Skopiuj link
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-white rounded-lg p-4 border">
+                      <div className="text-sm text-gray-600">Polecenia</div>
+                      <div className="text-2xl font-bold text-gray-900">{affiliate?.referrals_count ?? 0}</div>
+                    </div>
+                    <div className="bg-white rounded-lg p-4 border">
+                      <div className="text-sm text-gray-600">Rabat</div>
+                      <div className="text-2xl font-bold text-gray-900">{affiliate?.discount_percentage ?? 0}%</div>
+                    </div>
+                    <div className="bg-white rounded-lg p-4 border">
+                      <div className="text-sm text-gray-600">Punkty</div>
+                      <div className="text-2xl font-bold text-gray-900">{affiliate?.points ?? 0}</div>
+                    </div>
+                  </div>
+
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                    <div className="text-sm text-purple-800">
+                      Udostępnij znajomym swój link polecający. Za każde zrealizowane zlecenie otrzymasz 1% rabatu (max 10%).
+                    </div>
                   </div>
                 </div>
               </div>
@@ -3112,8 +3305,8 @@ function ClientDashboardContent() {
                   <p className="text-gray-600">Zarządzaj swoimi danymi i ustawieniami bezpieczeństwa</p>
                 </div>
 
-                {/* Personal Information */}
-                <div className="bg-white rounded-lg shadow-sm p-8">
+                {/* Personal Information (hidden, Clerk UserProfile handles account data) */}
+                <div className="hidden">
                   <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
                     <span className="text-2xl mr-3">👤</span>
                     Dane osobowe
@@ -3178,10 +3371,23 @@ function ClientDashboardContent() {
 
                   {/* Clerk account management embeds: 2FA, password, email, delete account */}
                   <div className="mb-10">
-                    <UserProfile routing="hash" />
+                    <UserProfile
+                      routing="hash"
+                      appearance={{
+                        elements: {
+                          rootBox: 'w-full',
+                          card: 'w-full max-w-6xl mx-auto text-lg sm:text-xl',
+                          navbar: 'text-lg sm:text-xl',
+                          formButtonPrimary: 'text-xl sm:text-2xl py-4 sm:py-5',
+                          formFieldInput: 'text-lg sm:text-xl py-4 sm:py-5',
+                          profileSection__activeDevices: 'text-lg sm:text-xl',
+                          userButtonPopoverCard: 'text-lg sm:text-xl'
+                        }
+                      }}
+                    />
                   </div>
 
-                  <div className="space-y-6">
+                  <div className="space-y-6 hidden">
                     {/* Change Password */}
                     <div className="border-b border-gray-200 pb-6">
                       <h4 className="text-lg font-semibold text-gray-900 mb-4">Zmiana hasła</h4>
@@ -3249,8 +3455,8 @@ function ClientDashboardContent() {
                   </div>
                 </div>
 
-                {/* Consents and Agreements */}
-                <div className="bg-white rounded-lg shadow-sm p-8">
+                {/* Consents and Agreements - hidden (leave only Clerk in Settings) */}
+                <div className="hidden">
                   <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
                     <span className="text-2xl mr-3">📋</span>
                     Zgody i regulaminy
@@ -3317,8 +3523,8 @@ function ClientDashboardContent() {
                   </div>
                 </div>
 
-                {/* Account Actions */}
-                <div className="bg-white rounded-lg shadow-sm p-8">
+                {/* Account Actions - hidden (leave only Clerk in Settings) */}
+                <div className="hidden">
                   <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
                     <span className="text-2xl mr-3">⚠️</span>
                     Akcje konta
@@ -3338,7 +3544,7 @@ function ClientDashboardContent() {
                       </button>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200">
+                    <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg border border-red-200 hidden">
                       <div>
                         <h4 className="font-medium text-red-900">Usuń konto</h4>
                         <p className="text-sm text-red-700">Trwale usuń swoje konto i wszystkie dane</p>
@@ -3636,7 +3842,7 @@ function ClientDashboardContent() {
       )}
 
       {/* 2FA Setup Modal */}
-      {showTwoFactorModal && (
+      {false && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-md w-full shadow-xl">
             <div className="p-8">
@@ -3735,7 +3941,7 @@ function ClientDashboardContent() {
       )}
 
       {/* Password Change Modal */}
-      {showPasswordModal && (
+      {false && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-md w-full shadow-xl">
             <div className="p-8">
@@ -3832,7 +4038,7 @@ function ClientDashboardContent() {
       )}
 
       {/* Email Change Modal */}
-      {showEmailModal && (
+      {false && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl max-w-md w-full shadow-xl">
             <div className="p-8">
