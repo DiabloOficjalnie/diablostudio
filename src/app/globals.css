@@ -90,4 +90,61 @@ html, body {
     -ms-user-select: none;
     user-select: none;
   }
+
+  /* Enhanced select dropdown design (global) */
+  select, .form-select {
+    @apply text-black bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    color-scheme: light; /* avoid harsh OS highlight on iOS/Chrome */
+    background-image:
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 8l4 4 4-4' stroke='%23567088' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    padding-right: 2.5rem; /* space for arrow */
+  }
+
+  /* Remove default arrow on IE/Edge Legacy */
+  select::-ms-expand {
+    display: none;
+  }
+
+  /* Option styles (best-effort across browsers) */
+  select option {
+    background-color: #ffffff;
+    color: #111827; /* gray-900 */
+  }
+
+  select option:hover,
+  select option:focus,
+  select option:checked {
+    background-color: #e8f0ff; /* soft brand highlight */
+    color: #0f172a; /* slate-900 */
+  }
+
+  /* Avoid harsh native outlines */
+  select:focus-visible {
+    outline: none;
+  }
+
+  /* Dark scheme adjustments */
+  @media (prefers-color-scheme: dark) {
+    select, .form-select {
+      @apply text-white bg-slate-900 border-slate-700 focus:ring-blue-400;
+      background-image:
+        url("data:image/svg+xml,%3Csvg viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 8l4 4 4-4' stroke='%23aab4cf' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    }
+    select option {
+      background-color: #0b1220;
+      color: #e5e7eb; /* gray-200 */
+    }
+    select option:hover,
+    select option:focus,
+    select option:checked {
+      background-color: #1e293b; /* slate-800 */
+      color: #ffffff;
+    }
+  }
 }

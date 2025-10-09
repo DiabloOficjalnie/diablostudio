@@ -194,6 +194,8 @@ function ClientDashboardContent() {
   const [quizAnswers, setQuizAnswers] = useState<{[key: string]: {[questionIndex: number]: number}}>({})
   const [quizResults, setQuizResults] = useState<{[key: string]: {[questionIndex: number]: boolean}}>({})
   const [showQuizResults, setShowQuizResults] = useState<{[key: string]: boolean}>({})
+  const [quizAttempts, setQuizAttempts] = useState<{[key: string]: number}>({})
+  const [showCorrectAnswers, setShowCorrectAnswers] = useState<{[key: string]: boolean}>({})
   const [userGuideProgress, setUserGuideProgress] = useState<{[key: string]: {step: number, completed: boolean, quizResults: any}}>({})
 
   // Notification system - pozycjonowane przy przycisku quiz
@@ -777,6 +779,15 @@ function ClientDashboardContent() {
 
   useEffect(() => {
     if (user && profile) {
+      // Attach pending homepage quote (saved in sessionStorage) to this account after login
+      ;(async () => {
+        try {
+          await attachPendingQuoteToAccount()
+        } catch (e) {
+          console.error('Attach pending quote error:', e)
+        }
+      })()
+
       loadQuotes()
       loadConsultationsFromAPI()
       loadDocumentsFromAPI()
@@ -864,6 +875,68 @@ function ClientDashboardContent() {
       }
     } catch (e) {
       console.error('Clipboard error:', e)
+    }
+  }
+
+  // Attach pending homepage quote (if user calculated on homepage while not logged in)
+  const attachPendingQuoteToAccount = async () => {
+    try {
+      if (!user?.id) return
+      if (typeof window === 'undefined') return
+      const pending = sessionStorage.getItem('pendingQuote')
+      if (!pending) return
+
+      const pq = JSON.parse(pending || '{}')
+      const area = pq.area || pq.totalArea || 0
+      const floorSystem = pq.floorSystem || ''
+      const substrateCondition = pq.substrateCondition || ''
+      const location = pq.location || ''
+      const decorativeSystem = pq.decorativeSystem || ''
+      const priceMin = pq.priceRange?.min ?? pq.priceMin ?? 0
+      const priceMax = pq.priceRange?.max ?? pq.priceMax ?? 0
+      const totalMin = pq.totalMin ?? Math.round(priceMin * area)
+      const totalMax = pq.totalMax ?? Math.round(priceMax * area)
+
+      // Basic validation
+      if (!area || !floorSystem || !substrateCondition || !location || !decorativeSystem) {
+        // Incomplete payload; discard to avoid bad records
+        sessionStorage.removeItem('pendingQuote')
+        return
+      }
+
+      const res = await fetch('/api/client-quotes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientId: user.id,
+          quoteData: {
+            area,
+            floorSystem,
+            substrateCondition,
+            location,
+            decorativeSystem,
+            priceMin,
+            priceMax,
+            totalMin,
+            totalMax
+          },
+          contactPreferences: null,
+          consents: null
+        })
+      })
+
+      const result = await res.json()
+      if (!res.ok || result.error) {
+        console.error('Failed to attach pending quote:', result)
+        return
+      }
+
+      // Clear pending data and notify
+      sessionStorage.removeItem('pendingQuote')
+      addNotification('success', 'Wycena zapisana', 'Zapisano wycenę z kalkulatora na Twoim koncie.')
+      await loadQuotes()
+    } catch (e) {
+      console.error('attachPendingQuoteToAccount exception:', e)
     }
   }
 
@@ -1556,6 +1629,10 @@ function ClientDashboardContent() {
       ...showQuizResults,
       [stepId]: true
     })
+    setQuizAttempts(prev => ({
+      ...prev,
+      [stepId]: (prev[stepId] || 0) + 1
+    }))
 
     // Save quiz results to database
     if (user) {
@@ -1625,6 +1702,23 @@ function ClientDashboardContent() {
   }
 
   // Download account data
+  // Reset quiz for a specific step (clears answers, results and helper flags)
+  const resetQuizStep = (stepId: string) => {
+    setQuizAnswers(prev => {
+      const copy = { ...prev }
+      delete copy[stepId]
+      return copy
+    })
+    setQuizResults(prev => {
+      const copy = { ...prev }
+      delete copy[stepId]
+      return copy
+    })
+    setShowQuizResults(prev => ({ ...prev, [stepId]: false }))
+    setShowCorrectAnswers(prev => ({ ...prev, [stepId]: false }))
+    setQuizAttempts(prev => ({ ...prev, [stepId]: 0 }))
+  }
+
   const handleDownloadData = async () => {
     if (!user?.id) {
       alert('Błąd użytkownika')
@@ -2221,7 +2315,7 @@ function ClientDashboardContent() {
                   </p>
                 </div>
 
-                <form onSubmit={(e) => {
+                <form onSubmit={async (e) => {
                   e.preventDefault()
                   // Handle valuation calculation
                   const totalArea = valuationForm.rooms.reduce((total, room) => total + (parseFloat(room.area) || 0), 0)
@@ -2252,9 +2346,49 @@ function ClientDashboardContent() {
 
                     const minPrice = Math.round(basePrice * 0.85)
                     const maxPrice = Math.round(basePrice * 1.15)
+                    const totalMin = Math.round(minPrice * totalArea)
+                    const totalMax = Math.round(maxPrice * totalArea)
 
                     setValuationPriceRange({ min: minPrice, max: maxPrice })
-                    setShowValuationModal(true)
+                    // Persist quote to DB via API to mirror homepage quick valuation
+                    try {
+                      if (!user?.id) {
+                        alert('Sesja wygasła. Zaloguj się ponownie.')
+                      } else {
+                        const res = await fetch('/api/client-quotes', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            clientId: user.id,
+                            quoteData: {
+                              area: totalArea,
+                              floorSystem: valuationForm.floorSystem,
+                              substrateCondition: valuationForm.substrateCondition,
+                              location: valuationForm.location,
+                              decorativeSystem: valuationForm.decorativeSystem,
+                              priceMin: minPrice,
+                              priceMax: maxPrice,
+                              totalMin,
+                              totalMax
+                            },
+                            contactPreferences: null,
+                            consents: null
+                          })
+                        })
+                        const result = await res.json()
+                        if (!res.ok || result.error) {
+                          console.error('Save quote error:', result)
+                          addNotification('error', 'Nie zapisano wyceny', result.error || 'Wystąpił problem podczas zapisu wyceny.')
+                        } else {
+                          addNotification('success', 'Wycena zapisana', 'Wycena została zapisana w Twoim koncie.')
+                          await loadQuotes()
+                          setActiveTab('quotes')
+                        }
+                      }
+                    } catch (err) {
+                      console.error('Save quote exception:', err)
+                      addNotification('error', 'Błąd zapisu', 'Wystąpił błąd podczas zapisu wyceny.')
+                    }
                   }
                 }} className="space-y-8">
 
@@ -3111,7 +3245,24 @@ function ClientDashboardContent() {
                                                 </p>
                                                 <div className="space-y-2">
                                                   {quizItem.options.map((option, optionIndex) => (
-                                                    <label key={optionIndex} className="flex items-center space-x-2 cursor-pointer p-2 rounded hover:bg-gray-50 transition-colors">
+                                                    <label
+                                                    key={optionIndex}
+                                                    className={`flex items-center space-x-2 cursor-pointer p-2 rounded border transition-colors ${
+                                                      (showQuizResults[step.id] &&
+                                                        (quizResults[step.id]?.[quizIndex] === true) &&
+                                                        (quizAnswers[step.id]?.[quizIndex] === optionIndex))
+                                                        ? 'bg-green-50 border-green-300'
+                                                        : (showQuizResults[step.id] &&
+                                                           (quizResults[step.id]?.[quizIndex] === false) &&
+                                                           (quizAnswers[step.id]?.[quizIndex] === optionIndex))
+                                                        ? 'bg-red-50 border-red-300'
+                                                        : (showQuizResults[step.id] &&
+                                                           showCorrectAnswers[step.id] &&
+                                                           optionIndex === quizItem.correct)
+                                                        ? 'bg-green-50 border-green-200'
+                                                        : 'hover:bg-gray-50 border-gray-200'
+                                                    }`}
+                                                  >
                                                       <input
                                                         type="radio"
                                                         name={`quiz-${step.id}-${quizIndex}`}
@@ -3198,16 +3349,49 @@ function ClientDashboardContent() {
 
                                           {/* Quiz Actions */}
                                           <div className="mt-4 pt-4 border-t border-purple-200">
-                                            <div className="flex justify-between items-center">
+                                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                                               <p className="text-sm text-purple-700">
                                                 Odpowiedz na wszystkie pytania, aby przejść dalej
                                               </p>
-                                              <button
-                                                onClick={() => handleCheckQuiz(step.id)}
-                                                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
-                                              >
-                                                Sprawdź odpowiedzi
-                                              </button>
+                                              <div className="flex flex-wrap gap-2">
+                                                <button
+                                                  onClick={() => handleCheckQuiz(step.id)}
+                                                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors"
+                                                >
+                                                  Sprawdź odpowiedzi
+                                                </button>
+                                                {showQuizResults[step.id] && !(Object.values(quizResults[step.id] || {}).every(Boolean)) && (
+                                                  <>
+                                                    <button
+                                                      onClick={() => {
+                                                        setQuizAnswers(prev => {
+                                                          const copy = { ...prev }
+                                                          delete copy[step.id]
+                                                          return copy
+                                                        })
+                                                        setQuizResults(prev => {
+                                                          const copy = { ...prev }
+                                                          delete copy[step.id]
+                                                          return copy
+                                                        })
+                                                        setShowQuizResults(prev => ({ ...prev, [step.id]: false }))
+                                                        setShowCorrectAnswers(prev => ({ ...prev, [step.id]: false }))
+                                                      }}
+                                                      className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg text-sm font-medium transition-colors"
+                                                    >
+                                                      Spróbuj ponownie
+                                                    </button>
+                                                    {((quizAttempts[step.id] || 0) >= 2) && (
+                                                      <button
+                                                        onClick={() => setShowCorrectAnswers(prev => ({ ...prev, [step.id]: !prev[step.id] }))}
+                                                        className="px-4 py-2 bg-green-100 hover:bg-green-200 text-green-800 rounded-lg text-sm font-medium transition-colors"
+                                                      >
+                                                        {showCorrectAnswers[step.id] ? 'Ukryj poprawne odpowiedzi' : 'Pokaż poprawne odpowiedzi'}
+                                                      </button>
+                                                    )}
+                                                  </>
+                                                )}
+                                              </div>
                                             </div>
                                           </div>
                                         </div>

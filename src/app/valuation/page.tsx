@@ -1717,7 +1717,7 @@ export default function ValuationPage() {
 
             <div className="space-y-4 mb-8">
               <Link
-                href="/client/login"
+                href="/login"
                 onClick={() => {
                   setShowLoginModal(false)
                   // Store current quote data for after login
@@ -1730,8 +1730,7 @@ export default function ValuationPage() {
                     priceRange: priceRange
                   }))
                 }}
-                className="block w-full p-4 bg-blue-600 hover:bg-blue-700 text-white text-center font-semibold rounded-lg transition-all transform hover:scale-105 shadow-lg"
-              >
+                className="block w-full p-4 bg-blue-600 hover:bg-blue-700 text-white text-center font-semibold rounded-lg transition-all transform hover:scale-105 shadow-lg">
                 <div className="flex items-center justify-center mb-2">
                   <span className="text-2xl mr-3">👤</span>
                   <span className="text-xl">Zaloguj się jako klient</span>
@@ -1775,7 +1774,7 @@ export default function ValuationPage() {
 
             <div className="space-y-4 mb-8">
               <Link
-                href="/client/register"
+                href="/login"
                 onClick={() => {
                   setShowRegisterModal(false)
                   // Store current quote data for after registration

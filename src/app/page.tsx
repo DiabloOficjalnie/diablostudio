@@ -423,8 +423,8 @@ export default function HomePage() {
 
             {/* Mobile Accordion */}
             <div className="lg:hidden space-y-4">
-              <details className="bg-white rounded-xl shadow-lg" open>
-                <summary className="p-6 font-bold text-lg cursor-pointer hover:bg-blue-50 transition-colors">
+              <details className="bg-white rounded-xl shadow-lg border border-gray-200 text-gray-800" open>
+                <summary className="p-6 font-bold text-lg text-gray-900 cursor-pointer hover:bg-blue-50 transition-colors">
                   <span className="mr-3">🧪</span> Epoksyd - właściwości i zastosowanie
                 </summary>
                 <div className="p-6 pt-0">
@@ -437,8 +437,8 @@ export default function HomePage() {
                 </div>
               </details>
 
-              <details className="bg-white rounded-xl shadow-lg" open>
-                <summary className="p-6 font-bold text-lg cursor-pointer hover:bg-green-50 transition-colors">
+              <details className="bg-white rounded-xl shadow-lg border border-gray-200 text-gray-800" open>
+                <summary className="p-6 font-bold text-lg text-gray-900 cursor-pointer hover:bg-green-50 transition-colors">
                   <span className="mr-3">🌊</span> Poliuretan - właściwości i zastosowanie
                 </summary>
                 <div className="p-6 pt-0">
@@ -580,8 +580,8 @@ export default function HomePage() {
 
             {/* Mobile Accordion for Traditional */}
             <div className="md:hidden space-y-4">
-              <details className="bg-white rounded-xl shadow-lg" open>
-                <summary className="p-6 font-bold text-lg cursor-pointer hover:bg-blue-50 transition-colors">
+              <details className="bg-white rounded-xl shadow-lg border border-gray-200 text-gray-800" open>
+                <summary className="p-6 font-bold text-lg text-gray-900 cursor-pointer hover:bg-blue-50 transition-colors">
                   <span className="mr-3">🧪</span> Posadzki żywiczne - vs tradycyjne
                 </summary>
                 <div className="p-6 pt-0">
@@ -602,8 +602,8 @@ export default function HomePage() {
                 </div>
               </details>
 
-              <details className="bg-white rounded-xl shadow-lg" open>
-                <summary className="p-6 font-bold text-lg cursor-pointer hover:bg-orange-50 transition-colors">
+              <details className="bg-white rounded-xl shadow-lg border border-gray-200 text-gray-800" open>
+                <summary className="p-6 font-bold text-lg text-gray-900 cursor-pointer hover:bg-orange-50 transition-colors">
                   <span className="mr-3">🏠</span> Panele laminowane - właściwości
                 </summary>
                 <div className="p-6 pt-0">
@@ -620,8 +620,8 @@ export default function HomePage() {
                 </div>
               </details>
 
-              <details className="bg-white rounded-xl shadow-lg" open>
-                <summary className="p-6 font-bold text-lg cursor-pointer hover:bg-gray-50 transition-colors">
+              <details className="bg-white rounded-xl shadow-lg border border-gray-200 text-gray-800" open>
+                <summary className="p-6 font-bold text-lg text-gray-900 cursor-pointer hover:bg-gray-50 transition-colors">
                   <span className="mr-3">🧱</span> Płytki ceramiczne - właściwości
                 </summary>
                 <div className="p-6 pt-0">

@@ -74,26 +74,57 @@ export async function POST(req: Request) {
 
     const supabase = createAdminClient();
 
-    const { data, error } = await supabase
+    // Try inserting with extended fields. If columns are missing in existing schema, fall back gracefully.
+    const insertPayload = {
+      client_id: userId,
+      quote_id,
+      preferred_date,
+      preferred_time,
+      message,
+      status: 'pending' as const,
+      service_type,
+      inquiry_type
+    };
+
+    let insertResult = await supabase
       .from('consultation_requests')
-      .insert({
-        client_id: userId,
-        quote_id,
-        preferred_date,
-        preferred_time,
-        message,
-        status: 'pending',
-        service_type,
-        inquiry_type
-      })
+      .insert(insertPayload)
       .select('id')
       .single();
 
-    if (error) {
-      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    if (insertResult.error) {
+      const msg = insertResult.error.message?.toLowerCase() || '';
+      const missingColumn =
+        msg.includes('inquiry_type') ||
+        msg.includes('service_type') ||
+        msg.includes('preferred_time') ||
+        msg.includes('column');
+
+      if (missingColumn) {
+        // Fallback: insert minimal payload compatible with older schema
+        const minimalPayload = {
+          client_id: userId,
+          quote_id,
+          preferred_date,
+          message,
+          status: 'pending' as const
+        };
+
+        insertResult = await supabase
+          .from('consultation_requests')
+          .insert(minimalPayload)
+          .select('id')
+          .single();
+
+        if (insertResult.error) {
+          return NextResponse.json({ success: false, error: insertResult.error.message }, { status: 500 });
+        }
+      } else {
+        return NextResponse.json({ success: false, error: insertResult.error.message }, { status: 500 });
+      }
     }
 
-    return NextResponse.json({ success: true, message: 'Consultation request created', id: data?.id }, { status: 201 });
+    return NextResponse.json({ success: true, message: 'Consultation request created', id: insertResult.data?.id }, { status: 201 });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err?.message || 'Server error' }, { status: 500 });
   }

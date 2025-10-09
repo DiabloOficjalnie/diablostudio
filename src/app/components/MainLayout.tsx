@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useUser } from '@clerk/nextjs'
 
 interface MainLayoutProps {
   children: React.ReactNode
@@ -16,6 +17,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const [newsletterEmail, setNewsletterEmail] = useState('')
   const [newsletterStatus, setNewsletterStatus] = useState<string | null>(null)
   const pathname = usePathname()
+  const { user, isLoaded } = useUser()
 
   const navigation = [
     { name: 'Strona główna', href: '/' },
@@ -124,14 +126,27 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 </Link>
               ))}
               <div className="h-6 w-px bg-gray-300" />
-              <Link
-                href="/login"
-                className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-all hover:scale-105 shadow-md"
-                title="Zaloguj się lub zarejestruj"
-              >
-                <span className="mr-2">👤</span>
-                Logowanie
-              </Link>
+              {isLoaded ? (
+                user ? (
+                  <Link
+                    href="/client/dashboard"
+                    className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-lg transition-all hover:scale-105 shadow-md"
+                    title="Panel klienta"
+                  >
+                    <span className="mr-2">📂</span>
+                    Panel klienta
+                  </Link>
+                ) : (
+                  <Link
+                    href="/login"
+                    className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-all hover:scale-105 shadow-md"
+                    title="Zaloguj się lub zarejestruj"
+                  >
+                    <span className="mr-2">👤</span>
+                    Logowanie
+                  </Link>
+                )
+              ) : null}
             </nav>
 
             {/* Mobile Menu Button */}
@@ -175,16 +190,29 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
                 <div className="border-t border-gray-200 my-4" />
 
-                {/* Single "Logowanie" in mobile */}
+                {/* Login / Panel klienta (mobile) */}
                 <div className="space-y-2">
-                  <a
-                    href="/login"
-                    onClick={toggleMobileMenu}
-                    className="block w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg text-center transition-all shadow-md"
-                  >
-                    <span className="mr-2">👤</span>
-                    Logowanie
-                  </a>
+                  {isLoaded ? (
+                    user ? (
+                      <Link
+                        href="/client/dashboard"
+                        onClick={toggleMobileMenu}
+                        className="block w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-lg text-center transition-all shadow-md"
+                      >
+                        <span className="mr-2">📂</span>
+                        Panel klienta
+                      </Link>
+                    ) : (
+                      <a
+                        href="/login"
+                        onClick={toggleMobileMenu}
+                        className="block w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg text-center transition-all shadow-md"
+                      >
+                        <span className="mr-2">👤</span>
+                        Logowanie
+                      </a>
+                    )
+                  ) : null}
                 </div>
               </nav>
             </div>
