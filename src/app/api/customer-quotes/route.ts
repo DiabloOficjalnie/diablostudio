@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase'
+import { verifyTurnstile, extractClientIp } from '@/lib/turnstile'
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,7 +23,8 @@ export async function POST(request: NextRequest) {
       customerData,
       quoteData,
       contactPreferences,
-      consents
+      consents,
+      turnstileToken,
     } = body
 
     console.log('Received customer quote data:', {
@@ -31,6 +33,16 @@ export async function POST(request: NextRequest) {
       contactPreferences,
       consents
     })
+
+    // Verify Cloudflare Turnstile (required for anonymous submissions)
+    const ip = extractClientIp(request.headers)
+    const captcha = await verifyTurnstile(turnstileToken, ip)
+    if (!captcha.success) {
+      return NextResponse.json(
+        { error: 'Weryfikacja antybot nie powiodła się' },
+        { status: 400 }
+      )
+    }
 
     // Validate required fields
     if (!customerData.name || !customerData.email) {

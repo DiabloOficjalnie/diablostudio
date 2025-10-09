@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import MainLayout from './components/MainLayout'
 import ReviewForm from './components/ReviewForm'
+import TurnstileWidget from './components/TurnstileWidget'
 
 interface Review {
   id: string
@@ -63,6 +64,17 @@ export default function HomePage() {
   const [blogPosts, setBlogPosts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [helpfulClicked, setHelpfulClicked] = useState<Record<string, boolean>>({})
+
+  // Newsletter states (homepage sections)
+  const [newsletterFirstNameTop, setNewsletterFirstNameTop] = useState('')
+  const [newsletterEmailTop, setNewsletterEmailTop] = useState('')
+  const [newsletterStatusTop, setNewsletterStatusTop] = useState<string | null>(null)
+  const [newsletterCaptchaTop, setNewsletterCaptchaTop] = useState('')
+
+  const [newsletterFirstNameBlog, setNewsletterFirstNameBlog] = useState('')
+  const [newsletterEmailBlog, setNewsletterEmailBlog] = useState('')
+  const [newsletterStatusBlog, setNewsletterStatusBlog] = useState<string | null>(null)
+  const [newsletterCaptchaBlog, setNewsletterCaptchaBlog] = useState('')
 
   const handleReviewSubmit = async (reviewData: any) => {
     try {
@@ -683,6 +695,86 @@ export default function HomePage() {
               Zamów wycenę posadzki żywicznej
               <span className="ml-2">📋</span>
             </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Newsletter CTA (above decorative systems) */}
+      <section className="py-12 bg-gradient-to-r from-indigo-700 to-purple-700">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white/10 backdrop-blur rounded-2xl p-8 text-white text-center shadow-xl border border-white/20">
+            <h3 className="text-3xl font-bold mb-3">📬 Dołącz do newslettera DecoSol</h3>
+            <p className="text-indigo-100 mb-6">
+              Porady ekspertów, inspiracje oraz promocje – 1-2 razy w miesiącu. Żadnego spamu.
+            </p>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault()
+                try {
+                  const params = new URLSearchParams(window.location.search)
+                  const utm_source = params.get('utm_source') || undefined
+                  const utm_medium = params.get('utm_medium') || undefined
+                  const utm_campaign = params.get('utm_campaign') || undefined
+
+                  const res = await fetch('/api/newsletter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      email: newsletterEmailTop,
+                      first_name: newsletterFirstNameTop,
+                      source: 'homepage_top',
+                      turnstileToken: newsletterCaptchaTop || undefined,
+                      utm_source,
+                      utm_medium,
+                      utm_campaign,
+                    })
+                  })
+                  const data = await res.json()
+                  if (!res.ok || data.error) {
+                    setNewsletterStatusTop(data.error || 'Wystąpił błąd. Spróbuj ponownie.')
+                  } else {
+                    setNewsletterStatusTop(data.message || 'Dziękujemy za zapis!')
+                    setNewsletterFirstNameTop('')
+                    setNewsletterEmailTop('')
+                  }
+                } catch {
+                  setNewsletterStatusTop('Wystąpił błąd. Spróbuj ponownie.')
+                }
+              }}
+              className="flex flex-col sm:flex-row gap-3 justify-center"
+            >
+              <input
+                type="text"
+                value={newsletterFirstNameTop}
+                onChange={(e) => setNewsletterFirstNameTop(e.target.value)}
+                placeholder="Twoje imię"
+                className="w-full sm:w-auto flex-1 px-4 py-3 rounded-lg bg-white text-gray-900 placeholder-gray-500 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white"
+                aria-label="Imię do newslettera"
+              />
+              <input
+                type="email"
+                required
+                value={newsletterEmailTop}
+                onChange={(e) => setNewsletterEmailTop(e.target.value)}
+                placeholder="Twój adres e-mail"
+                className="w-full sm:w-auto flex-1 px-4 py-3 rounded-lg bg-white text-gray-900 placeholder-gray-500 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white"
+                aria-label="Adres e-mail do newslettera"
+              />
+              <TurnstileWidget
+                onVerify={(t) => setNewsletterCaptchaTop(t)}
+                className="my-2"
+                size="compact"
+              />
+              <button
+                type="submit"
+                className="px-8 py-3 bg-white text-indigo-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                Zapisz się
+              </button>
+            </form>
+            {newsletterStatusTop && (
+              <p className="mt-3 text-sm text-indigo-100">{newsletterStatusTop}</p>
+            )}
           </div>
         </div>
       </section>
@@ -1730,27 +1822,76 @@ export default function HomePage() {
 
 
 
-          {/* Newsletter Signup */}
+          {/* Newsletter Signup (blog) */}
           <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-8 text-white text-center mb-8">
-            <h3 className="text-3xl font-bold mb-4">
-              📧 Chcesz być na bieżąco?
-            </h3>
-            <p className="text-xl mb-6 opacity-90">
-              Zapisz się do naszego newslettera i otrzymuj najnowsze artykuły bezpośrednio na swoją skrzynkę
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+            <h3 className="text-3xl font-bold mb-4">📧 Chcesz być na bieżąco?</h3>
+            <p className="text-xl mb-6 opacity-90">Zapisz się do naszego newslettera i otrzymuj najnowsze artykuły bezpośrednio na swoją skrzynkę</p>
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault()
+                try {
+                  const params = new URLSearchParams(window.location.search)
+                  const utm_source = params.get('utm_source') || undefined
+                  const utm_medium = params.get('utm_medium') || undefined
+                  const utm_campaign = params.get('utm_campaign') || undefined
+
+                  const res = await fetch('/api/newsletter', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      email: newsletterEmailBlog,
+                      first_name: newsletterFirstNameBlog,
+                      source: 'homepage_blog',
+                      turnstileToken: newsletterCaptchaBlog || undefined,
+                      utm_source,
+                      utm_medium,
+                      utm_campaign,
+                    })
+                  })
+                  const data = await res.json()
+                  if (!res.ok || data.error) {
+                    setNewsletterStatusBlog(data.error || 'Wystąpił błąd. Spróbuj ponownie.')
+                  } else {
+                    setNewsletterStatusBlog(data.message || 'Dziękujemy za zapis!')
+                    setNewsletterFirstNameBlog('')
+                    setNewsletterEmailBlog('')
+                  }
+                } catch {
+                  setNewsletterStatusBlog('Wystąpił błąd. Spróbuj ponownie.')
+                }
+              }}
+              className="flex flex-col sm:flex-row gap-4 justify-center max-w-xl mx-auto"
+            >
+              <input
+                type="text"
+                value={newsletterFirstNameBlog}
+                onChange={(e) => setNewsletterFirstNameBlog(e.target.value)}
+                placeholder="Twoje imię"
+                className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:ring-2 focus:ring-white"
+                aria-label="Imię do newslettera"
+              />
               <input
                 type="email"
+                required
+                value={newsletterEmailBlog}
+                onChange={(e) => setNewsletterEmailBlog(e.target.value)}
                 placeholder="Twój adres e-mail"
                 className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:ring-2 focus:ring-white"
+                aria-label="Adres e-mail do newslettera"
               />
-              <button className="px-8 py-3 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors">
+              <TurnstileWidget
+                onVerify={(t) => setNewsletterCaptchaBlog(t)}
+                className="my-2"
+                size="compact"
+              />
+              <button type="submit" className="px-8 py-3 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors">
                 Zapisz się
               </button>
-            </div>
-            <p className="text-sm opacity-75 mt-4">
-              Nie wysyłamy spamu. Możesz się wypisać w każdej chwili.
-            </p>
+            </form>
+            <p className="text-sm opacity-75 mt-4">Nie wysyłamy spamu. Możesz się wypisać w każdej chwili.</p>
+            {newsletterStatusBlog && (
+              <p className="text-sm opacity-90 mt-2">{newsletterStatusBlog}</p>
+            )}
           </div>
 
           {/* CTA Section */}

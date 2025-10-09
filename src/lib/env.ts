@@ -10,6 +10,14 @@ interface EnvironmentVariables {
   NEXT_PUBLIC_SUPABASE_URL: string
   SUPABASE_SERVICE_ROLE_KEY: string
 
+  // Beehiiv Newsletter (optional but recommended for newsletter integration)
+  BEEHIIV_API_KEY?: string
+  BEEHIIV_PUBLICATION_ID?: string
+
+  // Cloudflare Turnstile
+  TURNSTILE_SITE_KEY?: string
+  TURNSTILE_SECRET_KEY?: string
+
   // Optional: Add other environment variables as needed
   // NEXT_PUBLIC_SUPABASE_ANON_KEY?: string
   // DATABASE_URL?: string
@@ -23,6 +31,14 @@ function validateEnvironmentVariables(): EnvironmentVariables {
   const env = {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-key',
+
+    // Beehiiv config (optional)
+    BEEHIIV_API_KEY: process.env.BEEHIIV_API_KEY,
+    BEEHIIV_PUBLICATION_ID: process.env.BEEHIIV_PUBLICATION_ID,
+
+    // Cloudflare Turnstile
+    TURNSTILE_SITE_KEY: process.env.TURNSTILE_SITE_KEY,
+    TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
   }
 
   // Check for missing required variables (using placeholder values)
@@ -63,4 +79,8 @@ export default env
 export const {
   NEXT_PUBLIC_SUPABASE_URL,
   SUPABASE_SERVICE_ROLE_KEY,
+  BEEHIIV_API_KEY,
+  BEEHIIV_PUBLICATION_ID,
+  TURNSTILE_SITE_KEY,
+  TURNSTILE_SECRET_KEY,
 } = env

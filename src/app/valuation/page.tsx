@@ -7,6 +7,7 @@ import { CONTENT, getDecorativeOption, getFloorSystemData } from '@/lib/content'
 import generateQuotePDF from '@/lib/pdfGenerator'
 import MainLayout from '../components/MainLayout'
 import InstructionGuide from './components/InstructionGuide'
+import TurnstileWidget from '../components/TurnstileWidget'
 
 // Loading Spinner Component
 const LoadingSpinner = () => (
@@ -317,6 +318,7 @@ export default function ValuationPage() {
   const [calculationProgress, setCalculationProgress] = useState(0)
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [showRegisterModal, setShowRegisterModal] = useState(false)
+  const [captchaToken, setCaptchaToken] = useState('')
 
   const priceRef = useRef<HTMLDivElement>(null)
 
@@ -718,7 +720,8 @@ export default function ValuationPage() {
             totalMax: (priceRange?.max || 0) * currentArea
           },
           contactPreferences,
-          consents
+          consents,
+          turnstileToken: captchaToken || undefined,
         }
 
         console.log('Sending client quote to API:', clientQuoteData)
@@ -767,7 +770,8 @@ export default function ValuationPage() {
             totalMax: (priceRange?.max || 0) * currentArea
           },
           contactPreferences,
-          consents
+          consents,
+          turnstileToken: captchaToken || undefined,
         }
 
         console.log('Sending anonymous quote to API:', requestData)
@@ -1354,11 +1358,20 @@ export default function ValuationPage() {
                             </div>
                           </div>
 
+                          {/* Turnstile (anti-bot) */}
+                          <div className="pt-2">
+                            <TurnstileWidget
+                              onVerify={(t) => setCaptchaToken(t)}
+                              className="my-2"
+                              size="compact"
+                            />
+                          </div>
+
                           {/* Action Buttons */}
                           <div className="flex flex-col sm:flex-row gap-4 pt-6">
                             <button
                               type="submit"
-                              disabled={!consents.terms || !consents.privacy}
+                              disabled={!consents.terms || !consents.privacy || !captchaToken}
                               className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold py-4 px-8 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:cursor-not-allowed disabled:transform-none"
                             >
                               {CONTENT.CONTACT_FORM.SUBMIT_BUTTON}
@@ -1450,6 +1463,14 @@ export default function ValuationPage() {
                           '0.00 m²'
                         }
                       </div>
+                      {/* Turnstile (anti-bot) */}
+                      <div className="pb-3">
+                        <TurnstileWidget
+                          onVerify={(t) => setCaptchaToken(t)}
+                          className="my-2"
+                          size="compact"
+                        />
+                      </div>
                       <div className="flex space-x-4">
                         <button
                           type="button"
@@ -1510,7 +1531,7 @@ export default function ValuationPage() {
                         />
                       </div>
                       <div className="flex space-x-4">
-                        <button type="submit" className="btn-primary flex-1">
+                        <button type="submit" disabled={!captchaToken} className="btn-primary flex-1 disabled:opacity-60 disabled:cursor-not-allowed">
                           Wyślij - Oddzwonimy!
                         </button>
                         <button
