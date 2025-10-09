@@ -1600,51 +1600,75 @@ export default function ValuationPage() {
 
                         {/* Account Options - NEW SECTION */}
                         <div className="bg-gradient-to-br from-orange-50 to-yellow-50 rounded-2xl p-6 mb-8 border border-orange-200">
-                          <h4 className="text-xl font-bold text-gray-800 mb-4 text-center">
-                            💾 Zapisz wycenę na koncie klienta
-                          </h4>
-                          <p className="text-gray-600 text-center mb-6">
-                            Zaloguj się lub zarejestruj, aby zapisać tę wycenę i móc zamawiać konsultacje telefoniczne
-                          </p>
+                          {user ? (
+                            <div className="text-center">
+                              <h4 className="text-xl font-bold text-gray-800 mb-2">✅ Jesteś zalogowany</h4>
+                              <p className="text-gray-700">
+                                Po wysłaniu formularza wyceny zostanie ona zapisana w Twoim panelu klienta.
+                              </p>
+                            </div>
+                          ) : (
+                            <>
+                              <h4 className="text-xl font-bold text-gray-800 mb-4 text-center">
+                                💾 Zapisz wycenę na koncie klienta
+                              </h4>
+                              <p className="text-gray-600 text-center mb-6">
+                                Zaloguj się lub zarejestruj, aby zapisać tę wycenę i móc zamawiać konsultacje.
+                              </p>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                                <a
+                                  href="/sign-in"
+                                  onClick={() => {
+                                    sessionStorage.setItem('pendingQuote', JSON.stringify({
+                                      area: calculateTotalArea(),
+                                      floorSystem: selectedFloorSystem,
+                                      substrateCondition: selectedSubstrate,
+                                      location: selectedLocation,
+                                      decorativeSystem: selectedDecorative,
+                                      priceRange: priceRange
+                                    }))
+                                  }}
+                                  className="flex items-center justify-center px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all transform hover:scale-105 shadow-lg font-semibold"
+                                >
+                                  <span className="text-2xl mr-3">👤</span>
+                                  <div className="text-center">
+                                    <div className="font-bold">Mam konto</div>
+                                    <div className="text-sm opacity-90">Zaloguj się</div>
+                                  </div>
+                                </a>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                            <button
-                              onClick={() => {
-                                setShowPriceModal(false)
-                                setShowLoginModal(true)
-                              }}
-                              className="flex items-center justify-center px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all transform hover:scale-105 shadow-lg font-semibold"
-                            >
-                              <span className="text-2xl mr-3">👤</span>
-                              <div className="text-center">
-                                <div className="font-bold">Mam konto</div>
-                                <div className="text-sm opacity-90">Zaloguj się</div>
+                                <a
+                                  href="/sign-up"
+                                  onClick={() => {
+                                    sessionStorage.setItem('pendingQuote', JSON.stringify({
+                                      area: calculateTotalArea(),
+                                      floorSystem: selectedFloorSystem,
+                                      substrateCondition: selectedSubstrate,
+                                      location: selectedLocation,
+                                      decorativeSystem: selectedDecorative,
+                                      priceRange: priceRange
+                                    }))
+                                  }}
+                                  className="flex items-center justify-center px-6 py-4 bg-green-600 hover:bg-green-700 text-white rounded-xl transition-all transform hover:scale-105 shadow-lg font-semibold"
+                                >
+                                  <span className="text-2xl mr-3">✨</span>
+                                  <div className="text-center">
+                                    <div className="font-bold">Nowe konto</div>
+                                    <div className="text-sm opacity-90">Zarejestruj się</div>
+                                  </div>
+                                </a>
                               </div>
-                            </button>
 
-                            <button
-                              onClick={() => {
-                                setShowPriceModal(false)
-                                setShowRegisterModal(true)
-                              }}
-                              className="flex items-center justify-center px-6 py-4 bg-green-600 hover:bg-green-700 text-white rounded-xl transition-all transform hover:scale-105 shadow-lg font-semibold"
-                            >
-                              <span className="text-2xl mr-3">✨</span>
                               <div className="text-center">
-                                <div className="font-bold">Nowe konto</div>
-                                <div className="text-sm opacity-90">Zarejestruj się</div>
+                                <button
+                                  onClick={() => setShowPriceModal(false)}
+                                  className="text-gray-600 hover:text-gray-800 text-sm underline"
+                                >
+                                  Kontynuuj bez konta →
+                                </button>
                               </div>
-                            </button>
-                          </div>
-
-                          <div className="text-center">
-                            <button
-                              onClick={() => setShowPriceModal(false)}
-                              className="text-gray-600 hover:text-gray-800 text-sm underline"
-                            >
-                              Kontynuuj bez konta →
-                            </button>
-                          </div>
+                            </>
+                          )}
                         </div>
 
                         {/* Action Buttons */}
