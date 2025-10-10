@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     const captcha = await verifyTurnstile(turnstileToken, ip)
     if (!captcha.success) {
       return NextResponse.json(
-        { error: 'Weryfikacja antybot nie powiodła się' },
+        { error: 'Weryfikacja antybot nie powiodła się', details: captcha['error-codes'] || [] },
         { status: 400 }
       )
     }

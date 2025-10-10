@@ -198,6 +198,7 @@ export default function NewsletterModal({
             </div>
             <TurnstileWidget
               onVerify={(t) => setCaptchaToken(t)}
+              onError={() => setCaptchaToken('')}
               className="my-2"
               size="compact"
             />

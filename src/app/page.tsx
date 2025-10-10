@@ -762,12 +762,14 @@ export default function HomePage() {
               />
               <TurnstileWidget
                 onVerify={(t) => setNewsletterCaptchaTop(t)}
+                onError={() => setNewsletterCaptchaTop('')}
                 className="my-2"
                 size="compact"
               />
               <button
                 type="submit"
-                className="px-8 py-3 bg-white text-indigo-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors"
+                disabled={!newsletterCaptchaTop}
+                className="px-8 py-3 bg-white text-indigo-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 Zapisz się
               </button>
@@ -1881,10 +1883,15 @@ export default function HomePage() {
               />
               <TurnstileWidget
                 onVerify={(t) => setNewsletterCaptchaBlog(t)}
+                onError={() => setNewsletterCaptchaBlog('')}
                 className="my-2"
                 size="compact"
               />
-              <button type="submit" className="px-8 py-3 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors">
+              <button
+                type="submit"
+                disabled={!newsletterCaptchaBlog}
+                className="px-8 py-3 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              >
                 Zapisz się
               </button>
             </form>

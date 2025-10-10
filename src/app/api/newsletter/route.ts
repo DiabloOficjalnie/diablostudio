@@ -20,7 +20,10 @@ export async function POST(req: NextRequest) {
     const ip = extractClientIp(req.headers)
     const captcha = await verifyTurnstile(turnstileToken, ip)
     if (!captcha.success) {
-      return NextResponse.json({ error: 'Weryfikacja antybot nie powiodła się' }, { status: 400 })
+      return NextResponse.json(
+        { error: 'Weryfikacja antybot nie powiodła się', details: captcha['error-codes'] || [] },
+        { status: 400 }
+      )
     }
 
     // Beehiiv integration (v2)

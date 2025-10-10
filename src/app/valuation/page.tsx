@@ -1362,6 +1362,7 @@ export default function ValuationPage() {
                           <div className="pt-2">
                             <TurnstileWidget
                               onVerify={(t) => setCaptchaToken(t)}
+                              onError={() => setCaptchaToken('')}
                               className="my-2"
                               size="compact"
                             />
@@ -1467,10 +1468,17 @@ export default function ValuationPage() {
                       <div className="pb-3">
                         <TurnstileWidget
                           onVerify={(t) => setCaptchaToken(t)}
+                          onError={() => setCaptchaToken('')}
                           className="my-2"
                           size="compact"
                         />
                       </div>
+                      <TurnstileWidget
+                        onVerify={(t) => setCaptchaToken(t)}
+                        onError={() => setCaptchaToken('')}
+                        className="my-2"
+                        size="compact"
+                      />
                       <div className="flex space-x-4">
                         <button
                           type="button"

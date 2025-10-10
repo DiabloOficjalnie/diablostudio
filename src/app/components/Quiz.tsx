@@ -12,9 +12,10 @@ interface Question {
 
 interface QuizProps {
   onComplete?: () => void
+  questions?: Question[]
 }
 
-export default function Quiz({ onComplete }: QuizProps) {
+export default function Quiz({ onComplete, questions: externalQuestions }: QuizProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
   const [showResult, setShowResult] = useState(false)
@@ -22,7 +23,7 @@ export default function Quiz({ onComplete }: QuizProps) {
   const [answers, setAnswers] = useState<number[]>([])
   const [quizCompleted, setQuizCompleted] = useState(false)
 
-  const questions: Question[] = [
+  const defaultQuestions: Question[] = [
     {
       id: 1,
       question: "Która żywica lepiej nadaje się do zastosowań zewnętrznych?",
@@ -85,6 +86,7 @@ export default function Quiz({ onComplete }: QuizProps) {
     }
   ]
 
+  const questions: Question[] = (externalQuestions && externalQuestions.length > 0) ? externalQuestions : defaultQuestions
   const currentQuestion = questions[currentQuestionIndex]
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100
 

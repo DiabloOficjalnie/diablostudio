@@ -332,10 +332,15 @@ export default function MainLayout({ children }: MainLayoutProps) {
               />
               <TurnstileWidget
                 onVerify={(t) => setNewsletterCaptchaToken(t)}
+                onError={() => setNewsletterCaptchaToken('')}
                 className="my-2"
                 size="compact"
               />
-              <button type="submit" className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors">
+              <button
+                type="submit"
+                disabled={!newsletterCaptchaToken}
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
+              >
                 Zapisz się
               </button>
             </form>

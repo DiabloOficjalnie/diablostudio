@@ -15,7 +15,9 @@ interface EnvironmentVariables {
   BEEHIIV_PUBLICATION_ID?: string
 
   // Cloudflare Turnstile
+  // NOTE: site key must be public, use NEXT_PUBLIC_ prefix for client
   TURNSTILE_SITE_KEY?: string
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY?: string
   TURNSTILE_SECRET_KEY?: string
 
   // Optional: Add other environment variables as needed
@@ -38,6 +40,7 @@ function validateEnvironmentVariables(): EnvironmentVariables {
 
     // Cloudflare Turnstile
     TURNSTILE_SITE_KEY: process.env.TURNSTILE_SITE_KEY,
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
     TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
   }
 
@@ -82,5 +85,6 @@ export const {
   BEEHIIV_API_KEY,
   BEEHIIV_PUBLICATION_ID,
   TURNSTILE_SITE_KEY,
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY,
   TURNSTILE_SECRET_KEY,
 } = env

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useId, useRef } from 'react'
-import { TURNSTILE_SITE_KEY } from '@/lib/env'
+import { NEXT_PUBLIC_TURNSTILE_SITE_KEY, TURNSTILE_SITE_KEY } from '@/lib/env'
 
 declare global {
   interface Window {
@@ -23,7 +23,7 @@ type Props = {
 }
 
 export default function TurnstileWidget({
-  siteKey = TURNSTILE_SITE_KEY || '',
+  siteKey = '',
   onVerify,
   onError,
   theme = 'auto',
@@ -32,10 +32,14 @@ export default function TurnstileWidget({
 }: Props) {
   const id = useId()
   const containerRef = useRef<HTMLDivElement | null>(null)
+  const resolvedSiteKey = siteKey || NEXT_PUBLIC_TURNSTILE_SITE_KEY || TURNSTILE_SITE_KEY || ''
 
   useEffect(() => {
     // Guard: need site key
-    if (!siteKey) return
+    if (!resolvedSiteKey) {
+      console.warn('Turnstile: missing NEXT_PUBLIC_TURNSTILE_SITE_KEY (and no siteKey prop provided).')
+      return
+    }
 
     // Inject script once
     const SCRIPT_SRC = 'https://challenges.cloudflare.com/turnstile/v0/api.js'
@@ -58,7 +62,7 @@ export default function TurnstileWidget({
       }
       try {
         window.turnstile.render(containerRef.current, {
-          sitekey: siteKey,
+          sitekey: resolvedSiteKey,
           theme,
           size,
           callback: (token: string) => onVerify(token),

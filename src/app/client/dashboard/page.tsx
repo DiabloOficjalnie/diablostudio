@@ -127,6 +127,7 @@ function ClientDashboardContent() {
   const [showValuationModal, setShowValuationModal] = useState(false)
   const [valuationPriceRange, setValuationPriceRange] = useState<{min: number, max: number} | null>(null)
   const [isCalculatingValuation, setIsCalculatingValuation] = useState(false)
+  const [pricingData, setPricingData] = useState<any>(null)
   const [showConsultationModal, setShowConsultationModal] = useState(false)
   const [showContactModal, setShowContactModal] = useState(false)
   const [selectedQuote, setSelectedQuote] = useState<ClientQuote | null>(null)
@@ -338,91 +339,140 @@ function ClientDashboardContent() {
   }
 
   // Available guides and instructions
+
+  // Customer-focused Education Modules (non-DIY, plain language)
+  // Categories kept aligned with existing completion logic:
+  // - 'preparation' | 'application' | 'maintenance' are treated as "guides"
+  // - 'safety' | 'tools' are treated as "instructions"
+  const customerGuides = [
+    {
+      id: 'customer-journey',
+      title: 'Twoja droga: od wyceny do odbioru',
+      description: 'Krok po kroku: co wydarzy się po kalkulacji, jak wygląda wizyta techniczna, oferta i umówienie terminu.',
+      estimatedTime: '8 min',
+      category: 'preparation',
+      steps: [
+        {
+          id: 'after-quote',
+          title: 'Po wycenie: co dalej?',
+          content: 'Wyślemy podsumowanie Twojej wyceny i zaproponujemy możliwe terminy rozmowy lub wizyty technicznej. Ustalimy zakres prac i wstępny harmonogram.',
+          additionalInfo: 'Warto zanotować pytania i wysłać zdjęcia miejsca montażu — przyspieszy to przygotowanie oferty.',
+          videoUrl: '',
+          literature: ['Lista pytań do doradcy — PDF'],
+          quiz: [
+            { question: 'Jaki jest kolejny krok po kalkulacji online?', options: ['Samodzielny montaż', 'Wizyta/rozmowa techniczna', 'Zakup materiałów'], correct: 1 }
+          ]
+        },
+        {
+          id: 'site-visit',
+          title: 'Wizyta techniczna',
+          content: 'Podczas wizyty sprawdzimy podłoże, wilgotność i dostęp. To moment na doprecyzowanie szczegółów oraz potwierdzenie wyceny.',
+          additionalInfo: 'Zadbaj o dostęp do miejsca, oświetlenie i możliwość wykonania pomiarów.',
+          videoUrl: '',
+          literature: ['Jak przygotować się do wizyty — PDF'],
+          quiz: [
+            { question: 'Co jest celem wizyty technicznej?', options: ['Podpisanie umowy', 'Wstępne malowanie', 'Weryfikacja warunków i pomiarów'], correct: 2 }
+          ]
+        },
+        {
+          id: 'offer-and-scheduling',
+          title: 'Oferta i umówienie terminu',
+          content: 'Po wizycie otrzymasz ofertę z wyszczególnieniem etapów, materiałów i terminu. Po akceptacji rezerwujemy termin realizacji.',
+          additionalInfo: 'Możliwe są zaliczki/rezerwacje terminu — szczegóły w ofercie.',
+          videoUrl: '',
+          literature: ['Przykładowa oferta — PDF'],
+          quiz: [
+            { question: 'Co robimy po akceptacji oferty?', options: ['Rezerwacja terminu realizacji', 'Przywozimy materiały od razu', 'Kończymy projekt'], correct: 0 }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'prepare-home',
+      title: 'Przygotowanie domu/przestrzeni',
+      description: 'Jak przygotować pomieszczenia: dostęp, meble, wentylacja, bezpieczeństwo domowników i zwierząt.',
+      estimatedTime: '7 min',
+      category: 'preparation',
+      steps: [
+        {
+          id: 'access-and-clearance',
+          title: 'Dostęp i opróżnienie',
+          content: 'Ułatw dojazd i wnieśną logistykę. Usuń meble i przedmioty z pomieszczeń, zabezpiecz te, które muszą pozostać.',
+          additionalInfo: 'Ustal miejsce parkowania i gniazda prądu. Zabezpiecz rzeczy wrażliwe na pył.',
+          videoUrl: '',
+          literature: ['Checklist: przygotowanie pomieszczeń — PDF'],
+          quiz: [
+            { question: 'Co należy zrobić z meblami przed pracami?', options: ['Pozostawić na miejscu', 'Usunąć lub zabezpieczyć', 'Oddać do serwisu'], correct: 1 }
+          ]
+        },
+        {
+          id: 'ventilation-and-safety',
+          title: 'Wentylacja i bezpieczeństwo',
+          content: 'Zapewnij wietrzenie i ogranicz dostęp dzieci/zwierząt do strefy prac. Stosujemy bezpieczne procedury, ale dostęp powinien być kontrolowany.',
+          additionalInfo: 'Poinformuj domowników o planie dnia i strefach niedostępnych.',
+          videoUrl: '',
+          literature: ['Poradnik: bezpieczeństwo domowe podczas prac — PDF'],
+          quiz: [
+            { question: 'Czy zwierzęta mogą przebywać w strefie prac?', options: ['Tak', 'Nie', 'Tylko koty'], correct: 1 }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'installation-day',
+      title: 'Dzień realizacji: czego się spodziewać',
+      description: 'Przebieg dnia: etapy, hałas, zapach, obecność ekipy, orientacyjne czasy.',
+      estimatedTime: '6 min',
+      category: 'application',
+      steps: [
+        {
+          id: 'timeline',
+          title: 'Harmonogram dnia',
+          content: 'Wejście ekipy, przygotowanie podłoża, warstwy systemu i sprzątanie. Część etapów wymaga przerw technologicznych.',
+          additionalInfo: 'Czas zależy od metrażu i warunków. Podamy orientacyjny plan przy ofercie.',
+          videoUrl: '',
+          literature: ['Schemat procesu — PDF'],
+          quiz: [
+            { question: 'Czy mogą wystąpić przerwy technologiczne?', options: ['Nie', 'Tak', 'Tylko zimą'], correct: 1 }
+          ]
+        },
+        {
+          id: 'comfort',
+          title: 'Komfort i ograniczenia',
+          content: 'Możliwy hałas i zapach (wentylujemy). Nie wchodź na świeże warstwy. Zapewnij wolny przejazd i prąd.',
+          additionalInfo: 'W razie wątpliwości — zapytaj kierownika ekipy na miejscu.',
+          videoUrl: '',
+          literature: ['FAQ: dzień montażu — PDF'],
+          quiz: [
+            { question: 'Czy można chodzić po świeżo nałożonej warstwie?', options: ['Tak', 'Nie', 'W skarpetkach'], correct: 1 }
+          ]
+        }
+      ]
+    },
+    {
+      id: 'aftercare-cure',
+      title: 'Po realizacji: czas schnięcia i użytkowanie',
   const guides = [
     {
       id: 'floor-preparation',
-      title: 'Przygotowanie podłoża pod posadzkę',
-      description: 'Kompletny przewodnik po przygotowaniu powierzchni',
+      title: 'Podróż klienta: od wyceny do odbioru',
+      description: 'Praktyczny przewodnik dla klienta: co się dzieje po kalkulacji, jak wygląda realizacja i odbiór.',
       steps: [
         {
-          id: 'surface-assessment',
-          title: 'Ocena powierzchni',
-          content: 'Dowiedz się jak prawidłowo ocenić stan podłoża przed aplikacją żywicy.',
-          additionalInfo: 'Przed przystąpieniem do oceny powierzchni, upewnij się że masz odpowiednie oświetlenie. Najlepiej pracować w jasnym świetle dziennym lub pod lampami LED o barwie zbliżonej do dziennej.',
-          videoUrl: 'https://example.com/video/surface-assessment',
+          id: 'what-happens-after-quote',
+          title: 'Po wycenie: co dalej?',
+          content: 'Wyślemy podsumowanie Twojej wyceny i zaproponujemy możliwe terminy wizyty technicznej. Na tym etapie potwierdzimy zakres, wstępny harmonogram i wstępny koszt.',
+          additionalInfo: 'Masz pytania? Zapisz je — omówimy je na spokojnie podczas konsultacji.',
+          videoUrl: '',
           literature: [
-            'Podręcznik "Przygotowanie powierzchni betonowych" - rozdział 3',
-            'Norma PN-EN 13813 "Wymagania dla podkładów podłogowych"'
+            'Lista kontrolna „Co omówić z doradcą”',
           ],
           quiz: [
-            { question: 'Jaka wilgotność maksymalna jest dopuszczalna dla betonu przed aplikacją żywicy?', options: ['2%', '4%', '6%', '8%'], correct: 1 },
-            { question: 'Jakie narzędzie jest najlepsze do pomiaru wilgotności podłoża?', options: ['Wilgotnościomierz elektroniczny', 'Młotek', 'Miarka', 'Poziomica'], correct: 0 }
+            { question: 'Jaki jest kolejny krok po kalkulacji online?', options: ['Wysyłka materiałów do Ciebie', 'Wizyta techniczna i potwierdzenie zakresu', 'Samodzielny montaż'], correct: 1 }
           ]
         },
         {
-          id: 'cleaning-methods',
-          title: 'Metody czyszczenia',
-          content: 'Poznaj skuteczne metody czyszczenia różnych typów powierzchni.',
-          additionalInfo: 'Do czyszczenia powierzchni betonowych nigdy nie używaj kwasów solnych. Mogą one reagować z betonem i osłabiać jego strukturę.',
-          videoUrl: 'https://example.com/video/cleaning-methods',
-          literature: [
-            'Instrukcja czyszczenia powierzchni mineralnych - wydanie 2023',
-            'Katalog środków czyszczących dla branży budowlanej'
-          ],
-          quiz: [
-            { question: 'Który środek jest zabroniony przy czyszczeniu betonu?', options: ['Kwas solny', 'Środek alkaliczny', 'Woda pod ciśnieniem', 'Odkurzacz'], correct: 0 },
-            { question: 'Jaka temperatura minimalna powinna być zachowana podczas czyszczenia?', options: ['5°C', '10°C', '15°C', '20°C'], correct: 1 }
-          ]
-        },
-        {
-          id: 'repair-techniques',
-          title: 'Techniki naprawcze',
-          content: 'Naucz się naprawiać ubytki i nierówności w podłożu.',
-          additionalInfo: 'Naprawy należy wykonywać minimum 24 godziny przed aplikacją żywicy. W przypadku głębokich ubytków czas schnięcia może się wydłużyć do 48 godzin.',
-          videoUrl: 'https://example.com/video/repair-techniques',
-          literature: [
-            'Techniki naprawcze w budownictwie - tom II',
-            'Materiały naprawcze dla posadzek przemysłowych'
-          ],
-          quiz: [
-            { question: 'Ile czasu minimum należy odczekać po naprawie przed aplikacją żywicy?', options: ['12h', '24h', '36h', '48h'], correct: 1 },
-            { question: 'Jaka powinna być minimalna temperatura podłoża podczas naprawy?', options: ['5°C', '8°C', '12°C', '15°C'], correct: 2 }
-          ]
-        },
-        {
-          id: 'primer-application',
-          title: 'Aplikacja primera',
-          content: 'Krok po kroku aplikacja warstwy gruntującej.',
-          additionalInfo: 'Primer należy aplikować w temperaturze 15-25°C i wilgotności powietrza poniżej 75%. Warunki te są kluczowe dla prawidłowego wiązania.',
-          videoUrl: 'https://example.com/video/primer-application',
-          literature: [
-            'Karty techniczne primerów epoksydowych',
-            'Warunki aplikacji gruntów - wytyczne producenta'
-          ],
-          quiz: [
-            { question: 'Jaka temperatura jest optymalna dla aplikacji primera?', options: ['10-20°C', '15-25°C', '20-30°C', '25-35°C'], correct: 1 },
-            { question: 'Jaka wilgotność maksymalna powietrza jest dopuszczalna?', options: ['60%', '70%', '75%', '80%'], correct: 2 }
-          ]
-        },
-        {
-          id: 'final-inspection',
-          title: 'Kontrola końcowa',
-          content: 'Sprawdzenie gotowości powierzchni do aplikacji żywicy.',
-          additionalInfo: 'Kontrola powinna być wykonana minimum 2 godziny przed aplikacją żywicy. W tym czasie można jeszcze dokonać korekt jeśli zajdzie taka potrzeba.',
-          videoUrl: 'https://example.com/video/final-inspection',
-          literature: [
-            'Procedury kontroli jakości w wykonawstwie posadzek',
-            'Lista kontrolna przygotowania podłoża - wersja 2024'
-          ],
-          quiz: [
-            { question: 'Ile czasu przed aplikacją żywicy należy wykonać kontrolę końcową?', options: ['30 min', '1h', '2h', '4h'], correct: 2 },
-            { question: 'Jakie narzędzie jest niezbędne do sprawdzenia przyczepności?', options: ['Młotek', 'Test siatki nacięć', 'Miarka', 'Poziomica'], correct: 1 }
-          ]
-        }
-      ],
-      category: 'preparation',
-      estimatedTime: '45 min'
-    },
+          id: 'site-visit
     {
       id: 'epoxy-application',
       title: 'Aplikacja żywicy epoksydowej',
@@ -800,6 +850,21 @@ function ClientDashboardContent() {
       }
     }
   }, [user, profile])
+
+  // Load contractor pricing data for valuation calculator (DB -> API)
+  useEffect(() => {
+    const loadPricing = async () => {
+      try {
+        const res = await fetch('/api/contractor-pricing')
+        if (!res.ok) return
+        const json = await res.json()
+        setPricingData(json?.pricing_data || null)
+      } catch (e) {
+        console.error('Failed to load contractor pricing:', e)
+      }
+    }
+    loadPricing()
+  }, [])
 
   // Load documents using API
   const loadDocumentsFromAPI = async () => {
@@ -1826,6 +1891,28 @@ function ClientDashboardContent() {
     return decoratives[decorative] || decorative
   }
 
+  // DB-integrated base price per system (fallbacks if pricingData not loaded)
+  const getBasePriceForSystem = (systemId: string) => {
+    try {
+      const resin = pricingData?.material_costs?.resin_types
+      if (resin) {
+        switch (systemId) {
+          case 'EPOXY_STANDARD': return resin.epoxy_standard?.cost_per_sqm ?? 160
+          case 'EPOXY_PREMIUM':  return resin.epoxy_premium?.cost_per_sqm ?? 200
+          case 'PU_STANDARD':    return resin.pu_standard?.cost_per_sqm ?? 180
+          case 'PU_PREMIUM':     return resin.pu_premium?.cost_per_sqm ?? 220
+        }
+      }
+    } catch {}
+    switch (systemId) {
+      case 'EPOXY_STANDARD': return 160
+      case 'EPOXY_PREMIUM':  return 200
+      case 'PU_STANDARD':    return 180
+      case 'PU_PREMIUM':     return 220
+      default: return 160
+    }
+  }
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('pl-PL', {
       style: 'currency',
@@ -2321,27 +2408,45 @@ function ClientDashboardContent() {
                   const totalArea = valuationForm.rooms.reduce((total, room) => total + (parseFloat(room.area) || 0), 0)
 
                   if (totalArea > 0 && valuationForm.floorSystem && valuationForm.substrateCondition && valuationForm.location && valuationForm.decorativeSystem) {
-                    // Calculate price based on form values
+                    // Calculate price based on form values using DB pricing (with sensible fallbacks)
                     let basePrice = 0
 
-                    switch (valuationForm.floorSystem) {
-                      case 'EPOXY_STANDARD': basePrice = 160; break
-                      case 'EPOXY_PREMIUM': basePrice = 200; break
-                      case 'PU_STANDARD': basePrice = 180; break
-                      case 'PU_PREMIUM': basePrice = 220; break
+                    // Base resin price
+                    const resin = pricingData?.material_costs?.resin_types
+                    if (resin) {
+                      switch (valuationForm.floorSystem) {
+                        case 'EPOXY_STANDARD': basePrice = resin.epoxy_standard?.cost_per_sqm ?? 160; break
+                        case 'EPOXY_PREMIUM':  basePrice = resin.epoxy_premium?.cost_per_sqm ?? 200; break
+                        case 'PU_STANDARD':    basePrice = resin.pu_standard?.cost_per_sqm ?? 180; break
+                        case 'PU_PREMIUM':     basePrice = resin.pu_premium?.cost_per_sqm ?? 220; break
+                        default: basePrice = 160
+                      }
+                    } else {
+                      // Fallback values if DB config not available
+                      switch (valuationForm.floorSystem) {
+                        case 'EPOXY_STANDARD': basePrice = 160; break
+                        case 'EPOXY_PREMIUM':  basePrice = 200; break
+                        case 'PU_STANDARD':    basePrice = 180; break
+                        case 'PU_PREMIUM':     basePrice = 220; break
+                        default: basePrice = 160
+                      }
                     }
 
-                    // Decorative modifiers
-                    if (valuationForm.decorativeSystem === 'MARBLE') basePrice += 30
-                    if (valuationForm.decorativeSystem === 'FLAKES') basePrice += 25
-                    if (valuationForm.decorativeSystem === 'TRANSPARENT') basePrice += 40
+                    // Decorative modifiers (DB -> decorative_effects)
+                    const deco = pricingData?.material_costs?.decorative_effects
+                    if (valuationForm.decorativeSystem === 'MARBLE')      basePrice += deco?.marble?.cost_per_sqm ?? 30
+                    if (valuationForm.decorativeSystem === 'FLAKES')      basePrice += deco?.flakes?.cost_per_sqm ?? 25
+                    if (valuationForm.decorativeSystem === 'TRANSPARENT') basePrice += deco?.transparent?.cost_per_sqm ?? 40
+                    if (valuationForm.decorativeSystem === 'TEXTURED')    basePrice += deco?.textured?.cost_per_sqm ?? 0
 
-                    // Substrate modifiers
-                    if (valuationForm.substrateCondition === 'CONCRETE_DEFECTS') basePrice += 50
-                    if (valuationForm.substrateCondition === 'TILES') basePrice += 30
-                    if (valuationForm.substrateCondition === 'OLD_RESIN') basePrice += 40
+                    // Substrate modifiers (DB -> labor_costs)
+                    const labor = pricingData?.labor_costs
+                    if (valuationForm.substrateCondition === 'CONCRETE_DEFECTS') basePrice += labor?.defect_repair?.cost_per_sqm ?? 50
+                    if (valuationForm.substrateCondition === 'TILES')            basePrice += labor?.substrate_prep?.cost_per_sqm ?? 30
+                    if (valuationForm.substrateCondition === 'OLD_RESIN')        basePrice += labor?.substrate_prep?.cost_per_sqm ?? 40
+                    if (valuationForm.substrateCondition === 'OTHER')            basePrice += labor?.substrate_prep?.cost_per_sqm ?? 30
 
-                    // Location modifier
+                    // Location modifier (outdoor factor)
                     if (valuationForm.location === 'OUTDOOR') basePrice *= 1.1
 
                     const minPrice = Math.round(basePrice * 0.85)
@@ -2464,12 +2569,12 @@ function ClientDashboardContent() {
                       Rodzaj żywicy *
                     </label>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {[
-                        { id: 'EPOXY_STANDARD', name: 'Epoksyd Standard', price: '160', icon: '🏠' },
-                        { id: 'EPOXY_PREMIUM', name: 'Epoksyd Premium', price: '200', icon: '⭐' },
-                        { id: 'PU_STANDARD', name: 'Poliuretan Standard', price: '180', icon: '🏭' },
-                        { id: 'PU_PREMIUM', name: 'Poliuretan Premium', price: '220', icon: '💎' }
-                      ].map((system) => (
+                        {[
+                          { id: 'EPOXY_STANDARD', name: 'Epoksyd Standard', icon: '🏠' },
+                          { id: 'EPOXY_PREMIUM', name: 'Epoksyd Premium', icon: '⭐' },
+                          { id: 'PU_STANDARD', name: 'Poliuretan Standard', icon: '🏭' },
+                          { id: 'PU_PREMIUM', name: 'Poliuretan Premium', icon: '💎' }
+                        ].map((system) => (
                         <label
                           key={system.id}
                           className={`relative p-4 border-2 rounded-lg cursor-pointer transition-all ${
@@ -2498,7 +2603,7 @@ function ClientDashboardContent() {
                               <span className="text-2xl">{system.icon}</span>
                               <div>
                                 <h3 className="font-semibold text-gray-900">{system.name}</h3>
-                                <p className="text-sm text-gray-600">od {system.price} PLN/m²</p>
+                                <p className="text-sm text-gray-600">od {getBasePriceForSystem(system.id)} PLN/m²</p>
                               </div>
                             </div>
                           </div>
