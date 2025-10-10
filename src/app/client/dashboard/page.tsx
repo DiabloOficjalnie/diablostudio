@@ -258,6 +258,10 @@ function ClientDashboardContent() {
     }, 5000)
   }
 
+  // Guides/instructions placeholders to satisfy references before assignment
+  let guides: any[] = []
+  let instructions: any[] = []
+
   // Load user progress from database
   const loadUserProgress = async () => {
     if (!user?.id) return
@@ -452,7 +456,27 @@ function ClientDashboardContent() {
     {
       id: 'aftercare-cure',
       title: 'Po realizacji: czas schnięcia i użytkowanie',
-  const guides = [
+      description: 'Kiedy można wejść, lekkie użytkowanie i pełne obciążenie.',
+      estimatedTime: '5 min',
+      category: 'application',
+      steps: [
+        {
+          id: 'cure-times',
+          title: 'Czasy schnięcia',
+          content: 'Wejście po ~24h, lekkie użytkowanie 48–72h, pełne właściwości po ~7 dniach (w zależności od warunków).',
+          additionalInfo: '',
+          videoUrl: '',
+          literature: [],
+          quiz: [
+            { question: 'Kiedy zwykle można wejść na posadzkę?', options: ['po 6h', 'po 24h', 'po 3 dniach'], correct: 1 }
+          ]
+        }
+      ]
+    }
+  ]
+
+  guides = customerGuides
+  /*
     {
       id: 'floor-preparation',
       title: 'Podróż klienta: od wyceny do odbioru',
@@ -643,7 +667,8 @@ function ClientDashboardContent() {
     }
   ]
 
-  const instructions = [
+  */
+  instructions = [
     {
       id: 'safety-instructions',
       title: 'Instrukcje bezpieczeństwa BHP',
