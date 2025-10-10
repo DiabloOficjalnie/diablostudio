@@ -12,6 +12,8 @@ interface Question {
 
 interface QuizProps {
   onComplete?: () => void
+  onProceed?: () => void
+  proceedLabel?: string
   questions?: Question[]
 }
 
@@ -20,7 +22,7 @@ type AnswerRecord = {
   correct: boolean
 }
 
-export default function Quiz({ onComplete, questions: externalQuestions }: QuizProps) {
+export default function Quiz({ onComplete, onProceed, proceedLabel, questions: externalQuestions }: QuizProps) {
   // Domyślny zestaw (fallback, gdy brak pytań wejściowych)
   const defaultQuestions: Question[] = [
     {
@@ -256,6 +258,14 @@ export default function Quiz({ onComplete, questions: externalQuestions }: QuizP
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 sm:justify-center">
+          {onProceed && (
+            <button
+              onClick={onProceed}
+              className="px-6 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition"
+            >
+              {proceedLabel || 'Przejdź dalej'}
+            </button>
+          )}
           <button
             onClick={restart}
             className="px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition"

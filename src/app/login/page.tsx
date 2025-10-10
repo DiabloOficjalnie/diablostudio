@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { SignedIn, SignedOut, useUser } from '@clerk/nextjs'
-import { useRouter } from 'next/navigation'
+import { SignedIn, SignedOut, useUser, useClerk } from '@clerk/nextjs'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { SignIn, SignUp } from '@clerk/nextjs'
 import { createClientComponentClient } from '@/lib/supabase'
 
@@ -12,13 +12,29 @@ export default function LoginPage() {
   const supabase = createClientComponentClient()
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin')
   const [showFullBenefits, setShowFullBenefits] = useState(false)
+  const { signOut } = useClerk()
+  const searchParams = useSearchParams()
+  const [showExpiredBanner, setShowExpiredBanner] = useState(false)
+
+  // Handle expired sessions (triggered by /login?expired=1)
+  useEffect(() => {
+    const param = searchParams.get('expired')
+    if (param === '1') {
+      setShowExpiredBanner(true)
+      // Ensure any existing Clerk session is cleared
+      if (isLoaded && user) {
+        signOut().catch(() => {})
+      }
+    }
+  }, [searchParams, isLoaded, user, signOut])
 
   // Handle user redirection after authentication (unified flow)
   useEffect(() => {
-    if (isLoaded && user) {
+    const expired = searchParams.get('expired') === '1'
+    if (isLoaded && user && !expired) {
       router.replace('/client/dashboard')
     }
-  }, [isLoaded, user, router])
+  }, [isLoaded, user, router, searchParams])
 
 
   return (
@@ -33,6 +49,12 @@ export default function LoginPage() {
             Zaloguj się do swojego konta lub utwórz nowe
           </p>
         </div>
+
+        {showExpiredBanner && (
+          <div className="mb-6 rounded-xl border border-yellow-300 bg-yellow-50 px-4 py-3 text-yellow-900">
+            Twoja sesja wygasła ze względów bezpieczeństwa. Zaloguj się ponownie.
+          </div>
+        )}
 
         {/* Auth Mode Selection */}
         <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 mb-8 mx-auto max-w-lg">

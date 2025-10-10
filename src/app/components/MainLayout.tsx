@@ -144,10 +144,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
                   <Link
                     href="/login"
                     className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-all hover:scale-105 shadow-md"
-                    title="Zaloguj się lub zarejestruj"
+                    title="Zaloguj się"
                   >
                     <span className="mr-2">👤</span>
-                    Logowanie
+                    Zaloguj się
                   </Link>
                 )
               ) : null}
@@ -213,7 +213,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                         className="block w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg text-center transition-all shadow-md"
                       >
                         <span className="mr-2">👤</span>
-                        Logowanie
+                        Zaloguj się
                       </a>
                     )
                   ) : null}

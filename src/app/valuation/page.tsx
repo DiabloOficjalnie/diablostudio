@@ -1625,7 +1625,7 @@ export default function ValuationPage() {
                               </p>
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                                 <a
-                                  href="/sign-in"
+                                  href="/login"
                                   onClick={() => {
                                     sessionStorage.setItem('pendingQuote', JSON.stringify({
                                       area: calculateTotalArea(),
@@ -1646,7 +1646,7 @@ export default function ValuationPage() {
                                 </a>
 
                                 <a
-                                  href="/sign-up"
+                                  href="/login"
                                   onClick={() => {
                                     sessionStorage.setItem('pendingQuote', JSON.stringify({
                                       area: calculateTotalArea(),

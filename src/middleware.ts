@@ -29,7 +29,10 @@ export default clerkMiddleware(async (auth, req) => {
     // Jeśli użytkownik jest zalogowany i wchodzi na stronę logowania → przekieruj do panelu klienta
     // (musi być przed sprawdzeniem tras publicznych)
     if (userId && path.startsWith('/login')) {
-        return NextResponse.redirect(new URL('/client/dashboard', req.url))
+        const expired = req.nextUrl.searchParams.get('expired')
+        if (expired !== '1') {
+            return NextResponse.redirect(new URL('/client/dashboard', req.url))
+        }
     }
 
     // ⚙️ Pomijanie PUBLICZNYCH endpointów API
@@ -44,6 +47,35 @@ export default clerkMiddleware(async (auth, req) => {
     // ✅ Strony publiczne zawsze dostępne
     if (isPublicRoute(req)) {
         return NextResponse.next()
+    }
+
+    // 🕒 Niestandardowe ograniczenie czasu życia sesji (np. max 14 dni)
+    const MAX_SESSION_DAYS = 14
+    const MAX_SESSION_MS = MAX_SESSION_DAYS * 24 * 60 * 60 * 1000
+    const loginAtCookie = req.cookies.get('session_login_at')?.value
+    const now = Date.now()
+
+    if (userId && isProtectedRoute(req)) {
+        if (!loginAtCookie) {
+            // Ustaw znacznik czasu pierwszego zalogowania do sesji
+            const res = NextResponse.next()
+            res.cookies.set('session_login_at', String(now), {
+                httpOnly: true,
+                secure: true,
+                sameSite: 'lax',
+                path: '/',
+            })
+            return res
+        } else {
+            const loginAt = parseInt(loginAtCookie, 10)
+            if (Number.isFinite(loginAt) && now - loginAt > MAX_SESSION_MS) {
+                // Sesja przekroczyła nasz maksymalny czas życia → wyloguj użytkownika (po stronie klienta) i pozwól na ponowne logowanie
+                const res = NextResponse.redirect(new URL('/login?expired=1', req.url))
+                // Wyczyść nasz znacznik czasu
+                res.cookies.set('session_login_at', '', { maxAge: 0, path: '/' })
+                return res
+            }
+        }
     }
 
     // 🔒 Jeśli użytkownik nie jest zalogowany, a próbuje wejść na chronioną stronę

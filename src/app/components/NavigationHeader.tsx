@@ -1,4 +1,4 @@
-"use client"
+Po "use client"
 
 import Link from 'next/link'
 import {
@@ -122,7 +122,7 @@ export default function NavigationHeader() {
                 href="/login"
                 className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition-colors shadow-lg"
               >
-                🔑 Logowanie
+                Zaloguj się
               </Link>
             </SignedOut>
 

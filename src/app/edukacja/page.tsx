@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import MainLayout from '../components/MainLayout'
 import Quiz from '../components/Quiz'
 import { clientModules } from './content'
+import { useUser } from '@clerk/nextjs'
 
 type CategoryKey = 'all' | 'journey' | 'preparation' | 'installation' | 'aftercare'
 
@@ -20,6 +21,7 @@ export default function EducationPage() {
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null)
   const [completedLessons, setCompletedLessons] = useState<Record<string, boolean>>({})
   const [showLessonViewer, setShowLessonViewer] = useState(false)
+  const { user, isLoaded } = useUser()
 
   // Persist simple local progress (dla pełnego śledzenia zapraszamy do panelu klienta)
   useEffect(() => {
@@ -121,12 +123,21 @@ export default function EducationPage() {
                     style={{ width: `${overallProgress}%` }}
                   />
                 </div>
-                <a
-                  href="/login"
-                  className="inline-block mt-4 w-full text-center px-4 py-2 bg-white text-blue-700 font-semibold rounded-lg hover:bg-blue-50 transition"
-                >
-                  Zaloguj się, aby śledzić postęp w panelu
-                </a>
+                {isLoaded && (user ? (
+                  <a
+                    href="/client/dashboard#education"
+                    className="inline-block mt-4 w-full text-center px-4 py-2 bg-white text-blue-700 font-semibold rounded-lg hover:bg-blue-50 transition"
+                  >
+                    Przejdź do panelu
+                  </a>
+                ) : (
+                  <a
+                    href="/login"
+                    className="inline-block mt-4 w-full text-center px-4 py-2 bg-white text-blue-700 font-semibold rounded-lg hover:bg-blue-50 transition"
+                  >
+                    Zaloguj się, aby śledzić postęp w panelu
+                  </a>
+                ))}
               </div>
             </div>
           </div>
@@ -257,16 +268,29 @@ export default function EducationPage() {
                   Poznaj orientacyjny koszt i zakres. Po kalkulacji zaproponujemy termin rozmowy lub wizyty.
                 </p>
               </a>
-              <a
-                href="/login"
-                className="block p-6 rounded-xl border-2 border-blue-300 bg-gradient-to-r from-blue-50 to-indigo-50 hover:shadow-md transition"
-              >
-                <div className="text-3xl">📚</div>
-                <h4 className="mt-2 text-xl font-bold text-gray-900">Panel klienta</h4>
-                <p className="text-gray-700 mt-1">
-                  Zaloguj się, aby śledzić postępy w kursach, zapisać wycenę i umówić konsultację.
-                </p>
-              </a>
+              {isLoaded && user ? (
+                <a
+                  href="/client/dashboard#education"
+                  className="block p-6 rounded-xl border-2 border-blue-300 bg-gradient-to-r from-blue-50 to-indigo-50 hover:shadow-md transition"
+                >
+                  <div className="text-3xl">📚</div>
+                  <h4 className="mt-2 text-xl font-bold text-gray-900">Panel klienta</h4>
+                  <p className="text-gray-700 mt-1">
+                    Przejdź do panelu, aby śledzić postępy w kursach, zapisać wycenę i umówić konsultację.
+                  </p>
+                </a>
+              ) : (
+                <a
+                  href="/login"
+                  className="block p-6 rounded-xl border-2 border-blue-300 bg-gradient-to-r from-blue-50 to-indigo-50 hover:shadow-md transition"
+                >
+                  <div className="text-3xl">📚</div>
+                  <h4 className="mt-2 text-xl font-bold text-gray-900">Panel klienta</h4>
+                  <p className="text-gray-700 mt-1">
+                    Zaloguj się, aby śledzić postępy w kursach, zapisać wycenę i umówić konsultację.
+                  </p>
+                </a>
+              )}
             </div>
           </div>
         </section>
@@ -358,6 +382,17 @@ export default function EducationPage() {
                         onComplete={() => {
                           handleLessonComplete(activeModule.id, activeLesson.id)
                         }}
+                        onProceed={() => {
+                          handleLessonComplete(activeModule.id, activeLesson.id)
+                          const idx = activeModule.lessons.findIndex((l) => l.id === activeLesson.id)
+                          const next = activeModule.lessons[idx + 1]
+                          if (next) {
+                            setActiveLessonId(next.id)
+                          } else {
+                            closeLesson()
+                          }
+                        }}
+                        proceedLabel="Przejdź dalej"
                       />
                     </div>
                   ) : (
@@ -395,12 +430,21 @@ export default function EducationPage() {
                     >
                       📋 Zrób wycenę
                     </a>
-                    <a
-                      href="/login"
-                      className="px-4 py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-lg text-sm font-semibold"
-                    >
-                      🔐 Zaloguj się
-                    </a>
+                    {isLoaded && (user ? (
+                      <a
+                        href="/client/dashboard#education"
+                        className="px-4 py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-lg text-sm font-semibold"
+                      >
+                        👤 Przejdź do panelu
+                      </a>
+                    ) : (
+                      <a
+                        href="/login"
+                        className="px-4 py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-lg text-sm font-semibold"
+                      >
+                        🔐 Zaloguj się
+                      </a>
+                    ))}
                   </div>
                 </div>
               </div>
