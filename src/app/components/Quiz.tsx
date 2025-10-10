@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 interface Question {
   id: number
@@ -15,272 +15,408 @@ interface QuizProps {
   questions?: Question[]
 }
 
-export default function Quiz({ onComplete, questions: externalQuestions }: QuizProps) {
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
-  const [showResult, setShowResult] = useState(false)
-  const [isCorrect, setIsCorrect] = useState(false)
-  const [answers, setAnswers] = useState<number[]>([])
-  const [quizCompleted, setQuizCompleted] = useState(false)
+type AnswerRecord = {
+  selected: number | null // null = pominięto
+  correct: boolean
+}
 
+export default function Quiz({ onComplete, questions: externalQuestions }: QuizProps) {
+  // Domyślny zestaw (fallback, gdy brak pytań wejściowych)
   const defaultQuestions: Question[] = [
     {
       id: 1,
-      question: "Która żywica lepiej nadaje się do zastosowań zewnętrznych?",
+      question: 'Która żywica lepiej nadaje się do zastosowań zewnętrznych?',
       options: [
-        "Epoksyd - ze względu na twardość",
-        "Poliuretan - ze względu na odporność na UV",
-        "Obie nadają się równie dobrze",
-        "Żadna nie nadaje się na zewnątrz"
+        'Epoksyd - ze względu na twardość',
+        'Poliuretan - ze względu na odporność na UV',
+        'Obie nadają się równie dobrze',
+        'Żadna nie nadaje się na zewnątrz',
       ],
       correctAnswer: 1,
-      explanation: "Poliuretan jest odporny na promieniowanie UV i warunki atmosferyczne, dlatego lepiej sprawdza się na zewnątrz niż epoksyd."
+      explanation:
+        'Poliuretan charakteryzuje się lepszą odpornością na promieniowanie UV i warunki atmosferyczne niż epoksyd, dlatego częściej stosuje się go na zewnątrz.',
     },
     {
       id: 2,
-      question: "Jaka jest maksymalna dopuszczalna wilgotność podłoża dla epoksydu?",
-      options: [
-        "≤ 3%",
-        "≤ 4%",
-        "≤ 5%",
-        "≤ 6%"
-      ],
+      question: 'Jaka jest orientacyjna, maksymalna wilgotność podłoża dla systemów epoksydowych?',
+      options: ['≤ 3%', '≤ 4%', '≤ 5%', '≤ 6%'],
       correctAnswer: 1,
-      explanation: "Dla systemów epoksydowych maksymalna wilgotność podłoża nie powinna przekraczać 4%."
+      explanation:
+        'W praktyce często przyjmuje się ok. 4% dla wielu systemów (zawsze weryfikuj w karcie technicznej TDS danego producenta).',
     },
     {
       id: 3,
-      question: "Który system posadzek żywicznych jest bardziej elastyczny?",
-      options: [
-        "Epoksyd",
-        "Poliuretan",
-        "Oba są równie elastyczne",
-        "Żaden nie jest elastyczny"
-      ],
+      question: 'Który system posadzek żywicznych jest bardziej elastyczny?',
+      options: ['Epoksyd', 'Poliuretan', 'Oba są równie elastyczne', 'Żaden nie jest elastyczny'],
       correctAnswer: 1,
-      explanation: "Poliuretan jest bardziej elastyczny i odporny na uderzenia niż twardy epoksyd."
+      explanation:
+        'Poliuretan jest bardziej elastyczny i lepiej znosi odkształcenia oraz drgania podłoża niż epoksyd.',
     },
-    {
-      id: 4,
-      question: "Jaka powinna być minimalna twardość podłoża betonowego?",
-      options: [
-        "C15/20",
-        "C20/25",
-        "C25/30",
-        "C30/37"
-      ],
-      correctAnswer: 1,
-      explanation: "Minimalna klasa betonu powinna wynosić C20/25 według norm FeRFA."
-    },
-    {
-      id: 5,
-      question: "W jakiej temperaturze powinno się aplikować posadzki żywiczne?",
-      options: [
-        "+5–20°C",
-        "+10–25°C",
-        "+15–30°C",
-        "+20–35°C"
-      ],
-      correctAnswer: 1,
-      explanation: "Optymalna temperatura aplikacji to +10–25°C przy wilgotności powietrza poniżej 75%."
-    }
   ]
 
-  const questions: Question[] = (externalQuestions && externalQuestions.length > 0) ? externalQuestions : defaultQuestions
-  const currentQuestion = questions[currentQuestionIndex]
-  const progress = ((currentQuestionIndex + 1) / questions.length) * 100
+  const questions: Question[] =
+    externalQuestions && externalQuestions.length > 0 ? externalQuestions : defaultQuestions
 
-  const handleAnswerSelect = (answerIndex: number) => {
-    setSelectedAnswer(answerIndex)
+  // Stan
+  const [index, setIndex] = useState(0)
+  const [selected, setSelected] = useState<number | null>(null)
+  const [checked, setChecked] = useState(false)
+  const [records, setRecords] = useState<AnswerRecord[]>(
+    Array.from({ length: questions.length }, () => ({ selected: null, correct: false })),
+  )
+  const [showSummary, setShowSummary] = useState(false)
+
+  const current = questions[index]
+
+  // Reset przy zmianie zestawu pytań
+  useEffect(() => {
+    setRecords(Array.from({ length: questions.length }, () => ({ selected: null, correct: false })))
+    setIndex(0)
+    setSelected(null)
+    setChecked(false)
+    setShowSummary(false)
+  }, [questions])
+
+  // Metryki
+  const answeredCount = useMemo(
+    () => records.filter((r) => r && r.selected !== null).length,
+    [records],
+  )
+  const correctCount = useMemo(
+    () => records.filter((r) => r && r.selected !== null && r.correct).length,
+    [records],
+  )
+  const progressPercent = Math.round(((index + 1) / Math.max(1, questions.length)) * 100)
+
+  // Obsługa wyboru i nawigacji
+  const selectOption = (i: number) => {
+    if (checked) return
+    setSelected(i)
   }
 
-  const checkAnswer = () => {
-    if (selectedAnswer === null) return
+  const onCheck = () => {
+    if (selected === null || checked) return
+    const correct = selected === current.correctAnswer
+    const next = [...records]
+    next[index] = { selected, correct }
+    setRecords(next)
+    setChecked(true)
+  }
 
-    const correct = selectedAnswer === currentQuestion.correctAnswer
-    setIsCorrect(correct)
-    setShowResult(true)
-
-    if (correct) {
-      const newAnswers = [...answers]
-      newAnswers[currentQuestionIndex] = selectedAnswer
-      setAnswers(newAnswers)
+  const goNext = () => {
+    if (!checked) return
+    if (index < questions.length - 1) {
+      const nextIdx = index + 1
+      setIndex(nextIdx)
+      const rec = records[nextIdx]
+      setSelected(rec?.selected ?? null)
+      setChecked(rec?.selected !== null) // jeśli było już odpow., od razu pokaż wynik
+    } else {
+      setShowSummary(true)
+      onComplete?.()
     }
   }
 
-  const nextQuestion = () => {
-    if (isCorrect) {
-      if (currentQuestionIndex < questions.length - 1) {
-        setCurrentQuestionIndex(currentQuestionIndex + 1)
-        setSelectedAnswer(null)
-        setShowResult(false)
-        setIsCorrect(false)
-      } else {
-        setQuizCompleted(true)
-        onComplete?.()
+  const goPrev = () => {
+    if (index === 0) return
+    const prevIdx = index - 1
+    setIndex(prevIdx)
+    const rec = records[prevIdx]
+    setSelected(rec?.selected ?? null)
+    setChecked(rec?.selected !== null)
+  }
+
+  const onSkip = () => {
+    // Zapisz brak odpowiedzi jako pominięte (selected:null)
+    const next = [...records]
+    next[index] = { selected: null, correct: false }
+    setRecords(next)
+    if (index < questions.length - 1) {
+      const nextIdx = index + 1
+      setIndex(nextIdx)
+      const rec = records[nextIdx]
+      setSelected(rec?.selected ?? null)
+      setChecked(rec?.selected !== null)
+    } else {
+      setShowSummary(true)
+      onComplete?.()
+    }
+  }
+
+  const restart = () => {
+    setRecords(Array.from({ length: questions.length }, () => ({ selected: null, correct: false })))
+    setIndex(0)
+    setSelected(null)
+    setChecked(false)
+    setShowSummary(false)
+  }
+
+  const jumpTo = (i: number) => {
+    setIndex(i)
+    const rec = records[i]
+    setSelected(rec?.selected ?? null)
+    setChecked(rec?.selected !== null)
+    setShowSummary(false)
+  }
+
+  // Skróty klawiszowe: 1-9 wybór opcji, Enter = Sprawdź / Dalej, N/P/S = next/prev/skip
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase()
+      if (showSummary) return
+      if (key >= '1' && key <= '9' && !checked) {
+        const i = Number(key) - 1
+        if (i < current.options.length) {
+          selectOption(i)
+        }
+      } else if (key === 'enter') {
+        if (!checked && selected !== null) onCheck()
+        else if (checked) goNext()
+      } else if (key === 'n' || e.key === 'ArrowRight') {
+        if (checked) goNext()
+      } else if (key === 'p' || e.key === 'ArrowLeft') {
+        goPrev()
+      } else if (key === 's' && !checked) {
+        onSkip()
       }
     }
-  }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [checked, selected, current, showSummary, records, index])
 
-  const resetQuiz = () => {
-    setCurrentQuestionIndex(0)
-    setSelectedAnswer(null)
-    setShowResult(false)
-    setIsCorrect(false)
-    setAnswers([])
-    setQuizCompleted(false)
-  }
-
-  if (quizCompleted) {
-    const correctAnswers = answers.filter((answer, index) =>
-      answer === questions[index].correctAnswer
-    ).length
-
+  // Widok podsumowania
+  if (showSummary) {
+    const scorePercent = Math.round((correctCount / Math.max(1, questions.length)) * 100)
     return (
-      <div className="max-w-4xl mx-auto p-8 bg-white rounded-2xl shadow-xl">
-        <div className="text-center">
-          <div className="text-6xl mb-4">🎉</div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Quiz ukończony!
-          </h2>
-          <p className="text-xl text-gray-600 mb-6">
-            Poprawne odpowiedzi: {correctAnswers} z {questions.length}
+      <div className="max-w-3xl mx-auto p-6 sm:p-8 bg-white rounded-2xl shadow-xl border border-gray-100">
+        <div className="text-center mb-6">
+          <div className="text-5xl mb-2">🎉</div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Podsumowanie testu</h2>
+          <p className="text-gray-600 mt-2">
+            Poprawnych odpowiedzi: <span className="font-semibold">{correctCount}</span> z{' '}
+            <span className="font-semibold">{questions.length}</span>
           </p>
-          <div className="mb-8">
-            <div className="text-4xl font-bold mb-2">
-              {Math.round((correctAnswers / questions.length) * 100)}%
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div
-                className="bg-green-500 h-3 rounded-full transition-all duration-500"
-                style={{ width: `${(correctAnswers / questions.length) * 100}%` }}
-              ></div>
-            </div>
+          <div className="mt-4 w-full bg-gray-200 rounded-full h-3">
+            <div
+              className="bg-green-500 h-3 rounded-full transition-all duration-500"
+              style={{ width: `${scorePercent}%` }}
+            />
           </div>
+          <div className="text-3xl font-bold mt-3 text-gray-900">{scorePercent}%</div>
+        </div>
+
+        <div className="space-y-3 mb-8">
+          {questions.map((q, i) => {
+            const rec = records[i]
+            const state =
+              rec?.selected === null
+                ? 'unanswered'
+                : rec.correct
+                ? 'correct'
+                : 'incorrect'
+            const bg =
+              state === 'correct'
+                ? 'bg-green-50 border-green-200'
+                : state === 'incorrect'
+                ? 'bg-red-50 border-red-200'
+                : 'bg-gray-50 border-gray-200'
+            const icon =
+              state === 'correct' ? '✅' : state === 'incorrect' ? '❌' : '⏭️'
+            return (
+              <button
+                key={q.id}
+                onClick={() => jumpTo(i)}
+                className={`w-full text-left p-4 rounded-xl border ${bg} hover:opacity-90 transition`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="text-xl select-none">{icon}</div>
+                  <div>
+                    <div className="font-semibold text-gray-900">
+                      Pytanie {i + 1}: {q.question}
+                    </div>
+                    <div className="text-sm text-gray-700 mt-1">
+                      {rec?.selected === null ? (
+                        <span className="italic text-gray-500">Pominięto</span>
+                      ) : rec.correct ? (
+                        <span className="text-green-700">Twoja odpowiedź była poprawna</span>
+                      ) : (
+                        <span className="text-red-700">Twoja odpowiedź była niepoprawna</span>
+                      )}
+                    </div>
+                    {rec?.selected !== null && !rec.correct && (
+                      <div className="text-sm text-gray-700 mt-1">
+                        Poprawna odpowiedź: <strong>{q.options[q.correctAnswer]}</strong>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 sm:justify-center">
           <button
-            onClick={resetQuiz}
-            className="px-8 py-3 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+            onClick={restart}
+            className="px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition"
           >
-            Rozpocznij ponownie
+            Powtórz test
           </button>
+          <a
+            href="/edukacja"
+            className="px-6 py-3 rounded-lg border-2 border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold transition text-center"
+          >
+            Wróć do edukacji
+          </a>
         </div>
       </div>
     )
   }
 
+  // Widok pytania
   return (
-    <div className="max-w-4xl mx-auto p-8 bg-white rounded-2xl shadow-xl">
-      {/* Progress Bar */}
+    <div className="max-w-3xl mx-auto p-6 sm:p-8 bg-white rounded-2xl shadow-xl border border-gray-100">
+      {/* Pasek postępu */}
       <div className="mb-8">
-        <div className="flex justify-between items-center mb-2">
+        <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-semibold text-gray-600">
-            Pytanie {currentQuestionIndex + 1} z {questions.length}
-          </span>
-          <span className="text-sm font-semibold text-gray-600">
-            {Math.round(progress)}%
+            Pytanie {index + 1} z {questions.length}
           </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-3">
           <div
-            className="bg-blue-500 h-3 rounded-full transition-all duration-500"
-            style={{ width: `${progress}%` }}
-          ></div>
+            className="bg-blue-600 h-3 rounded-full transition-all duration-500"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+        <div className="mt-2 text-xs text-gray-500">
+          Odpowiedziano: {answeredCount}/{questions.length} • {progressPercent}%
         </div>
       </div>
 
-      {/* Question */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          {currentQuestion.question}
-        </h2>
+      {/* Treść pytania */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">{current.question}</h2>
 
-        {/* Answer Options */}
+        {/* Opcje odpowiedzi */}
         <div className="space-y-3">
-          {currentQuestion.options.map((option, index) => (
-            <label
-              key={index}
-              className={`flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                selectedAnswer === index
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-200 hover:border-gray-300'
-              } ${
-                showResult && index === currentQuestion.correctAnswer
-                  ? 'border-green-500 bg-green-50'
-                  : ''
-              } ${
-                showResult && selectedAnswer === index && !isCorrect
-                  ? 'border-red-500 bg-red-50'
-                  : ''
-              }`}
-            >
-              <input
-                type="radio"
-                name="answer"
-                value={index}
-                checked={selectedAnswer === index}
-                onChange={() => handleAnswerSelect(index)}
-                disabled={showResult}
-                className="mr-3 w-4 h-4 text-blue-600"
-              />
-              <span className={`text-lg ${
-                showResult && index === currentQuestion.correctAnswer
-                  ? 'text-green-800 font-semibold'
-                  : showResult && selectedAnswer === index && !isCorrect
-                  ? 'text-red-800'
-                  : 'text-gray-700'
-              }`}>
-                {option}
-                {showResult && index === currentQuestion.correctAnswer && (
-                  <span className="ml-2 text-green-600">✓</span>
-                )}
-                {showResult && selectedAnswer === index && !isCorrect && (
-                  <span className="ml-2 text-red-600">✗</span>
-                )}
-              </span>
-            </label>
-          ))}
+          {current.options.map((option, i) => {
+            const isSelected = selected === i
+            const isCorrectOption = checked && i === current.correctAnswer
+            const isWrongSelected = checked && isSelected && i !== current.correctAnswer
+
+            return (
+              <button
+                key={i}
+                type="button"
+                onClick={() => selectOption(i)}
+                disabled={checked}
+                className={[
+                  'w-full text-left p-4 border-2 rounded-lg transition-all',
+                  'focus:outline-none focus:ring-2 focus:ring-blue-400',
+                  isCorrectOption
+                    ? 'border-green-500 bg-green-50'
+                    : isWrongSelected
+                    ? 'border-red-500 bg-red-50'
+                    : isSelected
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-200 hover:border-gray-300',
+                ].join(' ')}
+              >
+                <div className="flex items-center">
+                  <span
+                    className={[
+                      'mr-3 inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold',
+                      isCorrectOption
+                        ? 'bg-green-600 text-white'
+                        : isWrongSelected
+                        ? 'bg-red-600 text-white'
+                        : isSelected
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-200 text-gray-700',
+                    ].join(' ')}
+                  >
+                    {i + 1}
+                  </span>
+                  <span
+                    className={[
+                      'text-base',
+                      isCorrectOption
+                        ? 'text-green-800 font-semibold'
+                        : isWrongSelected
+                        ? 'text-red-800'
+                        : 'text-gray-800',
+                    ].join(' ')}
+                  >
+                    {option}
+                  </span>
+                </div>
+              </button>
+            )
+          })}
         </div>
 
-        {/* Explanation */}
-        {showResult && (
-          <div className={`mt-6 p-4 rounded-lg ${
-            isCorrect
-              ? 'bg-green-50 border border-green-200'
-              : 'bg-red-50 border border-red-200'
-          }`}>
-            <p className={`text-lg ${
-              isCorrect ? 'text-green-800' : 'text-red-800'
-            }`}>
-              {currentQuestion.explanation}
+        {/* Wyjaśnienie */}
+        {checked && (
+          <div
+            className={[
+              'mt-6 p-4 rounded-lg border',
+              records[index]?.correct ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200',
+            ].join(' ')}
+          >
+            <p className={records[index]?.correct ? 'text-green-800' : 'text-red-800'}>
+              {current.explanation}
             </p>
+            {!records[index]?.correct && (
+              <p className="mt-2 text-sm text-gray-700">
+                Poprawna odpowiedź: <strong>{current.options[current.correctAnswer]}</strong>
+              </p>
+            )}
           </div>
         )}
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex justify-center">
-        {!showResult ? (
+      {/* Przyciski akcji */}
+      <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+        <div className="flex gap-2">
           <button
-            onClick={checkAnswer}
-            disabled={selectedAnswer === null}
-            className={`px-8 py-3 text-lg font-semibold rounded-lg transition-colors ${
-              selectedAnswer !== null
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            onClick={goPrev}
+            disabled={index === 0}
+            className="px-4 py-2 rounded-lg border-2 border-gray-300 text-gray-700 disabled:opacity-50 hover:bg-gray-50 transition"
+            title="Wstecz (← / P)"
+          >
+            ← Wstecz
+          </button>
+          <button
+            onClick={onSkip}
+            disabled={checked}
+            className="px-4 py-2 rounded-lg border-2 border-gray-300 text-gray-700 disabled:opacity-50 hover:bg-gray-50 transition"
+            title="Pomiń (S)"
+          >
+            Pomiń
+          </button>
+        </div>
+
+        {!checked ? (
+          <button
+            onClick={onCheck}
+            disabled={selected === null}
+            className={`px-6 py-3 rounded-lg font-semibold transition ${
+              selected !== null
+                ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                : 'bg-gray-300 text-gray-600 cursor-not-allowed'
             }`}
+            title="Sprawdź odpowiedź (Enter)"
           >
             Sprawdź odpowiedź
           </button>
         ) : (
           <button
-            onClick={nextQuestion}
-            className={`px-8 py-3 text-lg font-semibold rounded-lg transition-colors ${
-              isCorrect
-                ? 'bg-green-600 text-white hover:bg-green-700'
-                : 'bg-gray-400 text-white cursor-not-allowed'
-            }`}
+            onClick={goNext}
+            className="px-6 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition"
+            title="Następne pytanie (Enter / → / N)"
           >
-            {currentQuestionIndex < questions.length - 1 ? 'Następne pytanie' : 'Zakończ quiz'}
+            {index < questions.length - 1 ? 'Następne pytanie' : 'Zakończ test'}
           </button>
         )}
       </div>

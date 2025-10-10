@@ -352,10 +352,10 @@ export default function HomePage() {
                 <span className="ml-2">📋</span>
               </a>
               <a
-                href="/guide"
+                href="/edukacja"
                 className="inline-flex items-center px-8 py-4 border-2 border-white text-white text-lg font-semibold rounded-lg hover:bg-white hover:text-blue-600 transition-all"
               >
-                Przeczytaj poradnik
+                Edukacja
                 <span className="ml-2">📖</span>
               </a>
             </div>
@@ -2177,10 +2177,10 @@ export default function HomePage() {
                 <span className="ml-2">💬</span>
               </a>
               <a
-                href="/guide"
+                href="/edukacja"
                 className="inline-flex items-center px-8 py-4 border-2 border-white text-white text-lg font-semibold rounded-lg hover:bg-white hover:text-blue-600 transition-all"
               >
-                Przeczytaj poradnik
+                Edukacja
                 <span className="ml-2">📖</span>
               </a>
             </div>

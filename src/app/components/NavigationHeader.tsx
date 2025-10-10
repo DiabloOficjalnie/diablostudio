@@ -18,7 +18,7 @@ export default function NavigationHeader() {
   const pathname = usePathname()
 
   // Hide global NavigationHeader on routes that use their own MainLayout header
-  const hideOnMainLayout = ['/', '/valuation', '/colors', '/realizations', '/guide', '/reviews', '/contact', '/blog', '/privacy']
+  const hideOnMainLayout = ['/', '/valuation', '/colors', '/realizations', '/edukacja', '/reviews', '/contact', '/blog', '/privacy']
   if (
     pathname?.startsWith('/admin') ||
     pathname?.startsWith('/client') ||

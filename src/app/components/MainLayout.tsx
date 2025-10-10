@@ -29,7 +29,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
     { name: 'Paleta kolorów', href: '/colors' },
     { name: 'Realizacje', href: '/realizations' },
     { name: 'Blog', href: '/blog' },
-    { name: 'Przewodnik', href: '/guide' },
+    { name: 'Edukacja', href: '/edukacja' },
     { name: 'Opinie', href: '/reviews' },
     { name: 'Kontakt', href: '/contact' }
   ]
@@ -261,7 +261,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 <li><a href="/valuation" className="text-gray-300 hover:text-white transition-colors">Darmowa wycena</a></li>
                 <li><a href="/colors" className="text-gray-300 hover:text-white transition-colors">Paleta kolorów</a></li>
                 <li><a href="/realizations" className="text-gray-300 hover:text-white transition-colors">Realizacje</a></li>
-                <li><a href="/guide" className="text-gray-300 hover:text-white transition-colors">Przewodnik</a></li>
+                <li><a href="/edukacja" className="text-gray-300 hover:text-white transition-colors">Edukacja</a></li>
                 <li><a href="/reviews" className="text-gray-300 hover:text-white transition-colors">Opinie</a></li>
                 <li><a href="/contact" className="text-gray-300 hover:text-white transition-colors">Kontakt</a></li>
               </ul>

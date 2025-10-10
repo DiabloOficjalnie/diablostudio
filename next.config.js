@@ -8,6 +8,12 @@ const nextConfig = {
   images: {
     domains: ['localhost'],
   },
+  async redirects() {
+    return [
+      { source: '/guide', destination: '/edukacja', permanent: true },
+      { source: '/guide/:path*', destination: '/edukacja', permanent: true },
+    ]
+  },
 }
 
 module.exports = nextConfig

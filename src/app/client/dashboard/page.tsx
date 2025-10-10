@@ -198,6 +198,9 @@ function ClientDashboardContent() {
   const [quizAttempts, setQuizAttempts] = useState<{[key: string]: number}>({})
   const [showCorrectAnswers, setShowCorrectAnswers] = useState<{[key: string]: boolean}>({})
   const [userGuideProgress, setUserGuideProgress] = useState<{[key: string]: {step: number, completed: boolean, quizResults: any}}>({})
+  // Edukacja: filtr i wyszukiwarka
+  const [educationFilter, setEducationFilter] = useState<'all' | 'in_progress' | 'completed'>('all')
+  const [educationSearch, setEducationSearch] = useState('')
 
   // Notification system - pozycjonowane przy przycisku quiz
   const [quizNotifications, setQuizNotifications] = useState<{[key: string]: Array<{
@@ -493,6 +496,119 @@ function ClientDashboardContent() {
         }
       ]
     }
+  ,
+    {
+      id: 'aftercare-maintenance',
+      title: 'Pielęgnacja i czyszczenie (po realizacji)',
+      description: 'Rutynowa pielęgnacja, dobór środków pH‑neutralnych, reakcja na plamy oraz ochrona powierzchni. Parametry krytyczne zawsze wg TDS producenta.',
+      estimatedTime: '8 min',
+      category: 'maintenance',
+      steps: [
+        {
+          id: 'initial-cleaning',
+          title: 'Pierwsze sprzątanie',
+          content: 'W pierwszym tygodniu po aplikacji unikaj urządzeń parowych i agresywnego szorowania. Używaj łagodnych detergentów pH‑neutralnych oraz miękkich mopów/padów. Zabrudzenia usuwaj na bieżąco; piasek i żwir ogranicz matami wejściowymi.',
+          additionalInfo: 'Dokładne środki i czasy zawsze wg TDS producenta użytego systemu.',
+          literature: [
+            'FeRFA – Guide to Cleaning Resin Flooring: https://www.ferfa.org.uk/guidance/ferfa-guide-to-cleaning-resin-flooring/',
+            'EU-OSHA – Dangerous substances: https://osha.europa.eu/en/themes/dangerous-substances',
+            'TDS producenta (zalecenia i ograniczenia)'
+          ],
+          quiz: [
+            { question: 'Jakie środki stosować w pierwszych dniach?', options: ['Silnie zasadowe', 'Parowe', 'pH‑neutralne', 'Rozpuszczalniki'], correct: 2 }
+          ]
+        },
+        {
+          id: 'routine-care-products',
+          title: 'Rutynowa pielęgnacja i środki',
+          content: 'Do bieżącego mycia stosuj pH‑neutralne detergenty w zalecanych stężeniach. W obszarach o dużym natężeniu ruchu używaj czyszczenia mechanicznego z odpowiednio dobranymi padami/szczotkami.',
+          additionalInfo: 'Unikaj silnie kwaśnych/zasadowych środków bez potwierdzenia w TDS.',
+          literature: [
+            'FeRFA – Guide to Cleaning Resin Flooring: https://www.ferfa.org.uk/guidance/ferfa-guide-to-cleaning-resin-flooring/',
+            'TDS producenta (dopuszczalne środki i pH)'
+          ]
+        },
+        {
+          id: 'furniture-and-loads',
+          title: 'Meble, koła i obciążenia',
+          content: 'Stosuj podkładki pod meble oraz miękkie, niebarwiące koła. Używaj mat ochronnych w strefach wejściowych i zawracania. Nie przeciągaj ciężkich przedmiotów po powierzchni.',
+          additionalInfo: 'W razie planowanych dużych obciążeń zweryfikuj dopuszczalność w TDS.',
+          literature: [
+            'FeRFA – Guide to the Selection of Synthetic Resin Flooring: https://www.ferfa.org.uk/guidance/ferfa-guide-to-the-selection-of-synthetic-resin-flooring/'
+          ]
+        },
+        {
+          id: 'warranty-and-records',
+          title: 'Gwarancja i rejestr pielęgnacji',
+          content: 'Warunki gwarancji określa oferta/umowa. Prowadź prosty rejestr utrzymania (daty, stosowane środki). Nie wykonuj nieautoryzowanych przeróbek.',
+          additionalInfo: 'W razie wątpliwości skontaktuj się z nami — ocenimy sytuację i zaproponujemy rozwiązanie.',
+          literature: [
+            'ISO 45001:2018 – Systemowe podejście do bezpieczeństwa: https://www.iso.org/standard/63787.html',
+            'TDS producenta (zalecenia eksploatacyjne)'
+          ],
+          quiz: [
+            { question: 'Co pomaga utrzymać ważność gwarancji?', options: ['Brak mycia', 'Rejestr pielęgnacji i trzymanie się zaleceń TDS', 'Silne rozpuszczalniki', 'Codzienna para'], correct: 1 }
+          ]
+        }
+      ]
+    }
+  ,
+    {
+      id: 'slip-resistance',
+      title: 'Antypoślizgowość i klasy R: utrzymanie a bezpieczeństwo',
+      description: 'Jak utrzymanie wpływa na bezpieczeństwo i co oznaczają klasy R (R9–R13) oraz ocena poślizgowości.',
+      estimatedTime: '7 min',
+      category: 'maintenance',
+      steps: [
+        {
+          id: 'r-classes-basics',
+          title: 'Klasy R – co oznaczają',
+          content: 'Klasy R (R9–R13) pochodzą z badania rampowego (DIN 51130) i dotyczą zachowania na pochylni z olejem. R9 oznacza najniższą odporność, R13 najwyższą. Dobór klasy zależy od ryzyka zanieczyszczeń i warunków użytkowania. W przestrzeniach domowych i suchych często ważniejsze jest utrzymanie czystości i realny test ryzyka niż deklarowana klasa.',
+          additionalInfo: 'Dobór antypoślizgowości powinien wynikać z oceny ryzyka i zaleceń systemowych; zawsze weryfikuj wytyczne FeRFA/TDS.',
+          literature: [
+            'FeRFA – Guide to the Selection of Synthetic Resin Flooring: https://www.ferfa.org.uk/guidance/ferfa-guide-to-the-selection-of-synthetic-resin-flooring/'
+          ],
+          quiz: [
+            { question: 'Klasy R (R9–R13) odnoszą się do:', options: ['Połysku', 'Badania rampowego (DIN 51130)', 'Twardości', 'Grubości'], correct: 1 }
+          ]
+        },
+        {
+          id: 'cleaning-impact',
+          title: 'Utrzymanie a ryzyko poślizgu',
+          content: 'Zalegający brud, kurz, resztki detergentów czy oleje znacząco obniżają przyczepność. Regularne czyszczenie pH‑neutralne, skuteczne płukanie i maty wejściowe utrzymują parametry. Dobór padów/szczotek i częstotliwości sprzątania dostosowujemy do natężenia ruchu.',
+          additionalInfo: 'Silne zasady/kwasy i niewypłukane środki mogą zostawiać osad i zwiększać poślizg.',
+          literature: [
+            'FeRFA – Guide to Cleaning Resin Flooring: https://www.ferfa.org.uk/guidance/ferfa-guide-to-cleaning-resin-flooring/'
+          ],
+          quiz: [
+            { question: 'Co NAJCZĘŚCIEJ pogarsza antypoślizgowość w eksploatacji?', options: ['Zbyt częste mycie', 'Zanieczyszczenia i resztki detergentów', 'Niska temperatura', 'Wysoka klasa R'], correct: 1 }
+          ]
+        },
+        {
+          id: 'verification-testing',
+          title: 'Weryfikacja w praktyce',
+          content: 'Poziom ryzyka ocenia się w warunkach rzeczywistych. Często stosuje się test wahadłem (Pendulum Test, wg BS 7976) i analizę ryzyka (HSE). Wpływ mają: rodzaj zanieczyszczeń, spadki, obuwie, czyszczenie. Celem jest niskie ryzyko poślizgu w typowych warunkach użytkowania.',
+          additionalInfo: 'Dokładne wymagania/cele testowe wynikają z polityk zarządcy obiektu i lokalnych wytycznych HSE; w budynkach mieszkalnych priorytetem jest higiena i maty.',
+          literature: [
+            'HSE – Slips and trips: https://www.hse.gov.uk/slips/',
+            'FeRFA – Dobór systemu a warunki użytkowania: https://www.ferfa.org.uk/guidance/ferfa-guide-to-the-selection-of-synthetic-resin-flooring/'
+          ],
+          quiz: [
+            { question: 'Jaki test często wykorzystuje się do oceny ryzyka poślizgu w eksploatacji?', options: ['Twardość Shore', 'Próba zarysowania', 'Test wahadłem (Pendulum)', 'Pomiar połysku'], correct: 2 }
+          ]
+        },
+        {
+          id: 'good-practices',
+          title: 'Dobre praktyki na co dzień',
+          content: 'Stosuj maty wejściowe, usuwaj rozlania niezwłocznie, dostosuj obuwie do warunków (mokro/sucho), planuj częstsze czyszczenie stref narażonych. Utrzymuj właściwe spadki i drożność odpływów tam, gdzie występują mokre procesy.',
+          additionalInfo: 'Parametry antypoślizgowości konkretnego systemu i ograniczenia zawsze wg TDS producenta.',
+          literature: [
+            'HSE – Slips and trips (praktyczna prewencja): https://www.hse.gov.uk/slips/',
+            'TDS producenta – zalecenia eksploatacyjne'
+          ]
+        }
+      ]
+    }
   ]
 
   guides = customerGuides
@@ -722,6 +838,21 @@ function ClientDashboardContent() {
           quiz: [
             { question: 'Ile wymian powietrza na godzinę powinna zapewnić wentylacja?', options: ['5', '10', '15', '20'], correct: 1 },
             { question: 'Kiedy wymagana jest wentylacja mechaniczna?', options: ['Przy małych powierzchniach', 'Przy dużych powierzchniach', 'Tylko w biurach', 'Tylko na zewnątrz'], correct: 1 }
+          ]
+        },
+        {
+          id: 'health-exposure-good-practice',
+          title: 'Ekspozycje zdrowotne, alergie i dobre praktyki',
+          content: 'Składniki systemów epoksydowych i niektóre utwardzacze mogą działać drażniąco oraz uczulająco. Utrzymuj dobrą wentylację, wyznacz strefy robocze i ogranicz dostęp osób postronnych. Wczesne objawy nadwrażliwości: zaczerwienienie skóry, świąd, wysypka; możliwe też kaszel i duszność. W razie objawów — wyjdź ze strefy, zgłoś ekipie i skontaktuj się z lekarzem. Rozlewów chemii nie usuwaj samodzielnie — stosujemy procedury z kart charakterystyki (SDS).',
+          additionalInfo: 'Informacje szczegółowe zawsze w TDS/SDS producenta dla zastosowanego systemu.',
+          literature: [
+            'HSE – Epoxy resins: https://www.hse.gov.uk/chemicals/epoxy.htm',
+            'EU-OSHA – Dangerous substances: https://osha.europa.eu/en/themes/dangerous-substances',
+            'TDS/SDS producenta (środki ostrożności)'
+          ],
+          quiz: [
+            { question: 'Czy epoksydy mogą uczulać?', options: ['Nie', 'Tak', 'Tylko zimą', 'Tylko na zewnątrz'], correct: 1 },
+            { question: 'Kto powinien usuwać rozlaną chemię?', options: ['Klient', 'Przeszkolona ekipa wg SDS', 'Dowolna osoba z rękawicami', 'Nikt'], correct: 1 }
           ]
         },
         {
@@ -2141,8 +2272,8 @@ function ClientDashboardContent() {
                     : 'text-slate-300 hover:text-white hover:bg-slate-700 hover:translate-x-1'
                 }`}
               >
-                <span className="text-xl">📚</span>
-                <span>Poradniki</span>
+                <span className="text-xl">🎓</span>
+                <span>Edukacja</span>
               </button>
 
               <button
@@ -3066,8 +3197,41 @@ function ClientDashboardContent() {
             <div className="p-8">
               <div className="max-w-6xl mx-auto">
                 <div className="mb-8">
-                  <h2 className="text-3xl font-bold text-gray-900 mb-2">📚 Poradniki i kursy</h2>
-                  <p className="text-gray-600">Interaktywne kursy i szczegółowe instrukcje krok po kroku</p>
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div>
+                      <h2 className="text-3xl font-bold text-gray-900 mb-2">🎓 Edukacja</h2>
+                      <p className="text-gray-600">Krótkie lekcje i instrukcje krok po kroku</p>
+                    </div>
+                    <div className="w-full sm:w-auto flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={educationSearch}
+                        onChange={(e) => setEducationSearch(e.target.value)}
+                        placeholder="Szukaj w Edukacji..."
+                        className="flex-1 sm:w-64 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600"
+                      />
+                      <div className="inline-flex rounded-lg border border-gray-300 overflow-hidden">
+                        <button
+                          onClick={() => setEducationFilter('all')}
+                          className={`px-3 py-2 text-sm ${educationFilter === 'all' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                        >
+                          Wszystko
+                        </button>
+                        <button
+                          onClick={() => setEducationFilter('in_progress')}
+                          className={`px-3 py-2 text-sm border-l border-gray-300 ${educationFilter === 'in_progress' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                        >
+                          W trakcie
+                        </button>
+                        <button
+                          onClick={() => setEducationFilter('completed')}
+                          className={`px-3 py-2 text-sm border-l border-gray-300 ${educationFilter === 'completed' ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                        >
+                          Ukończone
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Course Categories */}
@@ -3076,7 +3240,7 @@ function ClientDashboardContent() {
                   <div className="bg-white rounded-lg shadow-sm p-6">
                     <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
                       <span className="text-2xl mr-3">🎓</span>
-                      Kursy i poradniki
+                      Kursy
                     </h3>
 
                     <div className="space-y-4">
@@ -3084,6 +3248,11 @@ function ClientDashboardContent() {
                         const progress = guideProgress[guide.id] || 0
                         const isCompleted = completedGuides.includes(guide.id)
                         const progressPercentage = isCompleted ? 100 : (progress / guide.steps.length) * 100
+                        const matchesSearch = (guide.title + ' ' + guide.description).toLowerCase().includes(educationSearch.toLowerCase())
+                        const status = isCompleted ? 'completed' : (progress > 0 ? 'in_progress' : 'not_started')
+                        if (educationFilter === 'completed' && !isCompleted) return null
+                        if (educationFilter === 'in_progress' && status !== 'in_progress') return null
+                        if (!matchesSearch) return null
 
                         return (
                           <div key={guide.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
@@ -3091,11 +3260,11 @@ function ClientDashboardContent() {
                               <div className="flex-1">
                                 <h4 className="font-semibold text-gray-900 mb-1">{guide.title}</h4>
                                 <p className="text-sm text-gray-600 mb-2">{guide.description}</p>
-                                <div className="flex items-center space-x-4 text-xs text-gray-500">
-                                  <span>⏱️ {guide.estimatedTime}</span>
-                                  <span>📚 {guide.steps.length} lekcji</span>
-                                  <span className={isCompleted ? 'text-green-600' : 'text-blue-600'}>
-                                    {isCompleted ? '✅ Ukończony' : '⏳ W trakcie'}
+                                <div className="flex items-center gap-2 text-xs">
+                                  <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full">⏱️ {guide.estimatedTime}</span>
+                                  <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full">📚 {guide.steps.length} lekcji</span>
+                                  <span className={`px-2 py-1 rounded-full ${isCompleted ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                                    {isCompleted ? 'Ukończony' : 'W trakcie'}
                                   </span>
                                 </div>
                               </div>
@@ -3107,7 +3276,7 @@ function ClientDashboardContent() {
                                     : 'bg-blue-600 text-white hover:bg-blue-700'
                                 }`}
                               >
-                                {isCompleted ? '🔄 Powtórz' : progress > 0 ? '▶️ Kontynuuj' : '▶️ Rozpocznij'}
+                                Otwórz
                               </button>
                             </div>
 
@@ -3135,7 +3304,7 @@ function ClientDashboardContent() {
                   <div className="bg-white rounded-lg shadow-sm p-6">
                     <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center">
                       <span className="text-2xl mr-3">📋</span>
-                      Instrukcje i procedury
+                      Instrukcje
                     </h3>
 
                     <div className="space-y-4">
@@ -3143,6 +3312,11 @@ function ClientDashboardContent() {
                         const progress = guideProgress[instruction.id] || 0
                         const isCompleted = completedInstructions.includes(instruction.id)
                         const progressPercentage = isCompleted ? 100 : (progress / instruction.steps.length) * 100
+                        const matchesSearch = (instruction.title + ' ' + instruction.description).toLowerCase().includes(educationSearch.toLowerCase())
+                        const status = isCompleted ? 'completed' : (progress > 0 ? 'in_progress' : 'not_started')
+                        if (educationFilter === 'completed' && !isCompleted) return null
+                        if (educationFilter === 'in_progress' && status !== 'in_progress') return null
+                        if (!matchesSearch) return null
 
                         return (
                           <div key={instruction.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
@@ -3150,11 +3324,11 @@ function ClientDashboardContent() {
                               <div className="flex-1">
                                 <h4 className="font-semibold text-gray-900 mb-1">{instruction.title}</h4>
                                 <p className="text-sm text-gray-600 mb-2">{instruction.description}</p>
-                                <div className="flex items-center space-x-4 text-xs text-gray-500">
-                                  <span>⏱️ {instruction.estimatedTime}</span>
-                                  <span>📋 {instruction.steps.length} kroków</span>
-                                  <span className={isCompleted ? 'text-green-600' : 'text-orange-600'}>
-                                    {isCompleted ? '✅ Gotowe' : '⏳ Do wykonania'}
+                                <div className="flex items-center gap-2 text-xs">
+                                  <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full">⏱️ {instruction.estimatedTime}</span>
+                                  <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full">📋 {instruction.steps.length} kroków</span>
+                                  <span className={`px-2 py-1 rounded-full ${isCompleted ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
+                                    {isCompleted ? 'Gotowe' : 'Do wykonania'}
                                   </span>
                                 </div>
                               </div>
@@ -3166,7 +3340,7 @@ function ClientDashboardContent() {
                                     : 'bg-orange-600 text-white hover:bg-orange-700'
                                 }`}
                               >
-                                {isCompleted ? '🔄 Przeczytaj ponownie' : progress > 0 ? '▶️ Kontynuuj' : '▶️ Przeczytaj'}
+                                Otwórz
                               </button>
                             </div>
 
@@ -3311,10 +3485,10 @@ function ClientDashboardContent() {
                                   key={step.id}
                                   className={`border rounded-lg p-6 transition-all ${
                                     isStepActive
-                                      ? 'border-blue-500 bg-blue-50'
+                                      ? 'border-blue-500 bg-white'
                                       : isStepCompleted
-                                      ? 'border-green-500 bg-green-50'
-                                      : 'border-gray-200'
+                                      ? 'border-green-500 bg-white'
+                                      : 'border-gray-200 bg-white'
                                   }`}
                                 >
                                   <div className="flex items-start space-x-4">
@@ -3334,7 +3508,7 @@ function ClientDashboardContent() {
 
                                       {/* Additional Information */}
                                       {step.additionalInfo && (
-                                        <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                                        <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
                                           <h5 className="text-sm font-semibold text-amber-900 mb-2 flex items-center">
                                             <span className="text-lg mr-2">💡</span>
                                             Informacje dodatkowe
@@ -3346,7 +3520,7 @@ function ClientDashboardContent() {
                                       {/* Video and Literature Links */}
                                       <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {step.videoUrl && (
-                                          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                                          <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
                                             <h5 className="text-sm font-semibold text-red-900 mb-2 flex items-center">
                                               <span className="text-lg mr-2">🎥</span>
                                               Materiał wideo
@@ -3364,7 +3538,7 @@ function ClientDashboardContent() {
                                         )}
 
                                         {step.literature && step.literature.length > 0 && (
-                                          <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
+                                          <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
                                             <h5 className="text-sm font-semibold text-indigo-900 mb-2 flex items-center">
                                               <span className="text-lg mr-2">📚</span>
                                               Literatura
@@ -3382,7 +3556,7 @@ function ClientDashboardContent() {
 
                                       {/* Quiz Section */}
                                       {step.quiz && step.quiz.length > 0 && isStepActive && (
-                                        <div className="mb-4 p-4 bg-purple-50 border border-purple-200 rounded-lg relative">
+                                        <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-lg relative">
                                           <h5 className="text-sm font-semibold text-purple-900 mb-3 flex items-center">
                                             <span className="text-lg mr-2">🧠</span>
                                             Test wiedzy - Sprawdź swoją wiedzę!

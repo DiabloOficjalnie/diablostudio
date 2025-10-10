@@ -14,7 +14,7 @@ const CATEGORY_LABELS: Record<Exclude<CategoryKey, 'all'>, string> = {
   aftercare: 'Po realizacji',
 }
 
-export default function GuidePage() {
+export default function EducationPage() {
   const [activeCategory, setActiveCategory] = useState<CategoryKey>('all')
   const [activeModuleId, setActiveModuleId] = useState<string | null>(null)
   const [activeLessonId, setActiveLessonId] = useState<string | null>(null)
@@ -184,6 +184,7 @@ export default function GuidePage() {
                           </div>
                           <h3 className="text-xl font-bold text-gray-900">{mod.title}</h3>
                           <p className="text-gray-600 mt-2">{mod.description}</p>
+                          <div className="text-xs text-gray-500 mt-1">Czas: {mod.estimatedTime}</div>
                         </div>
                         <div className="text-right min-w-[90px]">
                           <div className="text-sm text-gray-500">Postęp</div>
@@ -282,6 +283,9 @@ export default function GuidePage() {
                     </div>
                     <h3 className="text-2xl font-bold text-gray-900">{activeModule.title}</h3>
                     <p className="text-gray-600">{activeLesson.title}</p>
+                    {activeLesson.readTimeMin && (
+                      <p className="text-xs text-gray-500 mt-1">~{activeLesson.readTimeMin} min czytania</p>
+                    )}
                   </div>
                   <button
                     onClick={closeLesson}
@@ -307,6 +311,39 @@ export default function GuidePage() {
                 <div className="prose prose-blue max-w-none text-gray-800 text-base leading-relaxed">
                   {activeLesson.body}
                 </div>
+
+                {/* Sources */}
+                {activeLesson.sources && activeLesson.sources.length > 0 && (
+                  <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h5 className="text-sm font-semibold text-blue-900 mb-2 flex items-center">
+                      <span className="text-lg mr-2">🔎</span>
+                      Źródła i odniesienia
+                    </h5>
+                    <ul className="list-disc pl-5 text-sm text-blue-900">
+                      {activeLesson.sources.map((src, i) => (
+                        <li key={i} className="mb-1">
+                          {src.url ? (
+                            <a
+                              href={src.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="underline hover:no-underline"
+                            >
+                              {src.label}
+                            </a>
+                          ) : (
+                            <span>{src.label}</span>
+                          )}
+                          <span className="ml-2 text-blue-700/70">[{src.source}]</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="mt-2 text-xs text-blue-700/80">
+                      Uwaga: parametry krytyczne (czasy, wilgotność, temperatury, środki pielęgnacji)
+                      zawsze weryfikujemy w najnowszej karcie technicznej (TDS) producenta zastosowanego systemu.
+                    </p>
+                  </div>
+                )}
 
                 {/* Quiz or Acknowledge */}
                 <div className="mt-6">
