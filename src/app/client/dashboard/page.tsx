@@ -258,9 +258,29 @@ function ClientDashboardContent() {
     }, 5000)
   }
 
+  // Types for Guides/Instructions
+  type QuizItem = { question: string; options: string[]; correct: number }
+  type Step = {
+    id: string
+    title: string
+    content: string
+    additionalInfo?: string
+    videoUrl?: string
+    literature?: string[]
+    quiz?: QuizItem[]
+  }
+  type GuideType = {
+    id: string
+    title: string
+    description: string
+    estimatedTime?: string
+    category: 'preparation' | 'application' | 'maintenance' | 'safety' | 'tools'
+    steps: Step[]
+  }
+
   // Guides/instructions placeholders to satisfy references before assignment
-  let guides: any[] = []
-  let instructions: any[] = []
+  let guides: GuideType[] = []
+  let instructions: GuideType[] = []
 
   // Load user progress from database
   const loadUserProgress = async () => {
@@ -348,7 +368,7 @@ function ClientDashboardContent() {
   // Categories kept aligned with existing completion logic:
   // - 'preparation' | 'application' | 'maintenance' are treated as "guides"
   // - 'safety' | 'tools' are treated as "instructions"
-  const customerGuides = [
+  const customerGuides: GuideType[] = [
     {
       id: 'customer-journey',
       title: 'Twoja droga: od wyceny do odbioru',
@@ -1683,7 +1703,7 @@ function ClientDashboardContent() {
     const currentGuide = [...guides, ...instructions].find(g => g.id === activeGuide)
     if (!currentGuide) return
 
-    const step = currentGuide.steps.find(s => s.id === stepId)
+    const step = currentGuide.steps.find((s: Step) => s.id === stepId)
     if (!step || !step.quiz) return
 
     const answers = quizAnswers[stepId] || {}
@@ -1701,7 +1721,7 @@ function ClientDashboardContent() {
     let correctAnswers = 0
     const newResults: {[questionIndex: number]: boolean} = {}
 
-    step.quiz.forEach((quizItem, quizIndex) => {
+    step.quiz.forEach((quizItem: QuizItem, quizIndex: number) => {
       const userAnswer = answers[quizIndex]
       const isCorrect = userAnswer === quizItem.correct
       newResults[quizIndex] = isCorrect
@@ -3281,7 +3301,7 @@ function ClientDashboardContent() {
 
                           {/* Course Content */}
                           <div className="space-y-6">
-                            {currentGuide.steps.map((step, index) => {
+                            {currentGuide.steps.map((step: Step, index: number) => {
                               const stepNumber = index + 1
                               const isStepCompleted = stepNumber <= currentProgress
                               const isStepActive = stepNumber === currentProgress + 1
@@ -3350,7 +3370,7 @@ function ClientDashboardContent() {
                                               Literatura
                                             </h5>
                                             <div className="space-y-2">
-                                              {step.literature.map((lit, idx) => (
+                                              {step.literature.map((lit: string, idx: number) => (
                                                 <div key={idx} className="text-sm text-indigo-800">
                                                   • {lit}
                                                 </div>
@@ -3368,13 +3388,13 @@ function ClientDashboardContent() {
                                             Test wiedzy - Sprawdź swoją wiedzę!
                                           </h5>
                                           <div className="space-y-4">
-                                            {step.quiz.map((quizItem, quizIndex) => (
+                                            {step.quiz.map((quizItem: QuizItem, quizIndex: number) => (
                                               <div key={quizIndex} className="bg-white rounded-lg p-4 border border-purple-200">
                                                 <p className="font-medium text-gray-900 mb-3">
                                                   {quizIndex + 1}. {quizItem.question}
                                                 </p>
                                                 <div className="space-y-2">
-                                                  {quizItem.options.map((option, optionIndex) => (
+                                                  {quizItem.options.map((option: string, optionIndex: number) => (
                                                     <label
                                                     key={optionIndex}
                                                     className={`flex items-center space-x-2 cursor-pointer p-2 rounded border transition-colors ${
