@@ -1,9 +1,11 @@
-import { createClientComponentClient } from '@/lib/supabase'
+import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClientComponentClient()
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    const supabase = createClient(supabaseUrl, supabaseAnonKey)
     const { searchParams } = new URL(request.url)
 
     const page = parseInt(searchParams.get('page') || '1')
@@ -43,11 +45,25 @@ export async function GET(request: NextRequest) {
     }
 
     // Get total count for pagination
-    const { count } = await supabase
+    let countQuery = supabase
       .from('blog_posts')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'published')
       .not('published_at', 'is', null)
+
+    if (category && category !== 'wszystkie') {
+      countQuery = countQuery.eq('category', category)
+    }
+
+    if (featured) {
+      countQuery = countQuery.eq('is_featured', true)
+    }
+
+    if (search) {
+      countQuery = countQuery.or(`title.ilike.%${search}%,content.ilike.%${search}%,excerpt.ilike.%${search}%`)
+    }
+
+    const { count } = await countQuery
 
     // Apply pagination
     query = query.range(offset, offset + limit - 1)

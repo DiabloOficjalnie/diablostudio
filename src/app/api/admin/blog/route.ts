@@ -1,9 +1,9 @@
-import { createClientComponentClient } from '@/lib/supabase'
+import { createAdminClient } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClientComponentClient()
+    const supabase = createAdminClient()
     const { searchParams } = new URL(request.url)
 
     const page = parseInt(searchParams.get('page') || '1')
@@ -79,7 +79,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClientComponentClient()
+    const supabase = createAdminClient()
     const body = await request.json()
 
     const {

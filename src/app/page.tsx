@@ -62,6 +62,7 @@ export default function HomePage() {
   })
   const [pricingData, setPricingData] = useState<PricingData | null>(null)
   const [blogPosts, setBlogPosts] = useState<any[]>([])
+  const [blogLoading, setBlogLoading] = useState(true)
   const [loading, setLoading] = useState(true)
   const [helpfulClicked, setHelpfulClicked] = useState<Record<string, boolean>>({})
 
@@ -168,6 +169,27 @@ export default function HomePage() {
     }
 
     loadPricingData()
+  }, [])
+
+  // Load blog posts from database
+  useEffect(() => {
+    const loadBlogPosts = async () => {
+      try {
+        setBlogLoading(true)
+        const response = await fetch('/api/blog?featured=true&limit=6')
+        if (response.ok) {
+          const data = await response.json()
+          setBlogPosts(data.posts || [])
+        } else {
+          console.error('Failed to load blog posts')
+        }
+      } catch (error) {
+        console.error('Error loading blog posts:', error)
+      }
+      setBlogLoading(false)
+    }
+
+    loadBlogPosts()
   }, [])
 
   useEffect(() => {
@@ -1963,8 +1985,7 @@ export default function HomePage() {
                 </summary>
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <p className="text-gray-700 leading-relaxed">
-                    Nie – możemy zastosować wykończenie antypoślizgowe, które zapewnia bezpieczeństwo użytkowania.
-                    W zależności od potrzeb dobieramy odpowiednią strukturę powierzchni.
+                    Nie, wcale nie musi być! Posadzki żywiczne mogą być antypoślizgowe, jeśli zastosuje się odpowiednią fakturę lub dodatek do warstwy wierzchniej. W garażach i warsztatach najczęściej wykonujemy powierzchnie o lekkim chwycie – bezpieczne i łatwe do utrzymania w czystości.
                   </p>
                 </div>
               </details>
@@ -1984,8 +2005,7 @@ export default function HomePage() {
                 </summary>
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <p className="text-gray-700 leading-relaxed">
-                    W zależności od systemu i intensywności użytkowania, posadzki żywiczne służą od 10 do 25 lat.
-                    Systemy premium mogą wytrzymać nawet do 25 lat przy odpowiedniej pielęgnacji.
+                    Dobrze wykonana posadzka żywiczna potrafi wytrzymać nawet 15–20 lat bez konieczności renowacji. Jej trwałość zależy głównie od rodzaju żywicy, sposobu użytkowania i przygotowania podłoża.
                   </p>
                 </div>
               </details>
@@ -2005,8 +2025,7 @@ export default function HomePage() {
                 </summary>
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <p className="text-gray-700 leading-relaxed">
-                    Tak – systemy poliuretanowe są odporne na UV i warunki atmosferyczne, idealne na tarasy i balkony.
-                    Epoksydy nie są zalecane na zewnątrz ze względu na wrażliwość na promieniowanie UV.
+                    Tak, ale nie każdą. Żywice poliuretanowe lepiej znoszą zmiany temperatur i promieniowanie UV, dlatego to one są polecane na zewnątrz. Epoksydy lepiej sprawdzają się wewnątrz budynków – w garażach, piwnicach czy halach.
                   </p>
                 </div>
               </details>
@@ -2026,8 +2045,7 @@ export default function HomePage() {
                 </summary>
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <p className="text-gray-700 leading-relaxed">
-                    Od 2 do 5 dni w zależności od wielkości powierzchni i zastosowanej technologii.
-                    Czas schnięcia między warstwami to zazwyczaj 24 godziny.
+                    Standardowa realizacja to 2–4 dni, w zależności od powierzchni i warunków. Czas może się wydłużyć przy większych metrażach lub konieczności naprawy podłoża.
                   </p>
                 </div>
               </details>
@@ -2047,8 +2065,7 @@ export default function HomePage() {
                 </summary>
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <p className="text-gray-700 leading-relaxed">
-                    Tak – możliwe są naprawy miejscowe lub renowacja całej powierzchni w zależności od stopnia uszkodzenia.
-                    Koszt naprawy jest znacznie niższy niż wykonanie nowej posadzki.
+                    Tak! Posadzki żywiczne można lokalnie naprawiać lub odnawiać, bez konieczności zrywania całej powierzchni. Wystarczy zeszlifować uszkodzony fragment i nałożyć nową warstwę.
                   </p>
                 </div>
               </details>
@@ -2068,8 +2085,7 @@ export default function HomePage() {
                 </summary>
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <p className="text-gray-700 leading-relaxed">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                    Epoksyd – twardszy, bardzo odporny mechanicznie, idealny do garaży i hal. Poliuretan – bardziej elastyczny, lepiej znosi zmiany temperatur i promieniowanie UV. W skrócie: epoksyd do wnętrz, poliuretan – także na zewnątrz.
                   </p>
                 </div>
               </details>
@@ -2089,8 +2105,7 @@ export default function HomePage() {
                 </summary>
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <p className="text-gray-700 leading-relaxed">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                    Tak, szczególnie epoksydowe. Odporne są na oleje, paliwa, smary, sól drogową i większość środków czyszczących. To dlatego tak dobrze sprawdzają się w garażach i warsztatach.
                   </p>
                 </div>
               </details>
@@ -2102,7 +2117,7 @@ export default function HomePage() {
                 <summary className="font-bold text-xl text-gray-900 cursor-pointer hover:text-teal-800 transition-colors list-none flex items-center justify-between">
                   <span className="flex items-center">
                     <span className="bg-teal-100 text-teal-800 w-8 h-8 rounded-full flex items-center justify-center mr-4 text-sm font-bold">8</span>
-                    Jak przygotować podłoże pod posadzkę żywiczna?
+                    Jak przygotować podłoże pod posadzkę żywiczną?
                   </span>
                   <span className="text-2xl text-gray-400 group-open:text-teal-600 transition-transform duration-200 group-open:rotate-180">
                     ⌄
@@ -2110,8 +2125,7 @@ export default function HomePage() {
                 </summary>
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <p className="text-gray-700 leading-relaxed">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                    Klucz to czyste, suche i stabilne podłoże betonowe. Powierzchnia powinna być zeszlifowana i odkurzona, bez tłustych plam i luźnych fragmentów. Dobrze przygotowany beton to gwarancja trwałości całego systemu.
                   </p>
                 </div>
               </details>
@@ -2131,8 +2145,7 @@ export default function HomePage() {
                 </summary>
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <p className="text-gray-700 leading-relaxed">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                    Nowoczesne systemy żywiczne są bezrozpuszczalnikowe i niskoemisyjne (VOC-free). Po utwardzeniu są w pełni bezpieczne dla ludzi i środowiska – nie wydzielają zapachu ani toksyn.
                   </p>
                 </div>
               </details>
@@ -2144,7 +2157,7 @@ export default function HomePage() {
                 <summary className="font-bold text-xl text-gray-900 cursor-pointer hover:text-violet-800 transition-colors list-none flex items-center justify-between">
                   <span className="flex items-center">
                     <span className="bg-violet-100 text-violet-800 w-8 h-8 rounded-full flex items-center justify-center mr-4 text-sm font-bold">10</span>
-                    Jak dbać o posadzkę żywiczna?
+                    Jak dbać o posadzkę żywiczną?
                   </span>
                   <span className="text-2xl text-gray-400 group-open:text-violet-600 transition-transform duration-200 group-open:rotate-180">
                     ⌄
@@ -2152,8 +2165,7 @@ export default function HomePage() {
                 </summary>
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <p className="text-gray-700 leading-relaxed">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                    Wystarczy regularne mycie wodą z delikatnym detergentem. Unikaj silnych środków żrących i ostrych narzędzi. Przy intensywnym użytkowaniu można co kilka lat odświeżyć warstwę wierzchnią – przywróci połysk i odporność.
                   </p>
                 </div>
               </details>
@@ -2194,14 +2206,15 @@ export default function HomePage() {
           {/* Section Header */}
           <div className="text-center mb-16">
             <div className="inline-block p-3 bg-yellow-500 rounded-full mb-6">
-              <span className="text-4xl">🏆</span>
+                  <span className="text-4xl">💎</span>
             </div>
             <h2 className="text-5xl font-bold mb-6">
-              Dlaczego warto wybrać naszą firmę?
+              Dlaczego warto wybrać DecoSol?
             </h2>
             <p className="text-xl text-blue-100 max-w-4xl mx-auto leading-relaxed">
-              Profesjonalizm, doświadczenie i pasja do tworzenia wyjątkowych posadzek żywicznych.
-              Sprawdź, dlaczego klienci nam ufają od lat.
+              Profesjonalizm, doświadczenie i pasja do tworzenia posadzek żywicznych to nasz znak rozpoznawczy.
+              Zespół DecoSol realizuje posadzki epoksydowe i poliuretanowe, które łączą trwałość przemysłową z estetyką wnętrz prywatnych.
+              Zobacz, dlaczego klienci indywidualni i firmy wybierają właśnie nas.
             </p>
           </div>
 
@@ -2214,34 +2227,32 @@ export default function HomePage() {
                   <span className="text-3xl">📅</span>
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-yellow-300">Doświadczenie przy prestiżowych projektach</h3>
+                  <h3 className="text-2xl font-bold text-yellow-300">Doświadczenie przy prestiżowych realizacjach</h3>
                 </div>
               </div>
               <p className="text-blue-100 leading-relaxed mb-4">
-                <strong className="text-white">Zespół zdobywał doświadczenie w firmach</strong> wykonujących posadzki żywiczne
-                na projektach dla renomowanych marek, takich jak:
+                Zanim powstało DecoSol, nasz zespół zdobywał doświadczenie w fabrykach renomowanych marek, takich jak:
               </p>
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <div className="bg-blue-800 bg-opacity-50 rounded-lg p-3 text-center">
                   <div className="font-bold text-yellow-300">Rolex</div>
-                  <div className="text-sm text-blue-200">Luksusowe salony</div>
+                  <div className="text-sm text-blue-200">Realizacje w zakładach produkcyjnych</div>
                 </div>
                 <div className="bg-blue-800 bg-opacity-50 rounded-lg p-3 text-center">
                   <div className="font-bold text-yellow-300">Patek Philippe</div>
-                  <div className="text-sm text-blue-200">Prestiżowe butiki</div>
+                  <div className="text-sm text-blue-200">Prace w fabrykach zegarków klasy premium</div>
                 </div>
                 <div className="bg-blue-800 bg-opacity-50 rounded-lg p-3 text-center">
                   <div className="font-bold text-yellow-300">BMS</div>
-                  <div className="text-sm text-blue-200">Projekty przemysłowe</div>
+                  <div className="text-sm text-blue-200">Projekty komercyjne i przemysłowe</div>
                 </div>
                 <div className="bg-blue-800 bg-opacity-50 rounded-lg p-3 text-center">
                   <div className="font-bold text-yellow-300">EMP</div>
-                  <div className="text-sm text-blue-200">Realizacje komercyjne</div>
+                  <div className="text-sm text-blue-200">Projekty komercyjne i przemysłowe</div>
                 </div>
               </div>
               <p className="text-blue-100 text-sm">
-                Dzięki temu <strong className="text-white">doskonale znamy specyfikę pracy z żywicami przemysłowymi</strong>
-                i znaczenie perfekcyjnego przygotowania podłoża.
+                To doświadczenie nauczyło nas pracy na najwyższych standardach – od perfekcyjnego przygotowania podłoża, po precyzyjne aplikacje systemów żywicznych.
               </p>
             </div>
 
@@ -2271,14 +2282,14 @@ export default function HomePage() {
                   <span className="text-green-300 mr-3">✓</span>
                   <div>
                     <div className="font-bold text-white">Mapei</div>
-                    <div className="text-sm text-blue-200">Innowacyjne rozwiązania włoskie</div>
+                    <div className="text-sm text-blue-200">Włoska technologia i innowacja</div>
                   </div>
                 </div>
                 <div className="flex items-center p-3 bg-green-800 bg-opacity-50 rounded-lg">
                   <span className="text-green-300 mr-3">✓</span>
                   <div>
                     <div className="font-bold text-white">Flowcrete</div>
-                    <div className="text-sm text-blue-200">Brytyjska precyzja wykonania</div>
+                    <div className="text-sm text-blue-200">Brytyjska precyzja i doświadczenie</div>
                   </div>
                 </div>
               </div>
@@ -2298,33 +2309,33 @@ export default function HomePage() {
                 </div>
               </div>
               <p className="text-blue-100 leading-relaxed mb-4">
-                <strong className="text-white">Przed rozpoczęciem prac dokładnie analizujemy podłoże:</strong>
+                Każdą realizację rozpoczynamy od dokładnego badania stanu betonu – to klucz do trwałej i odpornej posadzki.
               </p>
               <div className="space-y-3 mb-4">
                 <div className="flex items-center p-3 bg-purple-800 bg-opacity-50 rounded-lg">
                   <span className="text-purple-300 mr-3">📏</span>
                   <div>
                     <div className="font-bold text-white">Wilgotność</div>
-                    <div className="text-sm text-blue-200">Precyzyjny pomiar CM method</div>
+                    <div className="text-sm text-blue-200">Metodą elektrodową</div>
                   </div>
                 </div>
                 <div className="flex items-center p-3 bg-purple-800 bg-opacity-50 rounded-lg">
                   <span className="text-purple-300 mr-3">🌡️</span>
                   <div>
-                    <div className="font-bold text-white">Temperatura</div>
+                    <div className="font-bold text-white">Temperatura i warunki aplikacji</div>
                     <div className="text-sm text-blue-200">Kontrola warunków aplikacji</div>
                   </div>
                 </div>
                 <div className="flex items-center p-3 bg-purple-800 bg-opacity-50 rounded-lg">
                   <span className="text-purple-300 mr-3">⚡</span>
                   <div>
-                    <div className="font-bold text-white">Przyczepność</div>
-                    <div className="text-sm text-blue-200">Test pull-off i kruchość powierzchni</div>
+                    <div className="font-bold text-white">Twardość powierzchni</div>
+                    <div className="text-sm text-blue-200">Testem rysika</div>
                   </div>
                 </div>
               </div>
               <p className="text-blue-100 text-sm">
-                Takie podejście <strong className="text-white">zapewnia trwałość i bezpieczeństwo</strong> każdej posadzki.
+                Dzięki temu eliminujemy ryzyko odspojeń, pęcherzy i nierówności – Twoja posadzka wygląda idealnie od pierwszego dnia.
               </p>
             </div>
 
@@ -2339,35 +2350,33 @@ export default function HomePage() {
                 </div>
               </div>
               <p className="text-blue-100 leading-relaxed mb-4">
-                <strong className="text-white">Zespół regularnie uczestniczy w szkoleniach branżowych</strong>
-                i posiada certyfikaty potwierdzające umiejętności.
+                Nasz zespół stale podnosi kwalifikacje, uczestnicząc w szkoleniach i kursach branżowych z zakresu nowoczesnych systemów żywicznych.
               </p>
               <div className="space-y-3 mb-4">
                 <div className="flex items-center p-3 bg-orange-800 bg-opacity-50 rounded-lg">
                   <span className="text-orange-300 mr-3">🏆</span>
                   <div>
                     <div className="font-bold text-white">Certyfikaty branżowe</div>
-                    <div className="text-sm text-blue-200">Potwierdzone umiejętności</div>
+                    <div className="text-sm text-blue-200">Potwierdzające wysokie kwalifikacje</div>
                   </div>
                 </div>
                 <div className="flex items-center p-3 bg-orange-800 bg-opacity-50 rounded-lg">
                   <span className="text-orange-300 mr-3">📚</span>
                   <div>
                     <div className="font-bold text-white">Szkolenia specjalistyczne</div>
-                    <div className="text-sm text-blue-200">Ciągłe doskonalenie</div>
+                    <div className="text-sm text-blue-200">Zgodne z najnowszymi normami technologicznymi</div>
                   </div>
                 </div>
                 <div className="flex items-center p-3 bg-orange-800 bg-opacity-50 rounded-lg">
                   <span className="text-orange-300 mr-3">🏗️</span>
                   <div>
-                    <div className="font-bold text-white">Doświadczenie prestiżowe</div>
-                    <div className="text-sm text-blue-200">Małe i duże inwestycje</div>
+                    <div className="font-bold text-white">Doświadczenie w inwestycjach</div>
+                    <div className="text-sm text-blue-200">Od garaży po hale przemysłowe</div>
                   </div>
                 </div>
               </div>
               <p className="text-blue-100 text-sm">
-                Doświadczenie zdobyte przy <strong className="text-white">prestiżowych projektach pozwala realizować</strong>
-                zarówno małe, jak i duże inwestycje na najwyższym poziomie.
+                Dzięki temu możesz mieć pewność, że każda posadzka DecoSol jest wykonana zgodnie ze sztuką i obowiązującymi standardami.
               </p>
             </div>
           </div>

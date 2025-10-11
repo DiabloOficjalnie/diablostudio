@@ -6,29 +6,10 @@ const supabaseServiceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXB
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-// Create blog tables step by step
-async function createBlogTables() {
-  console.log('Creating blog tables...')
-  
-  try {
-    // Create blog_posts table
-    console.log('Creating blog_posts table...')
-    const { error: blogPostsError } = await supabase.from('blog_posts').select('*').limit(1)
-    
-    if (blogPostsError && blogPostsError.code === 'PGRST116') {
-      console.log('blog_posts table does not exist, creating manually...')
-      // We need to execute this through SQL Editor in Supabase Dashboard
-      console.log('Please execute blog-tables.sql manually in Supabase SQL Editor')
-      console.log('Go to: https://supabase.com/dashboard/project/epujffkujstgprcamgpi/sql/new')
-    }
-
-    // Try to test if the table exists by inserting our sample data
-    console.log('Testing table creation by inserting sample post...')
-    
-    const samplePost = {
-      title: 'Jaka posadzka żywiczna do garażu? Praktyczny przewodnik dla inwestora',
-      slug: 'jaka-posadzka-zywiczna-do-garazu-praktyczny-przewodnik',
-      content: `
+const samplePost = {
+  title: 'Jaka posadzka żywiczna do garażu? Praktyczny przewodnik dla inwestora',
+  slug: 'jaka-posadzka-zywiczna-do-garazu-praktyczny-przewodnik',
+  content: `
 <article class="blog-article">
   <header>
     <p class="intro">Wyposażenie garażu nie kończy się na bramie czy oświetleniu — kluczowy wybór to także odpowiednia posadzka. 
@@ -131,53 +112,49 @@ async function createBlogTables() {
     Skontaktuj się z <a href="/contact">DecoSol</a> i sprawdź, jak możemy odmienić Twój garaż.</p>
   </footer>
 </article>
-      `,
-      excerpt: 'Kompletny przewodnik po wyborze posadzki żywicznej do garażu. Poznaj różnice między systemami epoksydowymi, poliuretanowymi i metakrylanowymi oraz czynniki, które należy wziąć pod uwagę przy wyborze.',
-      featured_image: '/images/posadzka-zywiczna-garaz.jpg',
-      category: 'porady-techniczne',
-      tags: ['posadzki żywiczne', 'garaż', 'epoksyd', 'poliuretan', 'metakrylan', 'przewodnik'],
-      status: 'published',
-      published_at: new Date().toISOString(),
-      reading_time_minutes: 5,
-      is_featured: true,
-      meta_title: 'Jaka posadzka żywiczna do garażu? Praktyczny przewodnik dla inwestora | DecoSol',
-      meta_description: 'Zastanawiasz się, jaka posadzka żywiczna sprawdzi się w garażu? Poznaj różnice między epoksydową, poliuretanową i metakrylanową. Sprawdź ofertę DecoSol – darmowa wycena online!',
-      meta_keywords: ['posadzka żywiczna do garażu', 'posadzki żywiczne', 'garażowa żywica', 'epoksydowa posadzka', 'poliuretanowa posadzka', 'DecoSol'],
-      og_title: 'Jaka posadzka żywiczna do garażu? | DecoSol',
-      og_description: 'Dowiedz się, jaką posadzkę żywiczną wybrać do garażu. Praktyczny przewodnik inwestora.',
-      og_image: '/images/posadzka-zywiczna-garaz.jpg',
-      canonical_url: 'https://decosol.pl/blog/jaka-posadzka-zywiczna-do-garazu-praktyczny-przewodnik'
-    }
+`,
+  excerpt: 'Kompletny przewodnik po wyborze posadzki żywicznej do garażu. Poznaj różnice między systemami epoksydowymi, poliuretanowymi i metakrylanowymi oraz czynniki, które należy wziąć pod uwagę przy wyborze.',
+  featured_image: '/images/posadzka-zywiczna-garaz.jpg',
+  category: 'porady-techniczne',
+  tags: ['posadzki żywiczne', 'garaż', 'epoksyd', 'poliuretan', 'metakrylan', 'przewodnik'],
+  status: 'published',
+  published_at: new Date().toISOString(),
+  reading_time_minutes: 5,
+  is_featured: true,
+  meta_title: 'Jaka posadzka żywiczna do garażu? Praktyczny przewodnik dla inwestora | DecoSol',
+  meta_description: 'Zastanawiasz się, jaka posadzka żywiczna sprawdzi się w garażu? Poznaj różnice między epoksydową, poliuretanową i metakrylanową. Sprawdź ofertę DecoSol – darmowa wycena online!',
+  meta_keywords: ['posadzka żywiczna do garażu', 'posadzki żywiczne', 'garażowa żywica', 'epoksydowa posadzka', 'poliuretanowa posadzka', 'DecoSol'],
+  og_title: 'Jaka posadzka żywiczna do garażu? | DecoSol',
+  og_description: 'Dowiedz się, jaką posadzkę żywiczną wybrać do garażu. Praktyczny przewodnik inwestora.',
+  og_image: '/images/posadzka-zywiczna-garaz.jpg',
+  canonical_url: 'https://decosol.pl/blog/jaka-posadzka-zywiczna-do-garazu-praktyczny-przewodnik'
+}
 
+async function createSamplePost() {
+  console.log('Creating sample blog post...')
+  
+  try {
     const { data, error } = await supabase
       .from('blog_posts')
       .insert([samplePost])
       .select()
+      .single()
 
     if (error) {
-      console.error('Error inserting sample post:', error)
-      console.log('\nPlease manually execute the blog-tables.sql file in Supabase Dashboard:')
-      console.log('1. Go to: https://supabase.com/dashboard/project/epujffkujstgprcamgpi/sql/new')
-      console.log('2. Copy and paste the contents of blog-tables.sql')
-      console.log('3. Run the SQL')
-      console.log('4. Then run this script again')
+      console.error('Error creating sample post:', error)
       process.exit(1)
     }
 
     console.log('Sample blog post created successfully!')
-    console.log('Post ID:', data[0].id)
-    console.log('Post slug:', data[0].slug)
-    console.log('Post title:', data[0].title)
-    console.log('Visit: http://localhost:3000/blog/' + data[0].slug)
+    console.log('Post ID:', data.id)
+    console.log('Post slug:', data.slug)
+    console.log('Post title:', data.title)
+    console.log('Visit: http://localhost:3000/blog/' + data.slug)
 
   } catch (error) {
     console.error('Unexpected error:', error)
-    console.log('\nPlease manually execute the blog-tables.sql file in Supabase Dashboard:')
-    console.log('1. Go to: https://supabase.com/dashboard/project/epujffkujstgprcamgpi/sql/new')
-    console.log('2. Copy and paste the contents of blog-tables.sql')
-    console.log('3. Run the SQL')
     process.exit(1)
   }
 }
 
-createBlogTables()
+createSamplePost()
