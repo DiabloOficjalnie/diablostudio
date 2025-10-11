@@ -247,10 +247,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white mt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             {/* Company Info */}
-            <div className="lg:col-span-2">
+            <div className="md:col-span-5">
               <h3 className="text-2xl font-bold mb-4">DecoSol</h3>
               <p className="text-gray-300 mb-4 max-w-md">
                 Profesjonalne posadzki żywiczne – epoksydowe i poliuretanowe. Tworzymy trwałe i estetyczne rozwiązania dla domu, biura i przemysłu.
@@ -258,7 +258,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
             </div>
 
             {/* Quick Links */}
-            <div>
+            <div className="md:col-span-4">
               <h4 className="text-lg font-semibold mb-4">Nawigacja</h4>
               <ul className="space-y-2">
                 <li><Link href="/" className="text-gray-300 hover:text-white transition-colors">Strona główna</Link></li>
@@ -275,7 +275,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
             </div>
 
             {/* Contact Info */}
-            <div>
+            <div className="md:col-span-3">
               <h4 className="text-lg font-semibold mb-4">Kontakt</h4>
               <div className="space-y-3 text-gray-300">
                 <div className="flex items-center"><span className="text-xl mr-3">📞</span><span>+48 123 456 789</span></div>
@@ -286,7 +286,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
           </div>
 
           {/* Newsletter */}
-          <div className="mt-8">
+          <div className="mt-6 max-w-4xl mx-auto">
             <h4 className="text-lg font-semibold mb-4">Newsletter</h4>
             <form
               onSubmit={async (e) => {
@@ -344,14 +344,6 @@ export default function MainLayout({ children }: MainLayoutProps) {
               className="flex flex-col sm:flex-row items-center gap-3"
             >
 <input
-                type="text"
-                value={newsletterFirstName}
-                onChange={(e) => setNewsletterFirstName(e.target.value)}
-                placeholder="Twoje imię"
-                className="w-full sm:w-auto flex-1 form-input-inverse"
-                aria-label="Imię do newslettera"
-/>
-<input
                 type="email"
                 required
                 value={newsletterEmail}
@@ -360,7 +352,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 className="w-full sm:w-auto flex-1 form-input-inverse"
                 aria-label="Adres e-mail do newslettera"
 />
-<div className="w-full sm:w-auto flex flex-col gap-2">
+<div className="w-full flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
   <label className="flex items-start gap-2 text-xs text-gray-300">
     <input
       type="checkbox"
@@ -386,7 +378,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   <button
     type="submit"
     disabled={!newsletterEmail || !newsletterPrivacy || !newsletterMarketing}
-    className="btn-primary disabled:opacity-60 disabled:cursor-not-allowed"
+    className="btn-primary disabled:opacity-60 disabled:cursor-not-allowed sm:ml-auto"
   >
     Zapisz się
   </button>
