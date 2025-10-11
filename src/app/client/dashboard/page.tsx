@@ -1119,7 +1119,7 @@ function ClientDashboardContent() {
         <div className="flex gap-2">
           <button
             onClick={() => setActiveSection('overview')}
-            className={`px-3 py-2 rounded-lg text-sm font-semibold border ${activeSection === 'overview' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-blue-700 border-blue-200 hover:bg-blue-50'}`}
+            className={`px-3 py-2 rounded-lg text-sm font-semibold border ${activeSection !== 'education' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-blue-700 border-blue-200 hover:bg-blue-50'}`}
           >
             Przegląd
           </button>
@@ -1209,7 +1209,7 @@ function ClientDashboardContent() {
       </section>
 
       {/* Statystyki klienta */}
-      {activeSection === 'overview' && statistics && trends && (
+      {activeSection !== 'education' && statistics && trends && (
         <section className="mb-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
