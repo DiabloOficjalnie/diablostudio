@@ -247,28 +247,28 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white mt-16">
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Company Info */}
-            <div className="md:col-span-2">
-              <h3 className="text-2xl font-bold mb-4">DecoSol</h3>
-              <p className="text-gray-300 mb-4 max-w-md">
+            <div className="md:col-span-1">
+              <h3 className="text-xl font-bold mb-2">DecoSol</h3>
+              <p className="text-gray-400 text-sm max-w-xs mb-0 hidden md:block">
                 Profesjonalne posadzki żywiczne – epoksydowe i poliuretanowe. Tworzymy trwałe i estetyczne rozwiązania dla domu, biura i przemysłu.
               </p>
             </div>
 
             {/* Quick Links */}
             <div className="md:col-span-1">
-              <h4 className="text-lg font-semibold mb-4">Nawigacja</h4>
-              <div className="grid grid-cols-2 gap-6">
-                <ul className="space-y-2">
+              <h4 className="text-base font-semibold mb-2">Nawigacja</h4>
+              <div className="grid grid-cols-2 gap-3">
+                <ul className="space-y-1">
                   <li><Link href="/" className="text-gray-300 hover:text-white transition-colors">Strona główna</Link></li>
                   <li><a href="/valuation" className="text-gray-300 hover:text-white transition-colors">Darmowa wycena</a></li>
                   <li><a href="/colors" className="text-gray-300 hover:text-white transition-colors">Paleta kolorów</a></li>
                   <li><a href="/realizations" className="text-gray-300 hover:text-white transition-colors">Realizacje</a></li>
                   <li><a href="/edukacja" className="text-gray-300 hover:text-white transition-colors">Edukacja</a></li>
                 </ul>
-                <ul className="space-y-2">
+                <ul className="space-y-1">
                   <li><a href="/blog" className="text-gray-300 hover:text-white transition-colors">Blog</a></li>
                   <li><a href="/reviews" className="text-gray-300 hover:text-white transition-colors">Opinie</a></li>
                   <li><a href="/contact" className="text-gray-300 hover:text-white transition-colors">Kontakt</a></li>
@@ -281,8 +281,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
             {/* Contact Info */}
             <div className="md:col-span-1">
-              <h4 className="text-lg font-semibold mb-4">Kontakt</h4>
-              <div className="space-y-3 text-gray-300">
+              <h4 className="text-base font-semibold mb-2">Kontakt</h4>
+              <div className="space-y-2 text-gray-300 text-sm">
                 <div className="flex items-center"><span className="text-xl mr-3">📞</span><span>+48 123 456 789</span></div>
                 <div className="flex items-center"><span className="text-xl mr-3">✉️</span><span>info@diablostudio.pl</span></div>
                 <div className="flex items-center"><span className="text-xl mr-3">📍</span><span>Warszawa, Polska</span></div>
@@ -293,7 +293,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
           {/* Newsletter removed from footer by request */}
 
           {/* Bottom bar */}
-          <div className="mt-8 flex flex-col md:flex-row justify-between items-center">
+          <div className="mt-4 flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">© 2024 DecoSol. Wszystkie prawa zastrzeżone.</p>
           </div>
         </div>
