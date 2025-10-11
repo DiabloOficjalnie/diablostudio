@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 
@@ -19,23 +19,41 @@ const DEFAULT_SLOTS = ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','
 export default function ClientConsultationsPage() {
   const { user, isLoaded } = useUser()
   const router = useRouter()
+
+  // Data
   const [loading, setLoading] = useState(true)
   const [consultations, setConsultations] = useState<Consultation[]>([])
   const [error, setError] = useState<string | null>(null)
 
-  // create modal
-  const [showModal, setShowModal] = useState(false)
+  // UX state
+  const [activeTab, setActiveTab] = useState<'all' | Consultation['status']>('all')
+  const [search, setSearch] = useState('')
+  const [dateFilter, setDateFilter] = useState<string>('')
+  const [showCreateModal, setShowCreateModal] = useState(false)
+
+  // Create form
   const [bookedSlots, setBookedSlots] = useState<string[]>([])
   const [availableSlots, setAvailableSlots] = useState<string[]>(DEFAULT_SLOTS)
+  const [submitting, setSubmitting] = useState(false)
   const [form, setForm] = useState({
     preferredDate: '',
     preferredTime: '',
-    message: '',
-    serviceType: '',
-    inquiryType: '',
+    serviceType: 'standard',
+    inquiryType: 'client_request',
+    contactMethod: 'phone',
+    contactValue: '',
+    notes: '',
     selectedQuoteId: ''
   })
-  const [submitting, setSubmitting] = useState(false)
+
+  // Toasts
+  const [toasts, setToasts] = useState<Array<{ id: string, type: 'success' | 'error' | 'info', text: string }>>([])
+
+  const addToast = (type: 'success' | 'error' | 'info', text: string) => {
+    const id = String(Date.now())
+    setToasts(prev => [...prev, { id, type, text }])
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 4000)
+  }
 
   const loadConsultations = async () => {
     setLoading(true)
@@ -43,9 +61,7 @@ export default function ClientConsultationsPage() {
     try {
       const res = await fetch('/api/client/consultations', { cache: 'no-store' })
       const data = await res.json().catch(() => ({}))
-      if (!res.ok || !data?.success) {
-        throw new Error(data?.error || 'Nie udało się pobrać konsultacji.')
-      }
+      if (!res.ok || !data?.success) throw new Error(data?.error || 'Nie udało się pobrać konsultacji.')
       setConsultations(Array.isArray(data.consultations) ? data.consultations : [])
     } catch (e: any) {
       console.error('Consultations load error', e)
@@ -89,14 +105,17 @@ export default function ClientConsultationsPage() {
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault()
-    if (!form.preferredDate || !form.preferredTime) return
+    if (!form.preferredDate || !form.preferredTime) {
+      addToast('error', 'Wybierz datę i godzinę konsultacji.')
+      return
+    }
     try {
       setSubmitting(true)
       const payload = {
         quote_id: form.selectedQuoteId || null,
         preferred_date: form.preferredDate,
         preferred_time: form.preferredTime,
-        message: form.message || '',
+        message: buildMessage(),
         service_type: form.serviceType || 'standard',
         inquiry_type: form.inquiryType || 'client_request'
       }
@@ -106,18 +125,55 @@ export default function ClientConsultationsPage() {
         body: JSON.stringify(payload)
       })
       const body = await res.json().catch(() => ({}))
-      if (!res.ok || !body?.success) {
-        throw new Error(body?.error || 'Nie udało się wysłać prośby o konsultację.')
-      }
-      setShowModal(false)
-      setForm({ preferredDate: '', preferredTime: '', message: '', serviceType: '', inquiryType: '', selectedQuoteId: '' })
+      if (!res.ok || !body?.success) throw new Error(body?.error || 'Nie udało się wysłać prośby o konsultację.')
+      setShowCreateModal(false)
+      setForm({
+        preferredDate: '',
+        preferredTime: '',
+        serviceType: 'standard',
+        inquiryType: 'client_request',
+        contactMethod: 'phone',
+        contactValue: '',
+        notes: '',
+        selectedQuoteId: ''
+      })
       await loadConsultations()
+      addToast('success', 'Wysłano prośbę o konsultację.')
     } catch (e: any) {
-      alert(e?.message || 'Wystąpił błąd podczas wysyłania prośby.')
+      addToast('error', e?.message || 'Wystąpił błąd podczas wysyłania prośby.')
     } finally {
       setSubmitting(false)
     }
   }
+
+  function buildMessage() {
+    const parts: string[] = []
+    if (form.notes && form.notes.trim()) parts.push(form.notes.trim())
+    if (form.contactValue && form.contactValue.trim()) {
+      const method = form.contactMethod === 'phone' ? 'telefon' : 'e-mail'
+      parts.push('Preferowany kontakt: ' + method + ' — ' + form.contactValue.trim())
+    }
+    return parts.join(' | ')
+  }
+
+  const filteredConsultations = useMemo(() => {
+    let list = [...consultations]
+    if (activeTab !== 'all') {
+      list = list.filter(c => c.status === activeTab)
+    }
+    if (dateFilter) {
+      list = list.filter(c => (c.preferred_date || '').startsWith(dateFilter))
+    }
+    if (search.trim()) {
+      const q = search.toLowerCase().trim()
+      list = list.filter(c =>
+        (c.message || '').toLowerCase().includes(q) ||
+        (c.preferred_time || '').toLowerCase().includes(q) ||
+        (c.preferred_date || '').toLowerCase().includes(q)
+      )
+    }
+    return list
+  }, [consultations, activeTab, search, dateFilter])
 
   const statusBadge = (status: Consultation['status']) => {
     const base = 'inline-block text-xs px-2 py-1 rounded-full border'
@@ -136,19 +192,79 @@ export default function ClientConsultationsPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Konsultacje</h1>
-          <p className="text-sm text-gray-600">Zgłoszenia konsultacji oraz ich status</p>
-        </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold"
-        >
-          + Nowa konsultacja
-        </button>
+      {/* Toasts */}
+      <div className="fixed bottom-6 right-6 space-y-2 z-50">
+        {toasts.map(t => (
+          <div key={t.id}
+               className={`px-4 py-3 rounded-lg shadow-lg border text-sm ${
+                 t.type === 'success' ? 'bg-green-50 text-green-800 border-green-200' :
+                 t.type === 'error' ? 'bg-red-50 text-red-800 border-red-200' :
+                 'bg-blue-50 text-blue-800 border-blue-200'
+               }`}>
+            {t.text}
+          </div>
+        ))}
       </div>
 
+      {/* Header */}
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white mb-6">
+        <div className="absolute inset-0 bg-black/10" />
+        <div className="relative z-10 p-6 sm:p-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold leading-tight">Konsultacje</h1>
+              <p className="mt-2 text-blue-100 max-w-2xl">
+                Umów rozmowę z ekspertem. Wybierz dogodny termin i przekaż dodatkowe informacje.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="self-start px-4 py-2 bg-white text-blue-700 hover:bg-blue-50 rounded-lg text-sm font-semibold border border-blue-200"
+            >
+              + Nowa konsultacja
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Toolbar */}
+      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4 mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          {(['all', 'pending', 'confirmed', 'completed', 'cancelled'] as const).map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab as typeof activeTab)}
+              className={`px-3 py-1.5 rounded-full text-sm font-semibold transition ${
+                activeTab === tab ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+              }`}
+            >
+              {tab === 'all' ? 'Wszystkie' :
+               tab === 'pending' ? 'Oczekujące' :
+               tab === 'confirmed' ? 'Potwierdzone' :
+               tab === 'completed' ? 'Zakończone' : 'Anulowane'}
+            </button>
+          ))}
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+          <input
+            type="date"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+            className="px-3 py-2 border rounded-lg text-sm"
+            aria-label="Filtruj po dacie"
+          />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Szukaj po wiadomości, dacie lub godzinie..."
+            className="px-3 py-2 border rounded-lg text-sm w-full sm:w-72"
+            aria-label="Szukaj"
+          />
+        </div>
+      </div>
+
+      {/* List */}
       <div className="bg-white rounded-xl shadow-md border border-gray-200">
         {loading ? (
           <div className="p-6">
@@ -162,84 +278,167 @@ export default function ClientConsultationsPage() {
           <div className="p-6">
             <div className="p-4 border border-red-200 bg-red-50 text-red-700 rounded-lg text-sm">{error}</div>
           </div>
-        ) : consultations.length === 0 ? (
-          <div className="p-6">
-            <div className="text-gray-600 text-sm">Brak konsultacji. Dodaj nowe zgłoszenie.</div>
+        ) : filteredConsultations.length === 0 ? (
+          <div className="p-10 text-center text-gray-600">
+            Brak konsultacji spełniających kryteria. Zmień filtry lub dodaj nowe zgłoszenie.
           </div>
         ) : (
-          <div className="divide-y divide-gray-100">
-            {consultations.map((c) => (
-              <div key={c.id} className="p-4 hover:bg-gray-50 transition-colors">
+          <ul className="divide-y divide-gray-100">
+            {filteredConsultations.map((c) => (
+              <li key={c.id} className="p-4 hover:bg-gray-50 transition-colors">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div>
-                    <div className="font-semibold text-gray-900">Data: {c.preferred_date || '-'}</div>
-                    <div className="text-sm text-gray-600 mt-0.5">Godzina: {c.preferred_time || '-'}</div>
-                    {c.message && <div className="text-sm text-gray-600 mt-0.5">Wiadomość: {c.message}</div>}
-                    <div className="text-xs text-gray-500 mt-0.5">Utworzono: {new Date(c.created_at).toLocaleString('pl-PL')}</div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className={statusBadge(c.status)}>{c.status}</span>
+                      <span className="text-xs text-gray-500 truncate">
+                        Utworzono: {new Date(c.created_at).toLocaleString('pl-PL')}
+                      </span>
+                    </div>
+                    <div className="mt-1 text-sm text-gray-700">
+                      <span className="font-semibold">Termin: </span>
+                      {c.preferred_date || '-'} {c.preferred_time ? `• ${c.preferred_time}` : ''}
+                    </div>
+                    {c.message && (
+                      <div className="mt-1 text-sm text-gray-600 line-clamp-2">{c.message}</div>
+                    )}
                   </div>
-                  <div className="text-right">
-                    <span className={statusBadge(c.status)}>{c.status}</span>
+                  <div className="flex gap-2 sm:justify-end">
+                    <a
+                      href="/client/consultations"
+                      className="px-3 py-1.5 text-xs font-semibold rounded-md border border-blue-300 text-blue-700 hover:bg-blue-50"
+                    >
+                      Szczegóły
+                    </a>
                   </div>
                 </div>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </div>
 
-      {showModal && (
+      {/* Create modal */}
+      {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-xl w-full shadow-2xl">
             <form onSubmit={handleCreate}>
               <div className="p-6 border-b">
                 <h3 className="text-xl font-bold text-gray-900">Nowa konsultacja</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Wybierz datę i godzinę, uzupełnij preferowany kontakt oraz uwagi.
+                </p>
               </div>
               <div className="p-6 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Data*</label>
-                  <input
-                    type="date"
-                    value={form.preferredDate}
-                    onChange={(e) => {
-                      setForm({ ...form, preferredDate: e.target.value })
-                      loadBooked(e.target.value)
-                    }}
-                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Data*</label>
+                    <input
+                      type="date"
+                      value={form.preferredDate}
+                      onChange={(e) => {
+                        setForm({ ...form, preferredDate: e.target.value })
+                        loadBooked(e.target.value)
+                      }}
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Godzina*</label>
+                    <select
+                      value={form.preferredTime}
+                      onChange={(e) => setForm({ ...form, preferredTime: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      required
+                    >
+                      <option value="">Wybierz godzinę</option>
+                      {availableSlots.map((s) => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                    {bookedSlots.length > 0 && (
+                      <div className="mt-1 text-xs text-gray-500">Zajęte: {bookedSlots.join(', ')}</div>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Godzina*</label>
-                  <select
-                    value={form.preferredTime}
-                    onChange={(e) => setForm({ ...form, preferredTime: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    required
-                  >
-                    <option value="">Wybierz godzinę</option>
-                    {availableSlots.map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
-                  {bookedSlots.length > 0 && (
-                    <div className="mt-1 text-xs text-gray-500">Zajęte: {bookedSlots.join(', ')}</div>
-                  )}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Sposób kontaktu</label>
+                    <div className="flex items-center gap-3">
+                      <label className="flex items-center gap-1 text-sm">
+                        <input
+                          type="radio"
+                          name="contactMethod"
+                          checked={form.contactMethod === 'phone'}
+                          onChange={() => setForm({ ...form, contactMethod: 'phone' })}
+                        />
+                        Telefon
+                      </label>
+                      <label className="flex items-center gap-1 text-sm">
+                        <input
+                          type="radio"
+                          name="contactMethod"
+                          checked={form.contactMethod === 'email'}
+                          onChange={() => setForm({ ...form, contactMethod: 'email' })}
+                        />
+                        E‑mail
+                      </label>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Dane kontaktowe</label>
+                    <input
+                      type={form.contactMethod === 'phone' ? 'tel' : 'email'}
+                      value={form.contactValue}
+                      onChange={(e) => setForm({ ...form, contactValue: e.target.value })}
+                      placeholder={form.contactMethod === 'phone' ? '+48 123 456 789' : 'jan@example.com'}
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
                 </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Typ usługi</label>
+                    <select
+                      value={form.serviceType}
+                      onChange={(e) => setForm({ ...form, serviceType: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="standard">Standard</option>
+                      <option value="tech_visit">Wizyta techniczna</option>
+                      <option value="offer_review">Omówienie oferty</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Typ zapytania</label>
+                    <select
+                      value={form.inquiryType}
+                      onChange={(e) => setForm({ ...form, inquiryType: e.target.value })}
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="client_request">Zapytanie klienta</option>
+                      <option value="quote_followup">Kontynuacja po wycenie</option>
+                    </select>
+                  </div>
+                </div>
+
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Wiadomość</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Uwagi dla eksperta</label>
                   <textarea
                     rows={3}
-                    value={form.message}
-                    onChange={(e) => setForm({ ...form, message: e.target.value })}
+                    value={form.notes}
+                    onChange={(e) => setForm({ ...form, notes: e.target.value })}
                     className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Dodatkowe informacje..."
+                    placeholder="Opcjonalnie: krótki opis projektu, preferencje..."
                   />
                 </div>
               </div>
               <div className="px-6 pb-6 flex flex-wrap gap-2 justify-end">
                 <button
                   type="button"
-                  onClick={() => setShowModal(false)}
+                  onClick={() => setShowCreateModal(false)}
                   className="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 text-sm font-semibold"
                 >
                   Anuluj
