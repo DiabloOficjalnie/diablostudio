@@ -250,7 +250,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
         <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Company Info */}
-            <div className="md:col-span-1">
+            <div className="md:col-span-1 text-left">
               <h3 className="text-xl font-bold mb-2">DecoSol</h3>
               <p className="text-gray-400 text-sm max-w-xs mb-0 hidden md:block">
                 Profesjonalne posadzki żywiczne – epoksydowe i poliuretanowe. Tworzymy trwałe i estetyczne rozwiązania dla domu, biura i przemysłu.
@@ -258,7 +258,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
             </div>
 
             {/* Quick Links */}
-            <div className="md:col-span-1">
+            <div className="md:col-span-1 text-center">
               <h4 className="text-base font-semibold mb-2">Nawigacja</h4>
               <div className="grid grid-cols-2 gap-3">
                 <ul className="space-y-1">
@@ -280,12 +280,12 @@ export default function MainLayout({ children }: MainLayoutProps) {
             </div>
 
             {/* Contact Info */}
-            <div className="md:col-span-1">
+            <div className="md:col-span-1 text-right">
               <h4 className="text-base font-semibold mb-2">Kontakt</h4>
               <div className="space-y-2 text-gray-300 text-sm">
-                <div className="flex items-center"><span className="text-xl mr-3">📞</span><span>+48 123 456 789</span></div>
-                <div className="flex items-center"><span className="text-xl mr-3">✉️</span><span>info@diablostudio.pl</span></div>
-                <div className="flex items-center"><span className="text-xl mr-3">📍</span><span>Warszawa, Polska</span></div>
+                <div className="flex items-center justify-end"><span className="text-xl mr-3">📞</span><span>+48 123 456 789</span></div>
+                <div className="flex items-center justify-end"><span className="text-xl mr-3">✉️</span><span>info@diablostudio.pl</span></div>
+                <div className="flex items-center justify-end"><span className="text-xl mr-3">📍</span><span>Warszawa, Polska</span></div>
               </div>
             </div>
           </div>
