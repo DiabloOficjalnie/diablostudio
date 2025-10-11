@@ -13,7 +13,7 @@ export default function TermsPage() {
         <h1 className="text-4xl font-bold text-gray-900 mb-6">Regulamin serwisu</h1>
         <p className="text-sm text-gray-500 mb-8">Ostatnia aktualizacja: 11.10.2025</p>
 
-        <div className="prose prose-blue max-w-none">
+        <div className="rich-content bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200">
           <h2>1. Postanowienia ogólne</h2>
           <p>
             Niniejszy Regulamin określa zasady korzystania z serwisu internetowego DecoSol (dalej: „Serwis”).

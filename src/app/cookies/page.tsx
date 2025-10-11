@@ -13,7 +13,7 @@ export default function CookiesPolicyPage() {
         <h1 className="text-4xl font-bold text-gray-900 mb-6">Polityka cookies</h1>
         <p className="text-sm text-gray-500 mb-8">Ostatnia aktualizacja: 11.10.2025</p>
 
-        <div className="prose prose-blue max-w-none">
+        <div className="rich-content bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-200">
           <h2>1. Czym są pliki cookies?</h2>
           <p>
             Pliki cookies to niewielkie informacje tekstowe zapisywane na Twoim urządzeniu (komputerze, smartfonie itp.),

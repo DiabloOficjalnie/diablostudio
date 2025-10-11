@@ -268,6 +268,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 <li><a href="/edukacja" className="text-gray-300 hover:text-white transition-colors">Edukacja</a></li>
                 <li><a href="/reviews" className="text-gray-300 hover:text-white transition-colors">Opinie</a></li>
                 <li><a href="/contact" className="text-gray-300 hover:text-white transition-colors">Kontakt</a></li>
+                <li><a href="/privacy" className="text-gray-300 hover:text-white transition-colors">Polityka prywatności</a></li>
+                <li><a href="/cookies" className="text-gray-300 hover:text-white transition-colors">Polityka cookies</a></li>
+                <li><a href="/terms" className="text-gray-300 hover:text-white transition-colors">Regulamin</a></li>
               </ul>
             </div>
 
