@@ -1,17 +1,17 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createAdminClient } from '@/lib/supabase-server';
 
 // DELETE /api/client/quotes/:id
 // Bezpieczne usuwanie wyceny należącej do zalogowanego klienta
-export async function DELETE(_req: Request, context: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    const id = context?.params?.id;
+    const id = params?.id;
     if (!id) {
       return NextResponse.json({ success: false, error: 'Missing quote id' }, { status: 400 });
     }
