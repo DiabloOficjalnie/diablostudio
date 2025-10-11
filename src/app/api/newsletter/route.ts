@@ -56,7 +56,9 @@ export async function POST(req: NextRequest) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           'X-Api-Key': BEEHIIV_API_KEY,
+          'Authorization': `Bearer ${BEEHIIV_API_KEY}`,
         },
         body: JSON.stringify(payload),
       });
@@ -68,7 +70,10 @@ export async function POST(req: NextRequest) {
         let details = '';
         try {
           const errJson = await res.json();
-          details = errJson?.message || JSON.stringify(errJson);
+          details =
+            errJson?.message ||
+            errJson?.error ||
+            (Array.isArray(errJson?.errors) ? JSON.stringify(errJson.errors) : JSON.stringify(errJson));
         } catch {
           details = res.statusText;
         }
