@@ -5,7 +5,7 @@ import { verifyCaptcha, extractClientIp } from '@/lib/recaptcha';
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, first_name, source, utm_source, utm_medium, utm_campaign, recaptchaToken } = await req.json();
+    const { email, first_name, source, utm_source, utm_medium, utm_campaign, recaptchaToken, marketing_consent, privacy_consent } = await req.json();
 
     // Basic validation
     if (!email || typeof email !== 'string') {
@@ -24,6 +24,14 @@ export async function POST(req: NextRequest) {
         { error: 'Weryfikacja antybot nie powiodła się', details: captcha['error-codes'] || [] },
         { status: 400 }
       )
+    }
+
+    // Consent validation (GDPR/RODO): newsletter requires explicit marketing consent and privacy acceptance
+    if (!privacy_consent) {
+      return NextResponse.json({ error: 'Wymagana akceptacja Polityki prywatności/Regulaminu.' }, { status: 400 })
+    }
+    if (!marketing_consent) {
+      return NextResponse.json({ error: 'Wymagana zgoda marketingowa na newsletter.' }, { status: 400 })
     }
 
     // Beehiiv integration (v2)
@@ -102,6 +110,9 @@ export async function POST(req: NextRequest) {
           // jeśli tabela ma kolumnę first_name, wartość się zapisze; jeśli nie – blok try/catch przechwyci błąd
           first_name: first_name || null,
           source: source || null,
+          marketing_consent: !!marketing_consent,
+          privacy_consent: !!privacy_consent,
+          consent_ts: new Date().toISOString(),
           created_at: new Date().toISOString(),
         });
     } catch (dbErr: any) {

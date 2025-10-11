@@ -74,6 +74,10 @@ export default function HomePage() {
   const [newsletterFirstNameBlog, setNewsletterFirstNameBlog] = useState('')
   const [newsletterEmailBlog, setNewsletterEmailBlog] = useState('')
   const [newsletterStatusBlog, setNewsletterStatusBlog] = useState<string | null>(null)
+  const [newsletterPrivacyTop, setNewsletterPrivacyTop] = useState(false)
+  const [newsletterMarketingTop, setNewsletterMarketingTop] = useState(false)
+  const [newsletterPrivacyBlog, setNewsletterPrivacyBlog] = useState(false)
+  const [newsletterMarketingBlog, setNewsletterMarketingBlog] = useState(false)
 
   // Contact form state
   const [contactName, setContactName] = useState('')
@@ -82,6 +86,8 @@ export default function HomePage() {
   const [contactProjectType, setContactProjectType] = useState('Garaż')
   const [contactMessage, setContactMessage] = useState('')
   const [contactStatus, setContactStatus] = useState<string | null>(null)
+  const [contactPrivacyConsent, setContactPrivacyConsent] = useState(false)
+  const [contactMarketingConsent, setContactMarketingConsent] = useState(false)
 
   const handleReviewSubmit = async (reviewData: any) => {
     try {
@@ -752,6 +758,8 @@ export default function HomePage() {
                       first_name: newsletterFirstNameTop,
                       source: 'homepage_top',
                       recaptchaToken: await executeRecaptcha('newsletter_top'),
+                      marketing_consent: newsletterMarketingTop === true,
+                      privacy_consent: newsletterPrivacyTop === true,
                       utm_source,
                       utm_medium,
                       utm_campaign,
@@ -788,13 +796,37 @@ export default function HomePage() {
                 className="w-full sm:w-auto flex-1 form-input"
                 aria-label="Adres e-mail do newslettera"
               />
-              <button
-                type="submit"
-                disabled={!newsletterEmailTop}
-                className="btn-primary px-8 py-3 disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                Zapisz się
-              </button>
+              <div className="w-full sm:w-auto flex flex-col gap-2">
+                <label className="flex items-start gap-2 text-xs text-white/90">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5"
+                    checked={newsletterPrivacyTop}
+                    onChange={(e) => setNewsletterPrivacyTop(e.target.checked)}
+                    required
+                  />
+                  <span>
+                    Akceptuję <a href="/privacy" className="underline">Politykę prywatności</a> i <a href="/terms" className="underline">Regulamin</a>.
+                  </span>
+                </label>
+                <label className="flex items-start gap-2 text-xs text-white/90">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5"
+                    checked={newsletterMarketingTop}
+                    onChange={(e) => setNewsletterMarketingTop(e.target.checked)}
+                    required
+                  />
+                  <span>Wyrażam zgodę na otrzymywanie informacji handlowych (newsletter) drogą elektroniczną.</span>
+                </label>
+                <button
+                  type="submit"
+                  disabled={!newsletterEmailTop || !newsletterPrivacyTop || !newsletterMarketingTop}
+                  className="btn-primary px-8 py-3 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  Zapisz się
+                </button>
+              </div>
             </form>
             {newsletterStatusTop && (
               <p className="mt-3 text-sm text-indigo-100">{newsletterStatusTop}</p>
@@ -1924,6 +1956,8 @@ export default function HomePage() {
                       first_name: newsletterFirstNameBlog,
                       source: 'homepage_blog',
                       recaptchaToken: await executeRecaptcha('newsletter_blog'),
+                      marketing_consent: newsletterMarketingBlog === true,
+                      privacy_consent: newsletterPrivacyBlog === true,
                       utm_source,
                       utm_medium,
                       utm_campaign,
@@ -1960,13 +1994,37 @@ export default function HomePage() {
                 className="flex-1 form-input"
                 aria-label="Adres e-mail do newslettera"
               />
-              <button
-                type="submit"
-                disabled={!newsletterEmailBlog}
-                className="btn-primary px-8 py-3 disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                Zapisz się
-              </button>
+              <div className="w-full sm:w-auto flex flex-col gap-2">
+                <label className="flex items-start gap-2 text-xs text-white/90">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5"
+                    checked={newsletterPrivacyBlog}
+                    onChange={(e) => setNewsletterPrivacyBlog(e.target.checked)}
+                    required
+                  />
+                  <span>
+                    Akceptuję <a href="/privacy" className="underline">Politykę prywatności</a> i <a href="/terms" className="underline">Regulamin</a>.
+                  </span>
+                </label>
+                <label className="flex items-start gap-2 text-xs text-white/90">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5"
+                    checked={newsletterMarketingBlog}
+                    onChange={(e) => setNewsletterMarketingBlog(e.target.checked)}
+                    required
+                  />
+                  <span>Wyrażam zgodę na otrzymywanie informacji handlowych (newsletter) drogą elektroniczną.</span>
+                </label>
+                <button
+                  type="submit"
+                  disabled={!newsletterEmailBlog || !newsletterPrivacyBlog || !newsletterMarketingBlog}
+                  className="btn-primary px-8 py-3 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  Zapisz się
+                </button>
+              </div>
             </form>
             <p className="text-sm opacity-75 mt-4">Nie wysyłamy spamu. Możesz się wypisać w każdej chwili.</p>
             {newsletterStatusBlog && (
@@ -2681,6 +2739,13 @@ export default function HomePage() {
                 e.preventDefault()
                 setContactStatus('Wysyłanie...')
                 try {
+                  // persist consents in cookie (6 miesięcy)
+                  try {
+                    document.cookie = `user_consents_v1=${encodeURIComponent(JSON.stringify({
+                      contact: { privacy: contactPrivacyConsent, marketing: contactMarketingConsent },
+                      ts: Date.now(), v: 1
+                    }))}; Max-Age=${60 * 60 * 24 * 180}; Path=/; SameSite=Lax`
+                  } catch {}
                   const res = await fetch('/api/contact', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2691,6 +2756,8 @@ export default function HomePage() {
                       project_type: contactProjectType,
                       message: contactMessage,
                       recaptchaToken: await executeRecaptcha('contact'),
+                      privacy_consent: contactPrivacyConsent === true,
+                      marketing_consent: contactMarketingConsent === true,
                     }),
                   })
                   const data = await res.json().catch(() => ({}))
@@ -2790,9 +2857,12 @@ export default function HomePage() {
                   <input
                     type="checkbox"
                     className="mt-1 w-4 h-4 text-blue-600"
+                    checked={contactPrivacyConsent}
+                    onChange={(e) => setContactPrivacyConsent(e.target.checked)}
+                    required
                   />
                   <span className="text-sm text-gray-700">
-                    Wyrażam zgodę na kontakt telefoniczny w celu realizacji zapytania.
+                    Akceptuję <a href="/privacy" className="underline">Politykę prywatności</a> i <a href="/terms" className="underline">Regulamin</a>.
                   </span>
                 </label>
 
@@ -2800,6 +2870,8 @@ export default function HomePage() {
                   <input
                     type="checkbox"
                     className="mt-1 w-4 h-4 text-blue-600"
+                    checked={contactMarketingConsent}
+                    onChange={(e) => setContactMarketingConsent(e.target.checked)}
                   />
                   <span className="text-sm text-gray-700">
                     Wyrażam zgodę na otrzymywanie informacji handlowych i materiałów marketingowych (opcjonalnie).
@@ -2817,7 +2889,7 @@ export default function HomePage() {
               <div className="md:col-span-2">
                 <button
                   type="submit"
-                  disabled={!(contactName && contactEmail && contactMessage)}
+                  disabled={!(contactName && contactEmail && contactMessage && contactPrivacyConsent)}
                   className="w-full px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   Wyślij wiadomość

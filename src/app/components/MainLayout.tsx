@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
 import NewsletterModal from './NewsletterModal'
+import CookieConsentBanner from './CookieConsentBanner'
 import { executeRecaptcha } from '@/lib/recaptcha-client'
 
 interface MainLayoutProps {
@@ -21,6 +22,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const [newsletterFirstName, setNewsletterFirstName] = useState('')
   const [newsletterEmail, setNewsletterEmail] = useState('')
   const [newsletterStatus, setNewsletterStatus] = useState<FooterNewsletterStatus | null>(null)
+  const [newsletterPrivacy, setNewsletterPrivacy] = useState(false)
+  const [newsletterMarketing, setNewsletterMarketing] = useState(false)
   const pathname = usePathname()
   const { user, isLoaded } = useUser()
 
@@ -285,6 +288,11 @@ export default function MainLayout({ children }: MainLayoutProps) {
             <form
               onSubmit={async (e) => {
                 e.preventDefault()
+                // enforce required consents
+                if (!newsletterEmail || !newsletterPrivacy || !newsletterMarketing) {
+                  setNewsletterStatus({ type: 'error', message: 'Wymagana akceptacja Polityki prywatności/Regulaminu oraz zgoda marketingowa (newsletter).' })
+                  return
+                }
                 try {
                   const params = new URLSearchParams(window.location.search)
                   const utm_source = params.get('utm_source') || undefined
@@ -292,6 +300,15 @@ export default function MainLayout({ children }: MainLayoutProps) {
                   const utm_campaign = params.get('utm_campaign') || undefined
 
                   const token = await executeRecaptcha('newsletter_footer')
+
+                  // persist consents in cookie (6 miesięcy)
+                  try {
+                    document.cookie = `user_consents_v1=${encodeURIComponent(JSON.stringify({
+                      newsletter_footer: { privacy: newsletterPrivacy, marketing: newsletterMarketing },
+                      ts: Date.now(), v: 1
+                    }))}; Max-Age=${60 * 60 * 24 * 180}; Path=/; SameSite=Lax`
+                  } catch {}
+
                   const res = await fetch('/api/newsletter', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -300,6 +317,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
                       first_name: newsletterFirstName,
                       source: 'footer',
                       recaptchaToken: token,
+                      marketing_consent: newsletterMarketing === true,
+                      privacy_consent: newsletterPrivacy === true,
                       utm_source,
                       utm_medium,
                       utm_campaign,
@@ -312,6 +331,8 @@ export default function MainLayout({ children }: MainLayoutProps) {
                     setNewsletterStatus({ type: 'success', message: data.message || 'Dziękujemy za zapis!' })
                     setNewsletterFirstName('')
                     setNewsletterEmail('')
+                    setNewsletterPrivacy(false)
+                    setNewsletterMarketing(false)
                   }
                 } catch {
                   setNewsletterStatus({ type: 'error', message: 'Wystąpił błąd. Spróbuj ponownie.' })
@@ -336,13 +357,37 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 className="w-full sm:w-auto flex-1 form-input-inverse"
                 aria-label="Adres e-mail do newslettera"
 />
-<button
-                type="submit"
-                disabled={!newsletterEmail}
-                className="btn-primary disabled:opacity-60 disabled:cursor-not-allowed"
->
-                Zapisz się
-              </button>
+<div className="w-full sm:w-auto flex flex-col gap-2">
+  <label className="flex items-start gap-2 text-xs text-gray-300">
+    <input
+      type="checkbox"
+      className="mt-0.5"
+      checked={newsletterPrivacy}
+      onChange={(e) => setNewsletterPrivacy(e.target.checked)}
+      required
+    />
+    <span>
+      Akceptuję <a href="/privacy" className="underline">Politykę prywatności</a> i <a href="/terms" className="underline">Regulamin</a>.
+    </span>
+  </label>
+  <label className="flex items-start gap-2 text-xs text-gray-300">
+    <input
+      type="checkbox"
+      className="mt-0.5"
+      checked={newsletterMarketing}
+      onChange={(e) => setNewsletterMarketing(e.target.checked)}
+      required
+    />
+    <span>Wyrażam zgodę na otrzymywanie informacji handlowych (newsletter) drogą elektroniczną.</span>
+  </label>
+  <button
+    type="submit"
+    disabled={!newsletterEmail || !newsletterPrivacy || !newsletterMarketing}
+    className="btn-primary disabled:opacity-60 disabled:cursor-not-allowed"
+  >
+    Zapisz się
+  </button>
+</div>
             </form>
             {newsletterStatus && (
               newsletterStatus.type === 'success' ? (
@@ -376,6 +421,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
       </footer>
 
       <NewsletterModal delayMs={15000} snoozeDays={7} />
+      <CookieConsentBanner />
       {/* Login Modal removed - unified login flow to /login on all devices */}
     </div>
   )

@@ -12,6 +12,8 @@ export async function POST(req: NextRequest) {
       project_type,
       message,
       recaptchaToken,
+      privacy_consent,
+      marketing_consent,
     } = body as {
       name?: string
       email?: string
@@ -19,6 +21,8 @@ export async function POST(req: NextRequest) {
       project_type?: string
       message?: string
       recaptchaToken?: string
+      privacy_consent?: boolean
+      marketing_consent?: boolean
     }
 
     // Basic validation
@@ -46,6 +50,14 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // GDPR/RODO: wymagamy akceptacji polityki prywatności/regulaminu
+    if (!privacy_consent) {
+      return NextResponse.json(
+        { error: 'Wymagana akceptacja Polityki prywatności/Regulaminu.' },
+        { status: 400 }
+      )
+    }
+
     // Send notification to admin (email channel simulated by NotificationManager)
     try {
       await notificationManager.createNotification(
@@ -60,6 +72,8 @@ export async function POST(req: NextRequest) {
           customer_phone: phone || '',
           project_type: project_type || 'Nieokreślony',
           project_description: message,
+          privacy_consent: !!privacy_consent,
+          marketing_consent: !!marketing_consent,
           priority: 'normal',
         },
         'medium'

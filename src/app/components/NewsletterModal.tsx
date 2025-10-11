@@ -52,6 +52,8 @@ export default function NewsletterModal({
   const [firstName, setFirstName] = useState('')
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<Status>({ type: 'idle' })
+  const [privacyConsent, setPrivacyConsent] = useState(false)
+  const [marketingConsent, setMarketingConsent] = useState(false)
 
   const enabled = useMemo(() => {
     // Default: show on all public pages except /admin and /client areas
@@ -113,11 +115,23 @@ export default function NewsletterModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email) return
+    if (!email || !privacyConsent || !marketingConsent) {
+      setStatus({ type: 'error', message: 'Wymagana akceptacja Polityki prywatności/Regulaminu oraz zgoda marketingowa (newsletter).' })
+      return
+    }
     setStatus({ type: 'loading' })
     try {
       const token = await executeRecaptcha('newsletter_popup')
       const utm = getUTM()
+
+      // Persist selected consents in cookie (6 months)
+      try {
+        document.cookie = `user_consents_v1=${encodeURIComponent(JSON.stringify({
+          newsletter_popup: { privacy: privacyConsent, marketing: marketingConsent },
+          ts: Date.now(), v: 1
+        }))}; Max-Age=${60 * 60 * 24 * 180}; Path=/; SameSite=Lax`
+      } catch {}
+
       const res = await fetch('/api/newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -126,6 +140,8 @@ export default function NewsletterModal({
           first_name: firstName,
           source: 'popup',
           recaptchaToken: token,
+          marketing_consent: marketingConsent === true,
+          privacy_consent: privacyConsent === true,
           ...utm,
         }),
       })
@@ -215,13 +231,37 @@ export default function NewsletterModal({
                   className="form-input"
                 />
               </div>
-              <button
-                type="submit"
-                disabled={status.type === 'loading' || !email}
-                className="btn-primary w-full py-3 font-bold disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {status.type === 'loading' ? 'Zapisywanie...' : 'Zapisz mnie'}
-              </button>
+              <div className="space-y-2">
+                <label className="flex items-start gap-2 text-xs text-gray-600">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5"
+                    checked={privacyConsent}
+                    onChange={(e) => setPrivacyConsent(e.target.checked)}
+                    required
+                  />
+                  <span>
+                    Akceptuję <a href="/privacy" className="underline">Politykę prywatności</a> i <a href="/terms" className="underline">Regulamin</a>.
+                  </span>
+                </label>
+                <label className="flex items-start gap-2 text-xs text-gray-600">
+                  <input
+                    type="checkbox"
+                    className="mt-0.5"
+                    checked={marketingConsent}
+                    onChange={(e) => setMarketingConsent(e.target.checked)}
+                    required
+                  />
+                  <span>Wyrażam zgodę na otrzymywanie informacji handlowych (newsletter) drogą elektroniczną.</span>
+                </label>
+                <button
+                  type="submit"
+                  disabled={status.type === 'loading' || !email || !privacyConsent || !marketingConsent}
+                  className="btn-primary w-full py-3 font-bold disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {status.type === 'loading' ? 'Zapisywanie...' : 'Zapisz mnie'}
+                </button>
+              </div>
 
               {status.type === 'error' && (
                 <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm">
