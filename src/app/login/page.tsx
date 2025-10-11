@@ -1,12 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { SignedIn, SignedOut, useUser, useClerk } from '@clerk/nextjs'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { SignIn, SignUp } from '@clerk/nextjs'
 import { createClientComponentClient } from '@/lib/supabase'
 
 export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-6 px-4 sm:py-12 sm:px-6 lg:px-8" />}>
+      <LoginPageInner />
+    </Suspense>
+  )
+}
+
+function LoginPageInner() {
   const { user, isLoaded } = useUser()
   const router = useRouter()
   const supabase = createClientComponentClient()
