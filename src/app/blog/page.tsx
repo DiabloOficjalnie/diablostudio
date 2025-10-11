@@ -54,9 +54,7 @@ async function getPostsDirect(params: { page: number; limit: number; category?: 
   if (category && category !== 'wszystkie') {
     listQuery = listQuery.eq('category', category)
   }
-  if (featured) {
-    listQuery = listQuery.eq('is_featured', true)
-  }
+  if (featured) listQuery = listQuery.eq('is_featured', true)
   if (search) {
     listQuery = listQuery.or(`title.ilike.%${search}%,content.ilike.%${search}%,excerpt.ilike.%${search}%`)
   }
@@ -102,17 +100,32 @@ export default async function BlogIndexPage({
   const { posts, total } = await getPostsDirect({ page, limit, category, featured: false, search })
   const pages = Math.ceil(total / limit)
 
+  const categories = [
+    { label: 'Wszystkie', val: 'wszystkie', icon: '🗂️' },
+    { label: 'Porady techniczne', val: 'porady-techniczne', icon: '🔧' },
+    { label: 'Realizacje', val: 'realizacje', icon: '🏗️' },
+    { label: 'Nowości', val: 'nowosci', icon: '📰' },
+    { label: 'Konserwacja', val: 'konserwacja', icon: '🧽' },
+    { label: 'Porównania', val: 'porownania', icon: '⚖️' }
+  ]
+
   return (
     <MainLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Header */}
-        <header className="text-center mb-10">
+        <header className="text-center mb-8">
+          <span className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 font-semibold text-xs mb-3">Blog • Aktualności • Porady</span>
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-gray-900">
             Blog i aktualności
           </h1>
-          <p className="mt-4 text-lg text-gray-600">
-            Porady ekspertów, realizacje i nowości dotyczące posadzek żywicznych. Zadbaliśmy o SEO i czytelny układ.
+          <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
+            Praktyczne poradniki, inspiracje oraz wskazówki ekspertów DecoSol. Zadbaliśmy o czytelny układ i SEO.
           </p>
+          <div className="mt-6 inline-flex items-center gap-3 text-sm text-gray-500">
+            <span>📚 Artykułów: <b className="text-gray-900">{total}</b></span>
+            <span className="hidden sm:inline">•</span>
+            <a href="/valuation" className="text-blue-600 hover:text-blue-800 font-semibold">Zamów darmową wycenę →</a>
+          </div>
         </header>
 
         {/* Search + Filters */}
@@ -123,7 +136,7 @@ export default async function BlogIndexPage({
                 type="text"
                 name="q"
                 defaultValue={search}
-                placeholder="Szukaj artykułów..."
+                placeholder="Szukaj: garaż, epoksyd, konserwacja..."
                 className="flex-1 px-4 py-2 outline-none text-gray-900"
                 aria-label="Szukaj artykułów"
               />
@@ -134,26 +147,19 @@ export default async function BlogIndexPage({
           </form>
 
           <div className="flex items-center gap-2 overflow-x-auto">
-            {[
-              { label: 'Wszystkie', val: 'wszystkie' },
-              { label: 'Porady techniczne', val: 'porady-techniczne' },
-              { label: 'Realizacje', val: 'realizacje' },
-              { label: 'Nowości', val: 'nowosci' },
-              { label: 'Konserwacja', val: 'konserwacja' },
-              { label: 'Porównania', val: 'porownania' }
-            ].map((c) => {
-              const href = c.val === 'wszystkie' ? '/blog' : `/blog?category=${encodeURIComponent(c.val)}`
+            {categories.map((c) => {
               const active = (category || 'wszystkie') === c.val
+              const href = c.val === 'wszystkie' ? '/blog' : `/blog?category=${encodeURIComponent(c.val)}`
               return (
                 <Link
                   key={c.val}
                   href={href}
                   className={`px-4 py-2 whitespace-nowrap rounded-xl border transition-colors ${
-                    active
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    active ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                   }`}
+                  aria-current={active ? 'page' : undefined}
                 >
+                  <span className="mr-1">{c.icon}</span>
                   {c.label}
                 </Link>
               )
@@ -183,7 +189,7 @@ export default async function BlogIndexPage({
             {posts.map((post) => (
               <article
                 key={post.id}
-                className="group bg-white rounded-2xl shadow-sm border hover:shadow-md transition-shadow overflow-hidden flex flex-col"
+                className="group bg-white rounded-2xl shadow-sm border hover:shadow-lg transition-all overflow-hidden flex flex-col"
               >
                 <Link href={`/blog/${post.slug}`} className="block">
                   <div className="h-48 bg-gray-100 overflow-hidden relative">
@@ -192,7 +198,7 @@ export default async function BlogIndexPage({
                       <img
                         src={post.featured_image}
                         alt={post.title}
-                        className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+                        className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-300"
                         loading="lazy"
                       />
                     ) : (
@@ -216,18 +222,23 @@ export default async function BlogIndexPage({
                     {post.reading_time_minutes ? <span>• 📖 {post.reading_time_minutes} min</span> : null}
                     {typeof post.view_count === 'number' ? <span>• 👁️ {post.view_count}</span> : null}
                   </div>
-                  <h2 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
+
+                  <h2 className="text-xl font-bold text-gray-900 mb-2 leading-snug line-clamp-2">
                     <Link href={`/blog/${post.slug}`} className="hover:text-blue-700">
                       {post.title}
                     </Link>
                   </h2>
+
                   {post.excerpt && (
-                    <p className="text-gray-600 text-sm line-clamp-3 mb-4">{post.excerpt}</p>
+                    <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3">
+                      {post.excerpt}
+                    </p>
                   )}
-                  <div className="mt-auto flex justify-between items-center">
+
+                  <div className="mt-auto flex items-center justify-between">
                     <Link
                       href={`/blog/${post.slug}`}
-                      className="text-sm text-blue-600 hover:text-blue-800 font-semibold"
+                      className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-semibold"
                       aria-label={`Czytaj: ${post.title}`}
                     >
                       Czytaj więcej →
@@ -270,6 +281,35 @@ export default async function BlogIndexPage({
             })}
           </nav>
         )}
+
+        {/* Promotional CTA */}
+        <section className="mt-14 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="rounded-2xl p-8 bg-gradient-to-br from-blue-600 to-indigo-600 text-white">
+            <h3 className="text-2xl font-bold mb-2">Masz pomysł na swoją posadzkę?</h3>
+            <p className="text-blue-100 mb-6">Bezpłatna wycena i konsultacja z ekspertem DecoSol – online lub telefonicznie.</p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <a href="/valuation" className="inline-flex items-center px-6 py-3 bg-orange-500 hover:bg-orange-600 rounded-lg font-semibold shadow">
+                Zamów wycenę <span className="ml-2">📋</span>
+              </a>
+              <a href="/contact" className="inline-flex items-center px-6 py-3 border-2 border-white hover:bg-white hover:text-blue-700 rounded-lg font-semibold">
+                Skontaktuj się <span className="ml-2">📞</span>
+              </a>
+            </div>
+          </div>
+
+          <div className="rounded-2xl p-8 border-2 border-gray-200 bg-white">
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Dołącz do newslettera</h3>
+            <p className="text-gray-600 mb-6">Trendy, porady i promocje – 1–2 razy w miesiącu. Zero spamu.</p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <a href="/edukacja" className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700">
+                Przegląd poradników <span className="ml-2">📖</span>
+              </a>
+              <a href="/login" className="inline-flex items-center px-6 py-3 border-2 border-indigo-600 text-indigo-600 rounded-lg font-semibold hover:bg-indigo-50">
+                Zapisz się <span className="ml-2">📧</span>
+              </a>
+            </div>
+          </div>
+        </section>
       </div>
     </MainLayout>
   )
