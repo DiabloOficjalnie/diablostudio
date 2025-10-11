@@ -1718,8 +1718,8 @@ export default function HomePage() {
             </div>
           )}
 
-          {/* Static Featured Posts for fallback */}
-          <div className="mb-16">
+          {/* Static Featured Posts removed - using dynamic blog feed */}
+          <div className="hidden">
             <h3 className="text-3xl font-bold text-center text-gray-900 mb-8">
               ⭐ Polecane artykuły
             </h3>
@@ -1812,8 +1812,8 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* Recent Posts Grid */}
-          <div className="mb-16">
+          {/* Recent Posts Grid removed - using dynamic blog feed */}
+          <div className="hidden">
             <h3 className="text-3xl font-bold text-center text-gray-900 mb-8">
               Najnowsze artykuły
             </h3>
