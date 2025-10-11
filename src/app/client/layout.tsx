@@ -15,6 +15,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const nav = [
     { label: 'Pulpit', href: '/client/dashboard', icon: '📊' },
     { label: 'Wyceny', href: '/client/quotes', icon: '📋' },
+    { label: 'Konsultacje', href: '/client/consultations', icon: '📞' },
+    { label: 'Dokumenty', href: '/client/documents', icon: '📄' },
     { label: 'Powiadomienia', href: '/client/notifications', icon: '🔔' },
     { label: 'Ustawienia', href: '/client/settings', icon: '⚙️' },
   ]

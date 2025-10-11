@@ -1139,6 +1139,7 @@ function ClientDashboardContent() {
       </div>
       {/* Hero */}
       {activeSection === 'education' && (
+      <>
       <section id="education" className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white">
         <div className="absolute inset-0 bg-black/10" />
         <div className="relative z-10 p-6 sm:p-10">
@@ -1302,7 +1303,7 @@ function ClientDashboardContent() {
           </div>
         )}
       </section>
-      )}
+      </>)}
       {/* Dane konta klienta */}
       <section className="mb-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -1333,11 +1334,17 @@ function ClientDashboardContent() {
                         <div className="text-right">
                           <div className="text-lg font-bold text-green-600">{q.price_min} - {q.price_max} PLN/m²</div>
                           <div className="text-sm text-gray-700">Razem: {Math.round(q.total_min)} - {Math.round(q.total_max)} PLN</div>
-                          <span className="inline-block mt-2 text-xs px-2 py-1 rounded-full border
-                            ${q.status === 'completed' ? 'bg-green-50 text-green-700 border-green-200' :
-                              q.status === 'in_progress' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                              q.status === 'consultation_requested' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                              'bg-gray-50 text-gray-700 border-gray-200'}">
+                          <span
+                            className={`inline-block mt-2 text-xs px-2 py-1 rounded-full border ${
+                              q.status === 'completed'
+                                ? 'bg-green-50 text-green-700 border-green-200'
+                                : q.status === 'in_progress'
+                                ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                : q.status === 'consultation_requested'
+                                ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                : 'bg-gray-50 text-gray-700 border-gray-200'
+                            }`}
+                          >
                             {q.status}
                           </span>
                           <div className="mt-3 flex flex-wrap gap-2 justify-end">
@@ -1381,11 +1388,17 @@ function ClientDashboardContent() {
                         </div>
                         <div className="text-right">
                           <div className="text-sm text-gray-600">{new Date(c.created_at).toLocaleString('pl-PL')}</div>
-                          <span className="inline-block mt-2 text-xs px-2 py-1 rounded-full border
-                            ${c.status === 'confirmed' ? 'bg-green-50 text-green-700 border-green-200' :
-                              c.status === 'pending' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                              c.status === 'completed' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                              'bg-gray-50 text-gray-700 border-gray-200'}">
+                          <span
+                            className={`inline-block mt-2 text-xs px-2 py-1 rounded-full border ${
+                              c.status === 'confirmed'
+                                ? 'bg-green-50 text-green-700 border-green-200'
+                                : c.status === 'pending'
+                                ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                : c.status === 'completed'
+                                ? 'bg-blue-50 text-blue-700 border-blue-200'
+                                : 'bg-gray-50 text-gray-700 border-gray-200'
+                            }`}
+                          >
                             {c.status}
                           </span>
                         </div>
