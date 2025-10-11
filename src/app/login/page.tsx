@@ -99,8 +99,7 @@ function LoginPageInner() {
             <div className="w-full max-w-md">
               {authMode === 'signin' ? (
                 <SignIn
-                  afterSignInUrl="/client/dashboard"
-                  redirectUrl="/client/dashboard"
+                  fallbackRedirectUrl="/client/dashboard"
                   appearance={{
                     elements: {
                       formButtonPrimary: 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-xl text-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full',
@@ -117,8 +116,7 @@ function LoginPageInner() {
                 />
               ) : (
                 <SignUp
-                  afterSignUpUrl="/client/dashboard"
-                  redirectUrl="/client/dashboard"
+                  fallbackRedirectUrl="/client/dashboard"
                   appearance={{
                     elements: {
                       formButtonPrimary: 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 px-6 rounded-xl text-lg shadow-lg hover:shadow-xl transition-all duration-300 w-full',

@@ -2821,7 +2821,7 @@ export default function HomePage() {
                   Typ projektu
                 </label>
                 <select
-                  className="form-select"
+                  className="form-select border-white text-gray-900 bg-white"
                   value={contactProjectType}
                   onChange={(e) => setContactProjectType(e.target.value)}
                 >
@@ -2877,6 +2877,13 @@ export default function HomePage() {
                     Wyrażam zgodę na otrzymywanie informacji handlowych i materiałów marketingowych (opcjonalnie).
                   </span>
                 </label>
+              </div>
+
+              <div className="md:col-span-2 text-xs text-gray-500">
+                Przesyłając formularz, akceptujesz
+                <a href="/privacy" className="underline ml-1">Politykę prywatności</a>
+                oraz warunki komunikacji marketingowej zgodnie z
+                <a href="/terms" className="underline ml-1">Regulaminem</a>.
               </div>
 
               {/* Status Message */}

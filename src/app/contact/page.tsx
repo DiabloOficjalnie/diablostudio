@@ -130,6 +130,9 @@ export default function ContactPage() {
                         placeholder="Twoje imię i nazwisko"
                         required
                       />
+                      <p className="mt-1 text-xs text-gray-500">
+                        Dane przetwarzamy zgodnie z <a href="/privacy" className="underline">Polityką prywatności</a> oraz <a href="/terms" className="underline">Regulaminem</a>.
+                      </p>
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -144,6 +147,9 @@ export default function ContactPage() {
                         placeholder="twoj@email.com"
                         required
                       />
+                      <p className="mt-1 text-xs text-gray-500">
+                        Dane przetwarzamy zgodnie z <a href="/privacy" className="underline">Polityką prywatności</a> oraz <a href="/terms" className="underline">Regulaminem</a>.
+                      </p>
                     </div>
                   </div>
 
@@ -169,7 +175,7 @@ export default function ContactPage() {
                       name="subject"
                       value={formData.subject}
                       onChange={handleInputChange}
-                      className="form-select"
+                      className="form-select border-white text-gray-900 bg-white"
                       required
                     >
                       <option value="">Wybierz temat</option>
@@ -222,6 +228,13 @@ export default function ContactPage() {
                       </span>
                     </label>
                   </div>
+
+                  <p className="text-xs text-gray-500">
+                    Przesyłając formularz, akceptujesz
+                    <a href="/privacy" className="underline ml-1">Politykę prywatności</a>
+                    oraz warunki komunikacji marketingowej zgodnie z
+                    <a href="/terms" className="underline ml-1">Regulaminem</a>.
+                  </p>
 
                   <button
                     type="submit"
