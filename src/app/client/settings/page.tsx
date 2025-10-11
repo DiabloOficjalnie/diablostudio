@@ -24,8 +24,8 @@ export default function ClientSettingsPage() {
 
   const [isSettingsLoading, setIsSettingsLoading] = useState(true)
   const [isSavingSettings, setIsSavingSettings] = useState(false)
-  const [showUserProfileModal, setShowUserProfileModal] = useState(false)
   const [isTwoFactorEnabled, setIsTwoFactorEnabled] = useState(false)
+  const [statistics, setStatistics] = useState<any>(null)
 
   const [newsletterSettings, setNewsletterSettings] = useState<NewsletterSettings>({
     generalNewsletter: true,
@@ -66,6 +66,22 @@ export default function ClientSettingsPage() {
     })()
   }, [isLoaded, user, router])
 
+  useEffect(() => {
+    if (!isLoaded) return
+    if (!user) return
+    ;(async () => {
+      try {
+        const res = await fetch('/api/client/statistics', { cache: 'no-store' })
+        const data = await res.json().catch(() => ({}))
+        if (res.ok && (data as any)?.success) {
+          setStatistics((data as any).statistics || null)
+        }
+      } catch (e) {
+        console.error('loadStatistics error', e)
+      }
+    })()
+  }, [isLoaded, user])
+
   async function saveSettingsToAPI() {
     try {
       setIsSavingSettings(true)
@@ -92,6 +108,27 @@ export default function ClientSettingsPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      {/* Statystyki konta */}
+      {statistics && (
+        <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
+            <div className="text-sm text-gray-500">Zakończone projekty</div>
+            <div className="text-2xl font-bold text-gray-900">{statistics?.completed_projects ?? 0}</div>
+          </div>
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
+            <div className="text-sm text-gray-500">Łączna powierzchnia</div>
+            <div className="text-2xl font-bold text-gray-900">{statistics?.total_square_meters ?? 0} m²</div>
+          </div>
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
+            <div className="text-sm text-gray-500">Oszczędności (szac.)</div>
+            <div className="text-2xl font-bold text-gray-900">{new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(Number(statistics?.total_savings ?? 0))}</div>
+          </div>
+          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
+            <div className="text-sm text-gray-500">Aktualny rabat</div>
+            <div className="text-2xl font-bold text-gray-900">{statistics?.current_discount ?? 0}%</div>
+          </div>
+        </div>
+      )}
       <div className="bg-white rounded-xl shadow-md border border-gray-200">
         <div className="p-6 border-b border-gray-100 flex items-center justify-between">
           <div>
@@ -110,12 +147,12 @@ export default function ClientSettingsPage() {
             )}
           </div>
           <div className="flex gap-2">
-            <button
-              onClick={() => setShowUserProfileModal(true)}
-              className="px-3 py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-lg text-sm font-semibold"
+            <a
+              href="#profile"
+              className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold"
             >
               Profil i 2FA
-            </button>
+            </a>
             <button
               onClick={saveSettingsToAPI}
               disabled={isSavingSettings || isSettingsLoading}
@@ -223,25 +260,20 @@ export default function ClientSettingsPage() {
         </div>
       </div>
 
-      {showUserProfileModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl relative">
-            <div className="p-4 border-b flex items-center justify-between">
-              <h3 className="text-lg font-bold text-gray-900">Profil i bezpieczeństwo (Clerk)</h3>
-              <button
-                onClick={() => setShowUserProfileModal(false)}
-                className="text-gray-500 hover:text-gray-700 text-xl leading-none"
-                aria-label="Zamknij"
-              >
-                ×
-              </button>
-            </div>
-            <div className="p-2">
-              <UserProfile />
+      {/* Profil i bezpieczeństwo (Clerk) - wbudowany bez modala */}
+      <section id="profile" className="mt-8">
+        <div className="bg-white rounded-2xl shadow-md border border-gray-200">
+          <div className="p-6 border-b flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Profil i bezpieczeństwo (Clerk)</h2>
+              <p className="text-sm text-gray-500">Zarządzaj danymi profilu, logowaniem i 2FA bezpośrednio na stronie.</p>
             </div>
           </div>
+          <div className="p-2">
+            <UserProfile />
+          </div>
         </div>
-      )}
+      </section>
     </div>
   )
 }

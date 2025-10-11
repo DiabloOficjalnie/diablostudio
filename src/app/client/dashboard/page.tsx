@@ -1138,7 +1138,7 @@ function ClientDashboardContent() {
         </button>
       </div>
       {/* Hero */}
-      {activeSection === 'education' && (
+      {false && (
       <>
       <section id="education" className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white">
         <div className="absolute inset-0 bg-black/10" />
