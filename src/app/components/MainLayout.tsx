@@ -247,7 +247,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white mt-16">
-        <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Company Info */}
             <div className="md:col-span-1 text-left">
@@ -258,7 +258,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
             </div>
 
             {/* Quick Links */}
-            <div className="md:col-span-1 text-center">
+            <div className="md:col-span-1 text-left">
               <h4 className="text-base font-semibold mb-2">Nawigacja</h4>
               <div className="grid grid-cols-2 gap-3">
                 <ul className="space-y-1">
