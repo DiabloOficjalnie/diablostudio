@@ -104,12 +104,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-async function incrementViewCount(postId: string) {
+async function incrementViewCount(postId: string, currentViews?: number | null) {
   try {
     const supabase = await getSupabaseAnon()
+    const nextViews = (currentViews ?? 0) + 1
     await supabase
       .from('blog_posts')
-      .update({ view_count: supabase.raw('view_count + 1') })
+      .update({ view_count: nextViews })
       .eq('id', postId)
   } catch (error) {
     console.error('Error incrementing view count:', error)
@@ -126,7 +127,7 @@ export default async function BlogPostPage({ params }: PageProps) {
   }
 
   // Increment view count (fire and forget)
-  incrementViewCount(post.id)
+  incrementViewCount(post.id, post.view_count)
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pl-PL', {
