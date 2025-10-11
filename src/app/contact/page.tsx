@@ -169,7 +169,7 @@ export default function ContactPage() {
                       name="subject"
                       value={formData.subject}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors bg-white text-gray-900 placeholder-gray-500"
+                      className="form-select"
                       required
                     >
                       <option value="">Wybierz temat</option>
@@ -190,7 +190,7 @@ export default function ContactPage() {
                       value={formData.message}
                       onChange={handleInputChange}
                       rows={6}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none bg-white text-gray-900 placeholder-gray-500"
+                      className="form-input resize-none"
                       placeholder="Opisz swój projekt lub zadaj pytanie..."
                       required
                     ></textarea>

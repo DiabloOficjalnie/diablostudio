@@ -319,28 +319,28 @@ export default function MainLayout({ children }: MainLayoutProps) {
               }}
               className="flex flex-col sm:flex-row items-center gap-3"
             >
-              <input
+<input
                 type="text"
                 value={newsletterFirstName}
                 onChange={(e) => setNewsletterFirstName(e.target.value)}
                 placeholder="Twoje imię"
-                className="w-full sm:w-auto flex-1 px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-400 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full sm:w-auto flex-1 form-input-inverse"
                 aria-label="Imię do newslettera"
-              />
-              <input
+/>
+<input
                 type="email"
                 required
                 value={newsletterEmail}
                 onChange={(e) => setNewsletterEmail(e.target.value)}
                 placeholder="Twój e-mail"
-                className="w-full sm:w-auto flex-1 px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-400 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                className="w-full sm:w-auto flex-1 form-input-inverse"
                 aria-label="Adres e-mail do newslettera"
-              />
-              <button
+/>
+<button
                 type="submit"
                 disabled={!newsletterEmail}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
-              >
+                className="btn-primary disabled:opacity-60 disabled:cursor-not-allowed"
+>
                 Zapisz się
               </button>
             </form>

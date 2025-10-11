@@ -776,7 +776,7 @@ export default function HomePage() {
                 value={newsletterFirstNameTop}
                 onChange={(e) => setNewsletterFirstNameTop(e.target.value)}
                 placeholder="Twoje imię"
-                className="w-full sm:w-auto flex-1 px-4 py-3 rounded-lg bg-white text-gray-900 placeholder-gray-500 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white"
+                className="w-full sm:w-auto flex-1 form-input"
                 aria-label="Imię do newslettera"
               />
               <input
@@ -785,13 +785,13 @@ export default function HomePage() {
                 value={newsletterEmailTop}
                 onChange={(e) => setNewsletterEmailTop(e.target.value)}
                 placeholder="Twój adres e-mail"
-                className="w-full sm:w-auto flex-1 px-4 py-3 rounded-lg bg-white text-gray-900 placeholder-gray-500 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white"
+                className="w-full sm:w-auto flex-1 form-input"
                 aria-label="Adres e-mail do newslettera"
               />
               <button
                 type="submit"
                 disabled={!newsletterEmailTop}
-                className="px-8 py-3 bg-white text-indigo-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                className="btn-primary px-8 py-3 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 Zapisz się
               </button>
@@ -1948,7 +1948,7 @@ export default function HomePage() {
                 value={newsletterFirstNameBlog}
                 onChange={(e) => setNewsletterFirstNameBlog(e.target.value)}
                 placeholder="Twoje imię"
-                className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:ring-2 focus:ring-white"
+                className="flex-1 form-input"
                 aria-label="Imię do newslettera"
               />
               <input
@@ -1957,13 +1957,13 @@ export default function HomePage() {
                 value={newsletterEmailBlog}
                 onChange={(e) => setNewsletterEmailBlog(e.target.value)}
                 placeholder="Twój adres e-mail"
-                className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:ring-2 focus:ring-white"
+                className="flex-1 form-input"
                 aria-label="Adres e-mail do newslettera"
               />
               <button
                 type="submit"
                 disabled={!newsletterEmailBlog}
-                className="px-8 py-3 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                className="btn-primary px-8 py-3 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 Zapisz się
               </button>
@@ -2717,7 +2717,7 @@ export default function HomePage() {
                 </label>
                 <input
                   type="text"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="form-input"
                   placeholder="Jan Kowalski"
                   value={contactName}
                   onChange={(e) => setContactName(e.target.value)}
@@ -2730,7 +2730,7 @@ export default function HomePage() {
                 </label>
                 <input
                   type="email"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="form-input"
                   placeholder="jan@example.com"
                   value={contactEmail}
                   onChange={(e) => setContactEmail(e.target.value)}
@@ -2743,7 +2743,7 @@ export default function HomePage() {
                 </label>
                 <input
                   type="tel"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="form-input"
                   placeholder="+48 123 456 789"
                   value={contactPhone}
                   onChange={(e) => setContactPhone(e.target.value)}
@@ -2754,7 +2754,7 @@ export default function HomePage() {
                   Typ projektu
                 </label>
                 <select
-                  className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 bg-white text-gray-900"
+                  className="form-select"
                   value={contactProjectType}
                   onChange={(e) => setContactProjectType(e.target.value)}
                 >
@@ -2772,7 +2772,7 @@ export default function HomePage() {
                 </label>
                 <textarea
                   rows={4}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="form-input"
                   placeholder="Opisz swój projekt, wymiary, oczekiwania..."
                   value={contactMessage}
                   onChange={(e) => setContactMessage(e.target.value)}

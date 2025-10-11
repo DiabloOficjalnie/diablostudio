@@ -199,7 +199,7 @@ export default function NewsletterModal({
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder="np. Jan"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-600 bg-white text-gray-900 mb-3"
+                  className="form-input mb-3"
                 />
               </div>
               <div>
@@ -212,13 +212,13 @@ export default function NewsletterModal({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="np. jan.kowalski@example.com"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-600 bg-white text-gray-900"
+                  className="form-input"
                 />
               </div>
               <button
                 type="submit"
                 disabled={status.type === 'loading' || !email}
-                className="w-full py-3 rounded-lg font-bold text-white bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 transition-colors"
+                className="btn-primary w-full py-3 font-bold disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {status.type === 'loading' ? 'Zapisywanie...' : 'Zapisz mnie'}
               </button>

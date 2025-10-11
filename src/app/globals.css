@@ -54,6 +54,10 @@ html, body {
     @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black bg-white;
   }
 
+  .form-input-inverse {
+    @apply w-full px-3 py-2 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white bg-gray-800 placeholder-gray-400;
+  }
+
   /* Custom radio button styles */
   input[type="radio"]:checked + * {
     @apply border-blue-600 bg-blue-50;
