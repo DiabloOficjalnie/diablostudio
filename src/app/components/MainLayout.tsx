@@ -247,10 +247,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white mt-16">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Company Info */}
-            <div className="md:col-span-5">
+            <div className="md:col-span-2">
               <h3 className="text-2xl font-bold mb-4">DecoSol</h3>
               <p className="text-gray-300 mb-4 max-w-md">
                 Profesjonalne posadzki żywiczne – epoksydowe i poliuretanowe. Tworzymy trwałe i estetyczne rozwiązania dla domu, biura i przemysłu.
@@ -258,7 +258,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
             </div>
 
             {/* Quick Links */}
-            <div className="md:col-span-4">
+            <div className="md:col-span-1">
               <h4 className="text-lg font-semibold mb-4">Nawigacja</h4>
               <div className="grid grid-cols-2 gap-6">
                 <ul className="space-y-2">
@@ -280,7 +280,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
             </div>
 
             {/* Contact Info */}
-            <div className="md:col-span-3">
+            <div className="md:col-span-1">
               <h4 className="text-lg font-semibold mb-4">Kontakt</h4>
               <div className="space-y-3 text-gray-300">
                 <div className="flex items-center"><span className="text-xl mr-3">📞</span><span>+48 123 456 789</span></div>
