@@ -7,7 +7,7 @@ import { CONTENT, getDecorativeOption, getFloorSystemData } from '@/lib/content'
 import generateQuotePDF from '@/lib/pdfGenerator'
 import MainLayout from '../components/MainLayout'
 import InstructionGuide from './components/InstructionGuide'
-import TurnstileWidget from '../components/TurnstileWidget'
+import ReCaptchaWidget from '../components/ReCaptchaWidget'
 
 // Loading Spinner Component
 const LoadingSpinner = () => (
@@ -721,7 +721,7 @@ export default function ValuationPage() {
           },
           contactPreferences,
           consents,
-          turnstileToken: captchaToken || undefined,
+          recaptchaToken: captchaToken || undefined,
         }
 
         console.log('Sending client quote to API:', clientQuoteData)
@@ -771,7 +771,7 @@ export default function ValuationPage() {
           },
           contactPreferences,
           consents,
-          turnstileToken: captchaToken || undefined,
+          recaptchaToken: captchaToken || undefined,
         }
 
         console.log('Sending anonymous quote to API:', requestData)
@@ -1360,7 +1360,7 @@ export default function ValuationPage() {
 
                           {/* Turnstile (anti-bot) */}
                           <div className="pt-2">
-                            <TurnstileWidget
+                            <ReCaptchaWidget
                               onVerify={(t) => setCaptchaToken(t)}
                               onError={() => setCaptchaToken('')}
                               className="my-2"
@@ -1466,19 +1466,13 @@ export default function ValuationPage() {
                       </div>
                       {/* Turnstile (anti-bot) */}
                       <div className="pb-3">
-                        <TurnstileWidget
+                        <ReCaptchaWidget
                           onVerify={(t) => setCaptchaToken(t)}
                           onError={() => setCaptchaToken('')}
                           className="my-2"
                           size="compact"
                         />
                       </div>
-                      <TurnstileWidget
-                        onVerify={(t) => setCaptchaToken(t)}
-                        onError={() => setCaptchaToken('')}
-                        className="my-2"
-                        size="compact"
-                      />
                       <div className="flex space-x-4">
                         <button
                           type="button"

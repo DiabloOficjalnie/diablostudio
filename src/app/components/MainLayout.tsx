@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
 import NewsletterModal from './NewsletterModal'
-import TurnstileWidget from './TurnstileWidget'
+import ReCaptchaWidget from './ReCaptchaWidget'
 
 interface MainLayoutProps {
   children: React.ReactNode
@@ -297,7 +297,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                       email: newsletterEmail,
                       first_name: newsletterFirstName,
                       source: 'footer',
-                      turnstileToken: newsletterCaptchaToken || undefined,
+                      recaptchaToken: newsletterCaptchaToken || undefined,
                       utm_source,
                       utm_medium,
                       utm_campaign,
@@ -330,7 +330,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 className="w-full sm:w-auto flex-1 px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-400 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 aria-label="Adres e-mail do newslettera"
               />
-              <TurnstileWidget
+              <ReCaptchaWidget
                 onVerify={(t) => setNewsletterCaptchaToken(t)}
                 onError={() => setNewsletterCaptchaToken('')}
                 className="my-2"

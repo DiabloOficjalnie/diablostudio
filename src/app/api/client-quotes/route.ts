@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase'
-import { verifyTurnstile, extractClientIp } from '@/lib/turnstile'
+import { verifyReCaptcha, extractClientIp } from '@/lib/recaptcha'
 
 export async function POST(request: NextRequest) {
   try {
@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       quoteData,
       contactPreferences,
       consents,
-      turnstileToken,
+      recaptchaToken,
     } = body
 
     console.log('Received client quote data:', {
@@ -34,10 +34,10 @@ export async function POST(request: NextRequest) {
       consents
     })
 
-    // Verify Cloudflare Turnstile (optional for authenticated dashboard flows)
-    if (turnstileToken) {
+    // Verify Google reCAPTCHA (optional for authenticated dashboard flows)
+    if (recaptchaToken) {
       const ip = extractClientIp(request.headers)
-      const captcha = await verifyTurnstile(turnstileToken, ip)
+      const captcha = await verifyReCaptcha(recaptchaToken, ip)
       if (!captcha.success) {
         return NextResponse.json(
           { error: 'Weryfikacja antybot nie powiodła się', details: captcha['error-codes'] || [] },

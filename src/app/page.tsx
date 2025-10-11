@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import MainLayout from './components/MainLayout'
 import ReviewForm from './components/ReviewForm'
-import TurnstileWidget from './components/TurnstileWidget'
+import ReCaptchaWidget from './components/ReCaptchaWidget'
 
 interface Review {
   id: string
@@ -745,7 +745,7 @@ export default function HomePage() {
                       email: newsletterEmailTop,
                       first_name: newsletterFirstNameTop,
                       source: 'homepage_top',
-                      turnstileToken: newsletterCaptchaTop || undefined,
+                      recaptchaToken: newsletterCaptchaTop || undefined,
                       utm_source,
                       utm_medium,
                       utm_campaign,
@@ -782,7 +782,7 @@ export default function HomePage() {
                 className="w-full sm:w-auto flex-1 px-4 py-3 rounded-lg bg-white text-gray-900 placeholder-gray-500 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white"
                 aria-label="Adres e-mail do newslettera"
               />
-              <TurnstileWidget
+              <ReCaptchaWidget
                 onVerify={(t) => setNewsletterCaptchaTop(t)}
                 onError={() => setNewsletterCaptchaTop('')}
                 className="my-2"
@@ -1923,7 +1923,7 @@ export default function HomePage() {
                       email: newsletterEmailBlog,
                       first_name: newsletterFirstNameBlog,
                       source: 'homepage_blog',
-                      turnstileToken: newsletterCaptchaBlog || undefined,
+                      recaptchaToken: newsletterCaptchaBlog || undefined,
                       utm_source,
                       utm_medium,
                       utm_campaign,
@@ -1960,7 +1960,7 @@ export default function HomePage() {
                 className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:ring-2 focus:ring-white"
                 aria-label="Adres e-mail do newslettera"
               />
-              <TurnstileWidget
+              <ReCaptchaWidget
                 onVerify={(t) => setNewsletterCaptchaBlog(t)}
                 onError={() => setNewsletterCaptchaBlog('')}
                 className="my-2"

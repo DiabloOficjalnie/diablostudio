@@ -20,6 +20,10 @@ interface EnvironmentVariables {
   NEXT_PUBLIC_TURNSTILE_SITE_KEY?: string
   TURNSTILE_SECRET_KEY?: string
 
+  // Google reCAPTCHA
+  NEXT_PUBLIC_RECAPTCHA_SITE_KEY?: string
+  RECAPTCHA_SECRET_KEY?: string
+
   // Optional: Add other environment variables as needed
   // NEXT_PUBLIC_SUPABASE_ANON_KEY?: string
   // DATABASE_URL?: string
@@ -42,6 +46,10 @@ function validateEnvironmentVariables(): EnvironmentVariables {
     TURNSTILE_SITE_KEY: process.env.TURNSTILE_SITE_KEY,
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY,
     TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
+
+    // Google reCAPTCHA (defaults provided by client request if env not set)
+    NEXT_PUBLIC_RECAPTCHA_SITE_KEY: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '6LdtneYrAAAAALSd7B-3_tKv1nzZ3Olmg4qk4zmr',
+    RECAPTCHA_SECRET_KEY: process.env.RECAPTCHA_SECRET_KEY || '6LdtneYrAAAAAMMmrG4WEopRN2-PDiPWX6y69_mC',
   }
 
   // Check for missing required variables (using placeholder values)
@@ -87,4 +95,6 @@ export const {
   TURNSTILE_SITE_KEY,
   NEXT_PUBLIC_TURNSTILE_SITE_KEY,
   TURNSTILE_SECRET_KEY,
+  NEXT_PUBLIC_RECAPTCHA_SITE_KEY,
+  RECAPTCHA_SECRET_KEY,
 } = env

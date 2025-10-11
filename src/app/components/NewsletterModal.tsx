@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import TurnstileWidget from './TurnstileWidget'
+import ReCaptchaWidget from './ReCaptchaWidget'
 
 type Status =
   | { type: 'idle' }
@@ -125,7 +125,7 @@ export default function NewsletterModal({
           email,
           first_name: firstName,
           source: 'popup',
-          turnstileToken: captchaToken || undefined,
+          recaptchaToken: captchaToken || undefined,
           ...utm,
         }),
       })
@@ -196,7 +196,7 @@ export default function NewsletterModal({
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-600 bg-white text-gray-900"
               />
             </div>
-            <TurnstileWidget
+            <ReCaptchaWidget
               onVerify={(t) => setCaptchaToken(t)}
               onError={() => setCaptchaToken('')}
               className="my-2"
