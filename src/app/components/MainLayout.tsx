@@ -247,7 +247,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white mt-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             {/* Company Info */}
             <div className="md:col-span-5">
@@ -260,18 +260,23 @@ export default function MainLayout({ children }: MainLayoutProps) {
             {/* Quick Links */}
             <div className="md:col-span-4">
               <h4 className="text-lg font-semibold mb-4">Nawigacja</h4>
-              <ul className="space-y-2">
-                <li><Link href="/" className="text-gray-300 hover:text-white transition-colors">Strona główna</Link></li>
-                <li><a href="/valuation" className="text-gray-300 hover:text-white transition-colors">Darmowa wycena</a></li>
-                <li><a href="/colors" className="text-gray-300 hover:text-white transition-colors">Paleta kolorów</a></li>
-                <li><a href="/realizations" className="text-gray-300 hover:text-white transition-colors">Realizacje</a></li>
-                <li><a href="/edukacja" className="text-gray-300 hover:text-white transition-colors">Edukacja</a></li>
-                <li><a href="/reviews" className="text-gray-300 hover:text-white transition-colors">Opinie</a></li>
-                <li><a href="/contact" className="text-gray-300 hover:text-white transition-colors">Kontakt</a></li>
-                <li><a href="/privacy" className="text-gray-300 hover:text-white transition-colors">Polityka prywatności</a></li>
-                <li><a href="/cookies" className="text-gray-300 hover:text-white transition-colors">Polityka cookies</a></li>
-                <li><a href="/terms" className="text-gray-300 hover:text-white transition-colors">Regulamin</a></li>
-              </ul>
+              <div className="grid grid-cols-2 gap-6">
+                <ul className="space-y-2">
+                  <li><Link href="/" className="text-gray-300 hover:text-white transition-colors">Strona główna</Link></li>
+                  <li><a href="/valuation" className="text-gray-300 hover:text-white transition-colors">Darmowa wycena</a></li>
+                  <li><a href="/colors" className="text-gray-300 hover:text-white transition-colors">Paleta kolorów</a></li>
+                  <li><a href="/realizations" className="text-gray-300 hover:text-white transition-colors">Realizacje</a></li>
+                  <li><a href="/edukacja" className="text-gray-300 hover:text-white transition-colors">Edukacja</a></li>
+                </ul>
+                <ul className="space-y-2">
+                  <li><a href="/blog" className="text-gray-300 hover:text-white transition-colors">Blog</a></li>
+                  <li><a href="/reviews" className="text-gray-300 hover:text-white transition-colors">Opinie</a></li>
+                  <li><a href="/contact" className="text-gray-300 hover:text-white transition-colors">Kontakt</a></li>
+                  <li><a href="/privacy" className="text-gray-300 hover:text-white transition-colors">Polityka prywatności</a></li>
+                  <li><a href="/cookies" className="text-gray-300 hover:text-white transition-colors">Polityka cookies</a></li>
+                  <li><a href="/terms" className="text-gray-300 hover:text-white transition-colors">Regulamin</a></li>
+                </ul>
+              </div>
             </div>
 
             {/* Contact Info */}
@@ -286,7 +291,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
           </div>
 
           {/* Newsletter */}
-          <div className="mt-6 max-w-4xl mx-auto">
+          <div className="mt-6 max-w-3xl mx-auto">
             <h4 className="text-lg font-semibold mb-4">Newsletter</h4>
             <form
               onSubmit={async (e) => {
