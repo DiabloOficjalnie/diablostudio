@@ -4,7 +4,7 @@ import { createAdminClient } from '@/lib/supabase-server';
 
 // DELETE /api/client/quotes/:id
 // Bezpieczne usuwanie wyceny należącej do zalogowanego klienta
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: any) {
   try {
     const { userId } = await auth();
     if (!userId) {
