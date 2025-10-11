@@ -215,6 +215,7 @@ function ClientDashboardContent() {
   // Edukacja: kategorie zgodne stylistycznie ze stroną główną
   const [activeCategory, setActiveCategory] = useState<'all' | 'journey' | 'preparation' | 'installation' | 'aftercare' | 'safety' | 'tools'>('all')
   const [educationSearch, setEducationSearch] = useState('')
+  const [activeSection, setActiveSection] = useState<'overview' | 'education'>('overview')
 
   const CATEGORY_LABELS: Record<string, string> = {
     journey: 'Proces współpracy',
@@ -1113,8 +1114,22 @@ function ClientDashboardContent() {
 
   // Edukacja – uproszczony, estetyczny i responsywny UI w panelu klienta
   return (
-    <div className="p-6 sm:p-8 max-w-7xl mx-auto">
-      <div className="flex justify-end mb-4">
+    <div className="min-h-screen bg-gray-50 p-6 sm:p-8 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex gap-2">
+          <button
+            onClick={() => setActiveSection('overview')}
+            className={`px-3 py-2 rounded-lg text-sm font-semibold border ${activeSection === 'overview' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-blue-700 border-blue-200 hover:bg-blue-50'}`}
+          >
+            Przegląd
+          </button>
+          <button
+            onClick={() => setActiveSection('education')}
+            className={`px-3 py-2 rounded-lg text-sm font-semibold border ${activeSection === 'education' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-blue-700 border-blue-200 hover:bg-blue-50'}`}
+          >
+            Edukacja
+          </button>
+        </div>
         <button
           onClick={() => { setShowNotificationCenter(true); loadEventsFromAPI(); }}
           className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-sm font-semibold border border-gray-200"
@@ -1123,8 +1138,9 @@ function ClientDashboardContent() {
         </button>
       </div>
       {/* Hero */}
+      {activeSection === 'education' && (
       <section id="education" className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white">
-        <div className="absolute inset-0 bg-black/20" />
+        <div className="absolute inset-0 bg-black/10" />
         <div className="relative z-10 p-6 sm:p-10">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
@@ -1192,7 +1208,7 @@ function ClientDashboardContent() {
       </section>
 
       {/* Statystyki klienta */}
-      {statistics && trends && (
+      {activeSection === 'overview' && statistics && trends && (
         <section className="mb-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
@@ -1286,7 +1302,7 @@ function ClientDashboardContent() {
           </div>
         )}
       </section>
-
+      )}
       {/* Dane konta klienta */}
       <section className="mb-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

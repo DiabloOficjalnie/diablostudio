@@ -4,7 +4,6 @@ import { useEffect, useState, Suspense } from 'react'
 import { SignedIn, SignedOut, useUser, useClerk } from '@clerk/nextjs'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { SignIn, SignUp } from '@clerk/nextjs'
-import { createClientComponentClient } from '@/lib/supabase'
 
 export default function LoginPage() {
   return (
@@ -17,7 +16,6 @@ export default function LoginPage() {
 function LoginPageInner() {
   const { user, isLoaded } = useUser()
   const router = useRouter()
-  const supabase = createClientComponentClient()
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin')
   const [showFullBenefits, setShowFullBenefits] = useState(false)
   const { signOut } = useClerk()
