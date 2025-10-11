@@ -77,6 +77,15 @@ export default function HomePage() {
   const [newsletterStatusBlog, setNewsletterStatusBlog] = useState<string | null>(null)
   const [newsletterCaptchaBlog, setNewsletterCaptchaBlog] = useState('')
 
+  // Contact form state
+  const [contactName, setContactName] = useState('')
+  const [contactEmail, setContactEmail] = useState('')
+  const [contactPhone, setContactPhone] = useState('')
+  const [contactProjectType, setContactProjectType] = useState('Garaż')
+  const [contactMessage, setContactMessage] = useState('')
+  const [contactStatus, setContactStatus] = useState<string | null>(null)
+  const [contactCaptcha, setContactCaptcha] = useState('')
+
   const handleReviewSubmit = async (reviewData: any) => {
     try {
       const res = await fetch('/api/reviews/public', {
@@ -2682,7 +2691,42 @@ export default function HomePage() {
             <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
               Wyślij wiadomość
             </h3>
-            <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <form
+              onSubmit={async (e) => {
+                e.preventDefault()
+                setContactStatus('Wysyłanie...')
+                try {
+                  const res = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      name: contactName,
+                      email: contactEmail,
+                      phone: contactPhone || undefined,
+                      project_type: contactProjectType,
+                      message: contactMessage,
+                      recaptchaToken: contactCaptcha || undefined,
+                    }),
+                  })
+                  const data = await res.json().catch(() => ({}))
+                  if (!res.ok || data.error) {
+                    setContactStatus(data.error || 'Wystąpił błąd. Spróbuj ponownie.')
+                  } else {
+                    setContactStatus(data.message || 'Dziękujemy! Skontaktujemy się w ciągu 24 godzin.')
+                    // Reset form
+                    setContactName('')
+                    setContactEmail('')
+                    setContactPhone('')
+                    setContactProjectType('Garaż')
+                    setContactMessage('')
+                    setContactCaptcha('')
+                  }
+                } catch {
+                  setContactStatus('Wystąpił błąd. Spróbuj ponownie.')
+                }
+              }}
+              className="grid grid-cols-1 md:grid-cols-2 gap-6"
+            >
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Imię i nazwisko *
@@ -2691,6 +2735,8 @@ export default function HomePage() {
                   type="text"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Jan Kowalski"
+                  value={contactName}
+                  onChange={(e) => setContactName(e.target.value)}
                   required
                 />
               </div>
@@ -2702,6 +2748,8 @@ export default function HomePage() {
                   type="email"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="jan@example.com"
+                  value={contactEmail}
+                  onChange={(e) => setContactEmail(e.target.value)}
                   required
                 />
               </div>
@@ -2713,13 +2761,19 @@ export default function HomePage() {
                   type="tel"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="+48 123 456 789"
+                  value={contactPhone}
+                  onChange={(e) => setContactPhone(e.target.value)}
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Typ projektu
                 </label>
-                <select className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 bg-white text-gray-900">
+                <select
+                  className="w-full px-4 py-3 border-2 border-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 bg-white text-gray-900"
+                  value={contactProjectType}
+                  onChange={(e) => setContactProjectType(e.target.value)}
+                >
                   <option>Garaż</option>
                   <option>Taras/balkon</option>
                   <option>Salon/sypialnia</option>
@@ -2736,9 +2790,22 @@ export default function HomePage() {
                   rows={4}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Opisz swój projekt, wymiary, oczekiwania..."
+                  value={contactMessage}
+                  onChange={(e) => setContactMessage(e.target.value)}
                   required
                 />
               </div>
+
+              {/* reCAPTCHA */}
+              <div className="md:col-span-2">
+                <ReCaptchaWidget
+                  onVerify={(t) => setContactCaptcha(t)}
+                  onError={() => setContactCaptcha('')}
+                  className="my-2"
+                  size="compact"
+                />
+              </div>
+
               {/* Consents */}
               <div className="md:col-span-2 space-y-3">
                 <label className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
@@ -2761,10 +2828,19 @@ export default function HomePage() {
                   </span>
                 </label>
               </div>
+
+              {/* Status Message */}
+              {contactStatus && (
+                <div className="md:col-span-2 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <p className="text-sm text-blue-800">{contactStatus}</p>
+                </div>
+              )}
+
               <div className="md:col-span-2">
                 <button
                   type="submit"
-                  className="w-full px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg"
+                  disabled={!contactCaptcha}
+                  className="w-full px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   Wyślij wiadomość
                   <span className="ml-2">📤</span>

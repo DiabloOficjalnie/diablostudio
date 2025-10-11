@@ -1,4 +1,5 @@
-import { RECAPTCHA_SECRET_KEY } from '@/lib/env'
+import { RECAPTCHA_SECRET_KEY, NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_ENABLED } from '@/lib/env'
+import { verifyReCaptchaEnterprise, isEnterpriseConfigured } from '@/lib/recaptcha-enterprise'
 
 export type RecaptchaVerifyResult = {
   success: boolean
@@ -49,6 +50,29 @@ export async function verifyReCaptcha(token: string | undefined | null, ip?: str
   } catch (e) {
     return { success: false, 'error-codes': ['network-error'] }
   }
+}
+
+/**
+ * Unified verification that prefers reCAPTCHA Enterprise when configured and enabled.
+ * Optionally checks action when Enterprise is used.
+ */
+export async function verifyCaptcha(
+  token: string | undefined | null,
+  ip?: string | null,
+  action?: string
+): Promise<RecaptchaVerifyResult> {
+  try {
+    if (isEnterpriseConfigured() && (NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_ENABLED || '').toLowerCase() === 'true') {
+      const res = await verifyReCaptchaEnterprise(token, action)
+      if (!res.success) {
+        return { success: false, 'error-codes': [res.error || 'enterprise-failed'], action: res.action, score: res.score }
+      }
+      return { success: true, action: res.action, score: res.score }
+    }
+  } catch {
+    // fall through to standard verification
+  }
+  return verifyReCaptcha(token, ip)
 }
 
 /**

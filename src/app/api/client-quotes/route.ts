@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase'
-import { verifyReCaptcha, extractClientIp } from '@/lib/recaptcha'
+import { verifyCaptcha, extractClientIp } from '@/lib/recaptcha'
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     // Verify Google reCAPTCHA (optional for authenticated dashboard flows)
     if (recaptchaToken) {
       const ip = extractClientIp(request.headers)
-      const captcha = await verifyReCaptcha(recaptchaToken, ip)
+      const captcha = await verifyCaptcha(recaptchaToken, ip, 'client_quotes')
       if (!captcha.success) {
         return NextResponse.json(
           { error: 'Weryfikacja antybot nie powiodła się', details: captcha['error-codes'] || [] },

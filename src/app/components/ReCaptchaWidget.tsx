@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useId, useRef } from 'react'
-import { NEXT_PUBLIC_RECAPTCHA_SITE_KEY } from '@/lib/env'
+import { NEXT_PUBLIC_RECAPTCHA_SITE_KEY, NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_ENABLED } from '@/lib/env'
 
 declare global {
   interface Window {
@@ -20,6 +20,22 @@ declare global {
       reset: (opt_widget_id?: number) => void
       getResponse: (opt_widget_id?: number) => string
       ready?: (cb: () => void) => void
+      enterprise?: {
+        render: (
+          container: HTMLElement | string,
+          parameters: {
+            sitekey: string
+            theme?: 'light' | 'dark'
+            size?: 'normal' | 'compact'
+            callback?: (token: string) => void
+            'error-callback'?: () => void
+            'expired-callback'?: () => void
+          }
+        ) => number
+        reset: (opt_widget_id?: number) => void
+        getResponse: (opt_widget_id?: number) => string
+        ready?: (cb: () => void) => void
+      }
     }
   }
 }
@@ -45,6 +61,7 @@ export default function ReCaptchaWidget({
   const containerRef = useRef<HTMLDivElement | null>(null)
   const widgetIdRef = useRef<number | null>(null)
   const resolvedSiteKey = siteKey || NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''
+  const enterpriseEnabled = (NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_ENABLED || '').toLowerCase() === 'true'
 
   useEffect(() => {
     if (!resolvedSiteKey) {
@@ -53,7 +70,9 @@ export default function ReCaptchaWidget({
     }
 
     // Inject script once
-    const SCRIPT_SRC = 'https://www.google.com/recaptcha/api.js'
+    const SCRIPT_SRC = enterpriseEnabled
+      ? 'https://www.google.com/recaptcha/enterprise.js'
+      : 'https://www.google.com/recaptcha/api.js'
     const present = Array.from(document.scripts).some((s) => s.src?.startsWith(SCRIPT_SRC))
     if (!present) {
       const script = document.createElement('script')
@@ -76,7 +95,13 @@ export default function ReCaptchaWidget({
           if (!containerRef.current) return
           // If already rendered, skip
           if (typeof widgetIdRef.current === 'number') return
-          widgetIdRef.current = window.grecaptcha!.render(containerRef.current, {
+
+          const renderFn =
+            enterpriseEnabled && window.grecaptcha?.enterprise
+              ? window.grecaptcha.enterprise.render
+              : window.grecaptcha!.render
+
+          widgetIdRef.current = renderFn(containerRef.current, {
             sitekey: resolvedSiteKey,
             theme,
             size,

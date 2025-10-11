@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase-server';
 import { BEEHIIV_API_KEY, BEEHIIV_PUBLICATION_ID } from '@/lib/env';
-import { verifyReCaptcha, extractClientIp } from '@/lib/recaptcha';
+import { verifyCaptcha, extractClientIp } from '@/lib/recaptcha';
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
 
     // Verify Cloudflare Turnstile (anti-bot)
     const ip = extractClientIp(req.headers)
-    const captcha = await verifyReCaptcha(recaptchaToken, ip)
+    const captcha = await verifyCaptcha(recaptchaToken, ip, 'newsletter')
     if (!captcha.success) {
       return NextResponse.json(
         { error: 'Weryfikacja antybot nie powiodła się', details: captcha['error-codes'] || [] },
