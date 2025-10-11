@@ -1661,7 +1661,64 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Featured Posts */}
+          {/* Dynamic Blog Posts */}
+          {blogLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+              <span className="ml-3 text-gray-600">Ładowanie artykułów...</span>
+            </div>
+          ) : blogPosts.length > 0 ? (
+            <div className="mb-16">
+              <h3 className="text-3xl font-bold text-center text-gray-900 mb-8">
+                Najnowsze artykuły
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {blogPosts.slice(0, 6).map((post) => (
+                  <div key={post.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                    <div className="h-32 bg-gradient-to-br from-blue-100 to-indigo-100 relative">
+                      {post.featured_image && (
+                        <img
+                          src={post.featured_image}
+                          alt={post.title}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      )}
+                      <div className="absolute bottom-3 right-3 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs">
+                        📖 {post.reading_time_minutes || 5} min
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <div className="flex items-center mb-2">
+                        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs mr-2">🔧</span>
+                        <span className="text-xs text-gray-600">{post.category || 'Artykuł'}</span>
+                      </div>
+                      <h4 className="font-bold text-gray-900 mb-2 hover:text-blue-600 transition-colors">
+                        <a href={`/blog/${post.slug}`}>{post.title}</a>
+                      </h4>
+                      <p className="text-gray-600 text-sm mb-3">
+                        {post.excerpt || post.content?.substring(0, 100) + '...'}
+                      </p>
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <span>{new Date(post.published_at || post.created_at).toLocaleDateString('pl-PL')}</span>
+                        <a href={`/blog/${post.slug}`} className="text-blue-600 hover:text-blue-800">
+                          Czytaj →
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white rounded-2xl border-2 border-dashed border-gray-300 p-12 text-center mb-16">
+              <div className="text-4xl mb-4">📝</div>
+              <p className="text-gray-600 mb-2">Brak artykułów do wyświetlenia</p>
+              <p className="text-gray-500 text-sm">Dodaj pierwszy wpis w panelu administratora</p>
+            </div>
+          )}
+
+          {/* Static Featured Posts for fallback */}
           <div className="mb-16">
             <h3 className="text-3xl font-bold text-center text-gray-900 mb-8">
               ⭐ Polecane artykuły

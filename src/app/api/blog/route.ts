@@ -18,15 +18,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('blog_posts')
-      .select(`
-        *,
-        blog_categories (
-          name,
-          slug,
-          color,
-          icon
-        )
-      `)
+      .select('*')
       .eq('status', 'published')
       .not('published_at', 'is', null)
       .order('published_at', { ascending: false })
