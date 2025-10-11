@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
 
     // Verify Cloudflare Turnstile (anti-bot)
     const ip = extractClientIp(req.headers)
-    const captcha = await verifyCaptcha(recaptchaToken, ip, 'newsletter')
+    const captcha = await verifyCaptcha(recaptchaToken, ip)
     if (!captcha.success) {
       return NextResponse.json(
         { error: 'Weryfikacja antybot nie powiodła się', details: captcha['error-codes'] || [] },

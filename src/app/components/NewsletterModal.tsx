@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { usePathname } from 'next/navigation'
-import ReCaptchaWidget from './ReCaptchaWidget'
+import { executeRecaptcha } from '@/lib/recaptcha-client'
 
 type Status =
   | { type: 'idle' }
@@ -52,7 +52,6 @@ export default function NewsletterModal({
   const [firstName, setFirstName] = useState('')
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<Status>({ type: 'idle' })
-  const [captchaToken, setCaptchaToken] = useState<string>('')
 
   const enabled = useMemo(() => {
     // Default: show on all public pages except /admin and /client areas
@@ -117,6 +116,7 @@ export default function NewsletterModal({
     if (!email) return
     setStatus({ type: 'loading' })
     try {
+      const token = await executeRecaptcha('newsletter_popup')
       const utm = getUTM()
       const res = await fetch('/api/newsletter', {
         method: 'POST',
@@ -125,7 +125,7 @@ export default function NewsletterModal({
           email,
           first_name: firstName,
           source: 'popup',
-          recaptchaToken: captchaToken || undefined,
+          recaptchaToken: token,
           ...utm,
         }),
       })
@@ -196,15 +196,9 @@ export default function NewsletterModal({
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-600 bg-white text-gray-900"
               />
             </div>
-            <ReCaptchaWidget
-              onVerify={(t) => setCaptchaToken(t)}
-              onError={() => setCaptchaToken('')}
-              className="my-2"
-              size="compact"
-            />
             <button
               type="submit"
-              disabled={status.type === 'loading' || !captchaToken}
+              disabled={status.type === 'loading' || !email}
               className="w-full py-3 rounded-lg font-bold text-white bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 transition-colors"
             >
               {status.type === 'loading' ? 'Zapisywanie...' : 'Zapisz mnie'}

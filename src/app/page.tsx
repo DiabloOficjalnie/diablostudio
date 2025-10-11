@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import MainLayout from './components/MainLayout'
 import ReviewForm from './components/ReviewForm'
-import ReCaptchaWidget from './components/ReCaptchaWidget'
+import { executeRecaptcha } from '@/lib/recaptcha-client'
 
 interface Review {
   id: string
@@ -70,12 +70,10 @@ export default function HomePage() {
   const [newsletterFirstNameTop, setNewsletterFirstNameTop] = useState('')
   const [newsletterEmailTop, setNewsletterEmailTop] = useState('')
   const [newsletterStatusTop, setNewsletterStatusTop] = useState<string | null>(null)
-  const [newsletterCaptchaTop, setNewsletterCaptchaTop] = useState('')
 
   const [newsletterFirstNameBlog, setNewsletterFirstNameBlog] = useState('')
   const [newsletterEmailBlog, setNewsletterEmailBlog] = useState('')
   const [newsletterStatusBlog, setNewsletterStatusBlog] = useState<string | null>(null)
-  const [newsletterCaptchaBlog, setNewsletterCaptchaBlog] = useState('')
 
   // Contact form state
   const [contactName, setContactName] = useState('')
@@ -84,7 +82,6 @@ export default function HomePage() {
   const [contactProjectType, setContactProjectType] = useState('Garaż')
   const [contactMessage, setContactMessage] = useState('')
   const [contactStatus, setContactStatus] = useState<string | null>(null)
-  const [contactCaptcha, setContactCaptcha] = useState('')
 
   const handleReviewSubmit = async (reviewData: any) => {
     try {
@@ -754,7 +751,7 @@ export default function HomePage() {
                       email: newsletterEmailTop,
                       first_name: newsletterFirstNameTop,
                       source: 'homepage_top',
-                      recaptchaToken: newsletterCaptchaTop || undefined,
+                      recaptchaToken: await executeRecaptcha('newsletter_top'),
                       utm_source,
                       utm_medium,
                       utm_campaign,
@@ -791,15 +788,9 @@ export default function HomePage() {
                 className="w-full sm:w-auto flex-1 px-4 py-3 rounded-lg bg-white text-gray-900 placeholder-gray-500 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white"
                 aria-label="Adres e-mail do newslettera"
               />
-              <ReCaptchaWidget
-                onVerify={(t) => setNewsletterCaptchaTop(t)}
-                onError={() => setNewsletterCaptchaTop('')}
-                className="my-2"
-                size="compact"
-              />
               <button
                 type="submit"
-                disabled={!newsletterCaptchaTop}
+                disabled={!newsletterEmailTop}
                 className="px-8 py-3 bg-white text-indigo-700 font-semibold rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 Zapisz się
@@ -1932,7 +1923,7 @@ export default function HomePage() {
                       email: newsletterEmailBlog,
                       first_name: newsletterFirstNameBlog,
                       source: 'homepage_blog',
-                      recaptchaToken: newsletterCaptchaBlog || undefined,
+                      recaptchaToken: await executeRecaptcha('newsletter_blog'),
                       utm_source,
                       utm_medium,
                       utm_campaign,
@@ -1969,15 +1960,9 @@ export default function HomePage() {
                 className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:ring-2 focus:ring-white"
                 aria-label="Adres e-mail do newslettera"
               />
-              <ReCaptchaWidget
-                onVerify={(t) => setNewsletterCaptchaBlog(t)}
-                onError={() => setNewsletterCaptchaBlog('')}
-                className="my-2"
-                size="compact"
-              />
               <button
                 type="submit"
-                disabled={!newsletterCaptchaBlog}
+                disabled={!newsletterEmailBlog}
                 className="px-8 py-3 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 Zapisz się
@@ -2705,7 +2690,7 @@ export default function HomePage() {
                       phone: contactPhone || undefined,
                       project_type: contactProjectType,
                       message: contactMessage,
-                      recaptchaToken: contactCaptcha || undefined,
+                      recaptchaToken: await executeRecaptcha('contact'),
                     }),
                   })
                   const data = await res.json().catch(() => ({}))
@@ -2719,7 +2704,6 @@ export default function HomePage() {
                     setContactPhone('')
                     setContactProjectType('Garaż')
                     setContactMessage('')
-                    setContactCaptcha('')
                   }
                 } catch {
                   setContactStatus('Wystąpił błąd. Spróbuj ponownie.')
@@ -2798,12 +2782,6 @@ export default function HomePage() {
 
               {/* reCAPTCHA */}
               <div className="md:col-span-2">
-                <ReCaptchaWidget
-                  onVerify={(t) => setContactCaptcha(t)}
-                  onError={() => setContactCaptcha('')}
-                  className="my-2"
-                  size="compact"
-                />
               </div>
 
               {/* Consents */}
@@ -2839,7 +2817,7 @@ export default function HomePage() {
               <div className="md:col-span-2">
                 <button
                   type="submit"
-                  disabled={!contactCaptcha}
+                  disabled={!(contactName && contactEmail && contactMessage)}
                   className="w-full px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105 shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   Wyślij wiadomość

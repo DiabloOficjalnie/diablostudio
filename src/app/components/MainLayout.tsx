@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useUser } from '@clerk/nextjs'
 import NewsletterModal from './NewsletterModal'
-import ReCaptchaWidget from './ReCaptchaWidget'
+import { executeRecaptcha } from '@/lib/recaptcha-client'
 
 interface MainLayoutProps {
   children: React.ReactNode
@@ -19,7 +19,6 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const [newsletterFirstName, setNewsletterFirstName] = useState('')
   const [newsletterEmail, setNewsletterEmail] = useState('')
   const [newsletterStatus, setNewsletterStatus] = useState<string | null>(null)
-  const [newsletterCaptchaToken, setNewsletterCaptchaToken] = useState('')
   const pathname = usePathname()
   const { user, isLoaded } = useUser()
 
@@ -290,6 +289,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                   const utm_medium = params.get('utm_medium') || undefined
                   const utm_campaign = params.get('utm_campaign') || undefined
 
+                  const token = await executeRecaptcha('newsletter_footer')
                   const res = await fetch('/api/newsletter', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -297,7 +297,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
                       email: newsletterEmail,
                       first_name: newsletterFirstName,
                       source: 'footer',
-                      recaptchaToken: newsletterCaptchaToken || undefined,
+                      recaptchaToken: token,
                       utm_source,
                       utm_medium,
                       utm_campaign,
@@ -330,15 +330,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 className="w-full sm:w-auto flex-1 px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-400 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 aria-label="Adres e-mail do newslettera"
               />
-              <ReCaptchaWidget
-                onVerify={(t) => setNewsletterCaptchaToken(t)}
-                onError={() => setNewsletterCaptchaToken('')}
-                className="my-2"
-                size="compact"
-              />
               <button
                 type="submit"
-                disabled={!newsletterCaptchaToken}
+                disabled={!newsletterEmail}
                 className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
               >
                 Zapisz się

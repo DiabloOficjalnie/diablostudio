@@ -61,6 +61,7 @@ export async function verifyCaptcha(
   ip?: string | null,
   action?: string
 ): Promise<RecaptchaVerifyResult> {
+  // Prefer Enterprise if configured and enabled
   try {
     if (isEnterpriseConfigured() && (NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_ENABLED || '').toLowerCase() === 'true') {
       const res = await verifyReCaptchaEnterprise(token, action)
@@ -70,9 +71,28 @@ export async function verifyCaptcha(
       return { success: true, action: res.action, score: res.score }
     }
   } catch {
-    // fall through to standard verification
+    // fall back to standard verification
   }
-  return verifyReCaptcha(token, ip)
+
+  // Standard reCAPTCHA v2/v3 verification
+  const data = await verifyReCaptcha(token, ip)
+
+  // If Google says it's not successful, return as-is
+  if (!data.success) return data
+
+  // If this is v3, Google returns action and score; optionally enforce them
+  // Accept tokens with score >= 0.3 (common recommended threshold), and optional action match when provided
+  const MIN_V3_SCORE = 0.3
+
+  if (action && data.action && data.action !== action) {
+    return { success: false, 'error-codes': ['action-mismatch'], action: data.action, score: data.score }
+  }
+
+  if (typeof data.score === 'number' && data.score < MIN_V3_SCORE) {
+    return { success: false, 'error-codes': ['low-score'], action: data.action, score: data.score }
+  }
+
+  return data
 }
 
 /**

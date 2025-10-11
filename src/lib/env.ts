@@ -53,8 +53,8 @@ function validateEnvironmentVariables(): EnvironmentVariables {
     TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
 
     // Google reCAPTCHA (defaults provided by client request if env not set)
-    NEXT_PUBLIC_RECAPTCHA_SITE_KEY: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '6LdtneYrAAAAALSd7B-3_tKv1nzZ3Olmg4qk4zmr',
-    RECAPTCHA_SECRET_KEY: process.env.RECAPTCHA_SECRET_KEY || '6LdtneYrAAAAAMMmrG4WEopRN2-PDiPWX6y69_mC',
+    NEXT_PUBLIC_RECAPTCHA_SITE_KEY: process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '6LehquYrAAAAAPYGn-pEe0aFUnsY3HDFvi0CcWyP',
+    RECAPTCHA_SECRET_KEY: process.env.RECAPTCHA_SECRET_KEY || '6LehquYrAAAAAAXczfYUC-jM1i5c8Eas0o9V86YT',
 
     // Google reCAPTCHA Enterprise (optional)
     NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_ENABLED: process.env.NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_ENABLED || 'false',
