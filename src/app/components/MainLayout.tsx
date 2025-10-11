@@ -11,6 +11,8 @@ interface MainLayoutProps {
   children: React.ReactNode
 }
 
+type FooterNewsletterStatus = { type: 'success' | 'error'; message: string }
+
 export default function MainLayout({ children }: MainLayoutProps) {
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [showScrollTop, setShowScrollTop] = useState(false)
@@ -18,7 +20,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [newsletterFirstName, setNewsletterFirstName] = useState('')
   const [newsletterEmail, setNewsletterEmail] = useState('')
-  const [newsletterStatus, setNewsletterStatus] = useState<string | null>(null)
+  const [newsletterStatus, setNewsletterStatus] = useState<FooterNewsletterStatus | null>(null)
   const pathname = usePathname()
   const { user, isLoaded } = useUser()
 
@@ -304,11 +306,15 @@ export default function MainLayout({ children }: MainLayoutProps) {
                     })
                   })
                   const data = await res.json()
-                  setNewsletterStatus(data.message || 'Dziękujemy za zapis!')
-                  setNewsletterFirstName('')
-                  setNewsletterEmail('')
+                  if (!res.ok || data.error) {
+                    setNewsletterStatus({ type: 'error', message: data.error || 'Nie udało się zapisać. Spróbuj ponownie.' })
+                  } else {
+                    setNewsletterStatus({ type: 'success', message: data.message || 'Dziękujemy za zapis!' })
+                    setNewsletterFirstName('')
+                    setNewsletterEmail('')
+                  }
                 } catch {
-                  setNewsletterStatus('Wystąpił błąd. Spróbuj ponownie.')
+                  setNewsletterStatus({ type: 'error', message: 'Wystąpił błąd. Spróbuj ponownie.' })
                 }
               }}
               className="flex flex-col sm:flex-row items-center gap-3"
@@ -338,7 +344,28 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 Zapisz się
               </button>
             </form>
-            {newsletterStatus && <p className="mt-2 text-sm text-gray-400">{newsletterStatus}</p>}
+            {newsletterStatus && (
+              newsletterStatus.type === 'success' ? (
+                <div className="mt-4 p-4 rounded-xl bg-green-50 border border-green-200 text-green-900">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-2xl">✓</div>
+                    <div>
+                      <h5 className="font-bold text-lg">Dziękujemy za zapis!</h5>
+                      <p className="mt-1">{newsletterStatus.message}</p>
+                      <ul className="mt-3 list-disc list-inside text-green-800">
+                        <li>praktyczne porady i inspiracje dotyczące posadzek</li>
+                        <li>realizacje i case studies krok po kroku</li>
+                        <li>okazjonalne promocje i oferty specjalne (1–2 wiadomości/miesiąc)</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-4 p-4 rounded-xl bg-red-50 border border-red-200 text-red-900">
+                  {newsletterStatus.message}
+                </div>
+              )
+            )}
           </div>
 
           {/* Bottom bar */}

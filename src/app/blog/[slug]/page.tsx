@@ -150,6 +150,18 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   const categoryInfo = getCategoryInfo(post.category)
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": post.meta_title || post.title,
+    "description": post.meta_description || post.excerpt || undefined,
+    "image": post.og_image ? [post.og_image] : undefined,
+    "author": { "@type": "Organization", "name": "DecoSol" },
+    "datePublished": post.published_at || post.created_at,
+    "dateModified": post.updated_at,
+    "mainEntityOfPage": { "@type": "WebPage", "@id": `https://decosol.pl/blog/${post.slug}` }
+  }
+
   return (
     <MainLayout>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -226,9 +238,14 @@ export default async function BlogPostPage({ params }: PageProps) {
         )}
 
         {/* Article Content */}
-        <article className="prose prose-lg prose-blue max-w-none">
+        <article className="rich-content">
           <div dangerouslySetInnerHTML={{ __html: post.content }} />
         </article>
+        {/* SEO: JSON-LD Article */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
 
         {/* Tags */}
         {post.tags && post.tags.length > 0 && (

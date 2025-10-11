@@ -138,8 +138,8 @@ export default function NewsletterModal({
       try {
         localStorage.setItem(SUBSCRIBED_KEY, 'true')
       } catch {}
-      // auto-close after a short delay
-      setTimeout(() => setOpen(false), 2000)
+      // Pomyślnie zapisano — pozostawiamy widoczny ekran potwierdzenia.
+      // Użytkownik może zamknąć okno ręcznie przyciskiem poniżej.
     } catch {
       setStatus({ type: 'error', message: 'Wystąpił błąd sieci. Spróbuj ponownie.' })
     }
@@ -170,68 +170,83 @@ export default function NewsletterModal({
         </div>
 
         <div className="p-6">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Imię
-              </label>
-              <input
-                type="text"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                placeholder="np. Jan"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-600 bg-white text-gray-900 mb-3"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Adres e-mail
-              </label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="np. jan.kowalski@example.com"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-600 bg-white text-gray-900"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={status.type === 'loading' || !email}
-              className="w-full py-3 rounded-lg font-bold text-white bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 transition-colors"
-            >
-              {status.type === 'loading' ? 'Zapisywanie...' : 'Zapisz mnie'}
-            </button>
-
-            {status.type === 'success' && (
-              <div className="p-3 rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm">
-                {status.message}
-              </div>
-            )}
-            {status.type === 'error' && (
-              <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm">
-                {status.message}
-              </div>
-            )}
-
-            <div className="flex items-center justify-between text-xs text-gray-500 pt-2">
-              <button
-                type="button"
-                onClick={() => handleClose('snooze')}
-                className="underline hover:text-gray-700"
-              >
-                Przypomnij za {snoozeDays} dni
-              </button>
+          {status.type === 'success' ? (
+            <div className="text-center space-y-4">
+              <div className="mx-auto w-16 h-16 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-3xl">✓</div>
+              <h4 className="text-xl font-bold text-gray-900">Dziękujemy za zapis!</h4>
+              <p className="text-gray-600">Będziesz otrzymywać od nas:</p>
+              <ul className="text-left text-gray-700 space-y-1 max-w-sm mx-auto">
+                <li>• praktyczne porady i inspiracje dotyczące posadzek</li>
+                <li>• realizacje i case studies krok po kroku</li>
+                <li>• okazjonalne promocje i oferty specjalne (1–2 wiadomości/miesiąc)</li>
+              </ul>
               <button
                 type="button"
                 onClick={() => handleClose('forever')}
-                className="underline hover:text-gray-700"
+                className="w-full py-3 rounded-lg font-bold text-white bg-green-600 hover:bg-green-700 transition-colors"
               >
-                Nie pokazuj ponownie
+                Super, czekam na wiadomości
               </button>
             </div>
-          </form>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Imię
+                </label>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="np. Jan"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-600 bg-white text-gray-900 mb-3"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Adres e-mail
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="np. jan.kowalski@example.com"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-600 bg-white text-gray-900"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={status.type === 'loading' || !email}
+                className="w-full py-3 rounded-lg font-bold text-white bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 transition-colors"
+              >
+                {status.type === 'loading' ? 'Zapisywanie...' : 'Zapisz mnie'}
+              </button>
+
+              {status.type === 'error' && (
+                <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm">
+                  {status.message}
+                </div>
+              )}
+
+              <div className="flex items-center justify-between text-xs text-gray-500 pt-2">
+                <button
+                  type="button"
+                  onClick={() => handleClose('snooze')}
+                  className="underline hover:text-gray-700"
+                >
+                  Przypomnij za {snoozeDays} dni
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleClose('forever')}
+                  className="underline hover:text-gray-700"
+                >
+                  Nie pokazuj ponownie
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       </div>
     </div>
