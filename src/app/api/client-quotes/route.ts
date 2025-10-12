@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase'
 import { verifyCaptcha, extractClientIp } from '@/lib/recaptcha'
-import { ensureUUID } from '@/lib/id'
 
 export async function POST(request: NextRequest) {
   try {
@@ -54,6 +53,29 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+    // This admin endpoint expects a valid UUID from the database (client_profiles.id).
+    // If a non-UUID (e.g., Clerk "user_...") is provided, return a clear error instead of violating FK constraints.
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    if (!uuidRegex.test(String(clientId))) {
+      return NextResponse.json(
+        { error: 'Nieprawidłowe ID klienta. Ten endpoint wymaga UUID klienta z bazy (client_profiles.id).' },
+        { status: 400 }
+      )
+    }
+    const resolvedClientId = String(clientId)
+    // Verify that client exists to satisfy FK constraint
+    const { data: clientProfile, error: clientCheckError } = await supabase
+      .from('client_profiles')
+      .select('id')
+      .eq('id', resolvedClientId)
+      .single();
+
+    if (clientCheckError || !clientProfile) {
+      return NextResponse.json(
+        { error: 'Nie znaleziono klienta w systemie (client_profiles). Upewnij się, że używasz poprawnego UUID klienta lub zaloguj się i spróbuj ponownie.' },
+        { status: 400 }
+      )
+    }
 
     if (!quoteData.area || !quoteData.floorSystem || !quoteData.substrateCondition || !quoteData.location || !quoteData.decorativeSystem) {
       return NextResponse.json(
@@ -66,7 +88,7 @@ export async function POST(request: NextRequest) {
     const { data: quote, error: quoteError } = await supabase
       .from('client_quotes')
       .insert({
-        client_id: ensureUUID(clientId),
+        client_id: resolvedClientId,
         area: quoteData.area,
         floor_system: quoteData.floorSystem,
         substrate_condition: quoteData.substrateCondition,

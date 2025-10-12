@@ -30,3 +30,81 @@ export async function GET() {
     return NextResponse.json({ success: false, error: err?.message || 'Server error' }, { status: 500 });
   }
 }
+
+export async function POST(req: Request) {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const supabase = createAdminClient();
+    const clientId = ensureUUID(userId);
+
+    // Ensure client profile exists to satisfy FK (client_quotes.client_id → client_profiles.id)
+    const { data: profile, error: profileErr } = await supabase
+      .from('client_profiles')
+      .select('id')
+      .eq('id', clientId)
+      .single();
+
+    if (profileErr || !profile) {
+      return NextResponse.json({
+        success: false,
+        error: 'Profil klienta nie istnieje. Upewnij się, że konto zostało zainicjalizowane w client_profiles zanim dodasz wycenę.'
+      }, { status: 400 });
+    }
+
+    const body = await req.json().catch(() => ({}));
+    const {
+      area,
+      floorSystem,
+      substrateCondition,
+      location,
+      decorativeSystem,
+      priceMin,
+      priceMax,
+      totalMin,
+      totalMax,
+      contactPreferences,
+      consents
+    } = body || {};
+
+    if (!area || !floorSystem || !substrateCondition || !location || !decorativeSystem) {
+      return NextResponse.json({
+        success: false,
+        error: 'Wszystkie pola kalkulacji są wymagane (area, floorSystem, substrateCondition, location, decorativeSystem).'
+      }, { status: 400 });
+    }
+
+    const insertPayload = {
+      client_id: clientId,
+      area,
+      floor_system: floorSystem,
+      substrate_condition: substrateCondition,
+      location,
+      decorative_system: decorativeSystem,
+      price_min: priceMin ?? null,
+      price_max: priceMax ?? null,
+      total_min: totalMin ?? null,
+      total_max: totalMax ?? null,
+      status: 'saved' as const,
+      contact_preferences: contactPreferences ?? null,
+      consents: consents ?? null
+    };
+
+    const { data, error } = await supabase
+      .from('client_quotes')
+      .insert(insertPayload)
+      .select('id')
+      .single();
+
+    if (error) {
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, id: data?.id }, { status: 201 });
+  } catch (err: any) {
+    return NextResponse.json({ success: false, error: err?.message || 'Server error' }, { status: 500 });
+  }
+}
