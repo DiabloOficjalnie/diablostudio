@@ -160,7 +160,7 @@ export default function ClientDocumentsPage() {
                 key={t}
                 onClick={() => setTypeFilter(t)}
                 className={`px-3 py-1.5 rounded-full text-sm font-semibold transition ${
-                  typeFilter === t ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                  typeFilter === t ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
                 }`}
               >
                 {t === 'all' ? 'Wszystkie' : t === 'image' ? 'Obrazy' : t === 'pdf' ? 'PDF' : 'Inne'}
@@ -172,7 +172,7 @@ export default function ClientDocumentsPage() {
               type="date"
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
-              className="px-3 py-2 border rounded-lg text-sm w-full"
+              className="px-3 py-2 border border-indigo-200 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
               aria-label="Filtruj po dacie"
             />
           </div>
@@ -182,7 +182,7 @@ export default function ClientDocumentsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Szukaj po tytule lub typie..."
-              className="px-3 py-2 border rounded-lg text-sm w-full"
+              className="px-3 py-2 border border-indigo-200 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
               aria-label="Szukaj"
             />
           </div>
@@ -190,7 +190,7 @@ export default function ClientDocumentsPage() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortKey)}
-              className="px-3 py-2 border rounded-lg text-sm w-full"
+              className="px-3 py-2 border border-indigo-200 rounded-lg text-sm w-full focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
               aria-label="Sortowanie"
             >
               <option value="date_desc">Najnowsze</option>

@@ -268,7 +268,7 @@ export default function ClientConsultationsPage() {
             type="date"
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
-            className="px-3 py-2 border rounded-lg text-sm"
+            className="px-3 py-2 border border-indigo-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
             aria-label="Filtruj po dacie"
           />
           <input
@@ -276,7 +276,7 @@ export default function ClientConsultationsPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Szukaj po wiadomości, dacie lub godzinie..."
-            className="px-3 py-2 border rounded-lg text-sm w-full sm:w-72"
+            className="px-3 py-2 border border-indigo-200 rounded-lg text-sm w-full sm:w-72 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
             aria-label="Szukaj"
           />
         </div>
@@ -481,7 +481,7 @@ export default function ClientConsultationsPage() {
                     rows={3}
                     value={form.notes}
                     onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-indigo-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
                     placeholder="Opcjonalnie: krótki opis projektu, preferencje..."
                   />
                 </div>

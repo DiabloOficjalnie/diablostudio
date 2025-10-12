@@ -164,18 +164,18 @@ export default function ClientEducationPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Hero header */}
-      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white mb-6">
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-900 via-indigo-800 to-blue-900 text-white mb-6">
         <div className="absolute inset-0 bg-black/10" />
         <div className="relative z-10 p-6 sm:p-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold leading-tight">Edukacja</h1>
-              <p className="mt-2 text-blue-100 max-w-2xl">
+              <p className="mt-2 text-indigo-100 max-w-2xl">
                 Zrozumiesz proces współpracy, przygotowanie, przebieg realizacji i pielęgnację.
               </p>
             </div>
             <div className="bg-white/10 backdrop-blur rounded-2xl p-4 min-w-[260px]">
-              <div className="text-sm text-blue-100 mb-2">Twój postęp (konto)</div>
+              <div className="text-sm text-indigo-100 mb-2">Twój postęp (konto)</div>
               <div className="text-3xl font-bold">{overallProgress}%</div>
               <div className="w-full bg-white/20 rounded-full h-2 mt-2">
                 <div
@@ -184,7 +184,7 @@ export default function ClientEducationPage() {
                 />
               </div>
               {loadingProgress && (
-                <div className="mt-2 text-xs text-blue-100">Ładowanie postępu…</div>
+                <div className="mt-2 text-xs text-indigo-100">Ładowanie postępu…</div>
               )}
             </div>
           </div>
@@ -198,8 +198,8 @@ export default function ClientEducationPage() {
             onClick={() => setActiveCategory('all')}
             className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
               activeCategory === 'all'
-                ? 'bg-blue-600 text-white'
-                : 'bg-white text-blue-700 border border-blue-200 hover:bg-blue-50'
+                ? 'bg-indigo-600 text-white'
+                : 'bg-white text-indigo-700 border border-indigo-200 hover:bg-indigo-50'
             }`}
           >
             Wszystko
@@ -210,8 +210,8 @@ export default function ClientEducationPage() {
               onClick={() => setActiveCategory(cat)}
               className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
                 activeCategory === cat
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-blue-700 border border-blue-200 hover:bg-blue-50'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-white text-indigo-700 border border-indigo-200 hover:bg-indigo-50'
               }`}
             >
               {CATEGORY_LABELS[cat]}
@@ -232,7 +232,7 @@ export default function ClientEducationPage() {
               <div className="p-6">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <div className="text-xs uppercase tracking-wide text-blue-700/70 font-bold mb-1">
+                    <div className="text-xs uppercase tracking-wide text-indigo-700/70 font-bold mb-1">
                       {CATEGORY_LABELS[mod.category as Exclude<CategoryKey, 'all'>]}
                     </div>
                     <h3 className="text-lg font-bold text-gray-900">{mod.title}</h3>
@@ -280,7 +280,7 @@ export default function ClientEducationPage() {
                             className={`px-3 py-1.5 rounded-md text-sm font-semibold transition-colors ${
                               done
                                 ? 'bg-green-100 text-green-800 hover:bg-green-200'
-                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                                : 'bg-indigo-600 text-white hover:bg-indigo-700'
                             }`}
                           >
                             {done ? 'Przeczytano' : 'Czytaj'}
@@ -323,7 +323,7 @@ export default function ClientEducationPage() {
               <div className="p-6 sm:p-8">
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div>
-                    <div className="text-xs uppercase tracking-wide text-blue-700/70 font-bold mb-1">
+                    <div className="text-xs uppercase tracking-wide text-indigo-700/70 font-bold mb-1">
                       {CATEGORY_LABELS[mod.category as Exclude<CategoryKey, 'all'>]}
                     </div>
                     <h3 className="text-2xl font-bold text-gray-900">{mod.title}</h3>
@@ -353,14 +353,14 @@ export default function ClientEducationPage() {
                 )}
 
                 {/* Body */}
-                <div className="prose prose-blue max-w-none text-gray-800 text-base leading-relaxed">
+                <div className="prose prose-indigo max-w-none text-gray-800 text-base leading-relaxed">
                   {lesson.body}
                 </div>
 
                 {/* Sources */}
                 {lesson.sources && lesson.sources.length > 0 && (
-                  <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <h5 className="text-sm font-semibold text-blue-900 mb-2 flex items-center">
+                  <div className="mt-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+                    <h5 className="text-sm font-semibold text-indigo-900 mb-2 flex items-center">
                       <span className="text-lg mr-2">🔎</span>
                       Źródła i odniesienia
                     </h5>
@@ -379,11 +379,11 @@ export default function ClientEducationPage() {
                           ) : (
                             <span>{src.label}</span>
                           )}
-                          <span className="ml-2 text-blue-700/70">[{src.source}]</span>
+                          <span className="ml-2 text-indigo-700/70">[{src.source}]</span>
                         </li>
                       ))}
                     </ul>
-                    <p className="mt-2 text-xs text-blue-700/70">
+                    <p className="mt-2 text-xs text-indigo-700/70">
                       Parametry krytyczne (czasy, wilgotność, temperatury, środki pielęgnacji)
                       zawsze weryfikujemy w najnowszej karcie technicznej (TDS) producenta.
                     </p>
@@ -409,7 +409,7 @@ export default function ClientEducationPage() {
                     <div className="border-t pt-6">
                       <button
                         onClick={onProceed}
-                        className="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-semibold transition"
+                        className="px-5 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold transition"
                       >
                         ✅ Rozumiem, następny krok
                       </button>
