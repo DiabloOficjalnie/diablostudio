@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase'
 import { verifyCaptcha, extractClientIp } from '@/lib/recaptcha'
+import { ensureUUID } from '@/lib/id'
 
 export async function POST(request: NextRequest) {
   try {
@@ -53,16 +54,11 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-    // This admin endpoint expects a valid UUID from the database (client_profiles.id).
-    // If a non-UUID (e.g., Clerk "user_...") is provided, return a clear error instead of violating FK constraints.
+    // Accept both UUID and external ids (e.g. Clerk "user_...") by mapping to deterministic UUID
     const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
-    if (!uuidRegex.test(String(clientId))) {
-      return NextResponse.json(
-        { error: 'Nieprawidłowe ID klienta. Ten endpoint wymaga UUID klienta z bazy (client_profiles.id).' },
-        { status: 400 }
-      )
-    }
-    const resolvedClientId = String(clientId)
+    const resolvedClientId = uuidRegex.test(String(clientId))
+      ? String(clientId)
+      : ensureUUID(String(clientId))
     // Verify that client exists to satisfy FK constraint
     const { data: clientProfile, error: clientCheckError } = await supabase
       .from('client_profiles')
@@ -71,10 +67,33 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (clientCheckError || !clientProfile) {
-      return NextResponse.json(
-        { error: 'Nie znaleziono klienta w systemie (client_profiles). Upewnij się, że używasz poprawnego UUID klienta lub zaloguj się i spróbuj ponownie.' },
-        { status: 400 }
-      )
+      // Try to create minimal client profile using provided details if available
+      const clientFirstName = body?.clientFirstName || body?.firstName || 'Klient'
+      const clientLastName = body?.clientLastName || body?.lastName || ''
+      const clientEmail = body?.clientEmail || body?.email
+
+      if (!clientEmail) {
+        return NextResponse.json(
+          { error: 'Brak profilu klienta. Podaj clientEmail (oraz opcjonalnie clientFirstName/clientLastName) lub użyj UUID istniejącego klienta.' },
+          { status: 400 }
+        )
+      }
+
+      const { error: createProfileErr } = await supabase
+        .from('client_profiles')
+        .insert({
+          id: resolvedClientId,
+          first_name: clientFirstName,
+          last_name: clientLastName,
+          email: clientEmail
+        })
+
+      if (createProfileErr) {
+        return NextResponse.json(
+          { error: 'Nie udało się utworzyć profilu klienta: ' + createProfileErr.message },
+          { status: 500 }
+        )
+      }
     }
 
     if (!quoteData.area || !quoteData.floorSystem || !quoteData.substrateCondition || !quoteData.location || !quoteData.decorativeSystem) {

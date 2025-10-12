@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 import { createAdminClient } from '@/lib/supabase-server';
 import { ensureUUID } from '@/lib/id';
 
@@ -42,6 +42,7 @@ export async function POST(req: Request) {
     const clientId = ensureUUID(userId);
 
     // Ensure client profile exists to satisfy FK (client_quotes.client_id → client_profiles.id)
+    let profileExists = true;
     const { data: profile, error: profileErr } = await supabase
       .from('client_profiles')
       .select('id')
@@ -49,10 +50,42 @@ export async function POST(req: Request) {
       .single();
 
     if (profileErr || !profile) {
-      return NextResponse.json({
-        success: false,
-        error: 'Profil klienta nie istnieje. Upewnij się, że konto zostało zainicjalizowane w client_profiles zanim dodasz wycenę.'
-      }, { status: 400 });
+      profileExists = false;
+    }
+
+    // Auto-create client profile if missing (Clerk -> Supabase)
+    if (!profileExists) {
+      const clerkUser = await currentUser().catch(() => null);
+
+      const firstName = (clerkUser as any)?.firstName || 'Użytkownik';
+      const lastName = (clerkUser as any)?.lastName || '';
+      const email =
+        (clerkUser as any)?.primaryEmailAddress?.emailAddress ||
+        (clerkUser as any)?.emailAddresses?.[0]?.emailAddress ||
+        '';
+
+      if (!email) {
+        return NextResponse.json({
+          success: false,
+          error: 'Brak profilu i adresu e-mail do utworzenia profilu klienta. Zaloguj się ponownie lub uzupełnij dane konta.'
+        }, { status: 400 });
+      }
+
+      const { error: insertProfileErr } = await supabase
+        .from('client_profiles')
+        .insert({
+          id: clientId,
+          first_name: firstName,
+          last_name: lastName,
+          email
+        });
+
+      if (insertProfileErr) {
+        return NextResponse.json({
+          success: false,
+          error: 'Nie udało się utworzyć profilu klienta: ' + insertProfileErr.message
+        }, { status: 500 });
+      }
     }
 
     const body = await req.json().catch(() => ({}));

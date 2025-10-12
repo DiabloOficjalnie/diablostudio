@@ -707,26 +707,22 @@ export default function ValuationPage() {
         console.log('User is logged in, saving to client account:', user.id)
 
         const clientQuoteData = {
-          clientId: user.id,
-          quoteData: {
-            area: currentArea,
-            floorSystem: currentFloorSystem,
-            substrateCondition: currentSubstrate,
-            location: currentLocation,
-            decorativeSystem: currentDecorativeSystem,
-            priceMin: priceRange?.min || 0,
-            priceMax: priceRange?.max || 0,
-            totalMin: (priceRange?.min || 0) * currentArea,
-            totalMax: (priceRange?.max || 0) * currentArea
-          },
+          area: currentArea,
+          floorSystem: currentFloorSystem,
+          substrateCondition: currentSubstrate,
+          location: currentLocation,
+          decorativeSystem: currentDecorativeSystem,
+          priceMin: priceRange?.min || 0,
+          priceMax: priceRange?.max || 0,
+          totalMin: (priceRange?.min || 0) * currentArea,
+          totalMax: (priceRange?.max || 0) * currentArea,
           contactPreferences,
-          consents,
-          recaptchaToken: token,
+          consents
         }
 
-        console.log('Sending client quote to API:', clientQuoteData)
+        console.log('Sending client quote to API (authenticated flow):', clientQuoteData)
 
-        const response = await fetch('/api/client-quotes', {
+        const response = await fetch('/api/client/quotes', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
