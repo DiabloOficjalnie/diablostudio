@@ -269,6 +269,100 @@ export default function ClientConsultationsPage() {
       .replace(/\b\w/g, (c) => c.toUpperCase())
   }
 
+  // Mapowania kodów na polskie nazwy (fallback do humanize)
+  const DICT_FLOOR: Record<string, string> = {
+    epoxy: 'Epoksydowy',
+    polyurethane: 'Poliuretanowy',
+    microcement: 'Mikrocement',
+    industrial: 'Przemysłowy',
+    decorative: 'Dekoracyjny'
+  }
+  const DICT_DECOR: Record<string, string> = {
+    flakes: 'Płatki dekoracyjne',
+    quartz: 'Kwarc',
+    matte: 'Mat',
+    gloss: 'Połysk',
+    satin: 'Satyna'
+  }
+  const DICT_SUBSTRATE: Record<string, string> = {
+    concrete: 'Beton',
+    anhydrite: 'Anhydryt',
+    tiles: 'Płytki',
+    screed: 'Wylewka',
+    wood: 'Drewno'
+  }
+  const DICT_LOCATION: Record<string, string> = {
+    garage: 'Garaż',
+    living_room: 'Salon',
+    kitchen: 'Kuchnia',
+    terrace: 'Taras',
+    bathroom: 'Łazienka',
+    hall: 'Korytarz'
+  }
+
+  const normalizeKey = (s: string) =>
+    (s || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '')
+
+  // Ogólne tokeny dla złożonych wartości (np. "indoor smooth", "good")
+  const UNIVERSAL_TOKENS: Record<string, string> = {
+    indoor: 'Wewnątrz',
+    outdoor: 'Na zewnątrz',
+    smooth: 'Gładkie',
+    antislip: 'Antypoślizgowe',
+    anti_slip: 'Antypoślizgowe',
+    textured: 'Teksturowane',
+    rough: 'Chropowate',
+    matte: 'Mat',
+    matt: 'Mat',
+    gloss: 'Połysk',
+    glossy: 'Połysk',
+    high_gloss: 'Wysoki połysk',
+    semi_gloss: 'Półpołysk',
+    low_gloss: 'Niski połysk',
+    satin: 'Satyna',
+    good: 'Dobry',
+    average: 'Średni',
+    medium: 'Średni',
+    poor: 'Słaby',
+    bad: 'Zły',
+    standard: 'Standard',
+    premium: 'Premium',
+    coarse: 'Gruboziarniste',
+    fine: 'Drobnoziarniste',
+    fine_texture: 'Drobna tekstura',
+    coarse_texture: 'Gruba tekstura'
+  }
+
+  const toPL = (group: 'floor' | 'decor' | 'substrate' | 'location', value?: string) => {
+    if (!value) return ''
+    const dict =
+      group === 'floor' ? DICT_FLOOR :
+      group === 'decor' ? DICT_DECOR :
+      group === 'substrate' ? DICT_SUBSTRATE :
+      DICT_LOCATION
+
+    const fullKey = normalizeKey(value)
+
+    // 1) Dokładne dopasowanie
+    if (dict[fullKey]) return dict[fullKey]
+
+    // 2) Wartości złożone – mapowanie tokenów (np. "indoor_smooth")
+    const parts = fullKey.split('_').filter(Boolean)
+    if (parts.length > 1) {
+      const mapped = parts.map(p => dict[p] || UNIVERSAL_TOKENS[p] || humanize(p))
+      return mapped.join(' • ')
+    }
+
+    // 3) Pojedynczy token w słowniku uniwersalnym
+    if (UNIVERSAL_TOKENS[fullKey]) return UNIVERSAL_TOKENS[fullKey]
+
+    // 4) Fallback
+    return humanize(value)
+  }
+
   // Mapowania etykiet dla konsultacji
   const serviceLabel = (v?: string) => {
     switch (v) {
@@ -394,7 +488,7 @@ export default function ClientConsultationsPage() {
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <span className={statusBadge(c.status)}>{statusLabel(c.status)}</span>
-                      <span className="text-xs text-gray-500 truncate">
+                      <span className="text-xs text-gray-500">
                         Utworzono: {new Date(c.created_at).toLocaleString('pl-PL')}
                       </span>
                     </div>
@@ -407,7 +501,7 @@ export default function ClientConsultationsPage() {
                     )}
                     {c.quote_id && quotesById[c.quote_id] && (
                       <div className="mt-1 text-xs text-gray-500">
-                        Powiązana wycena: #{quotesById[c.quote_id].id.slice(0,6).toUpperCase()} • {quotesById[c.quote_id].area ?? '-'} m² • {humanize(quotesById[c.quote_id].floor_system)}
+                        Powiązana wycena: #{quotesById[c.quote_id].id.slice(0,6).toUpperCase()} • {quotesById[c.quote_id].area ?? '-'} m² • {toPL('floor', quotesById[c.quote_id].floor_system)}
                       </div>
                     )}
                   </div>
@@ -445,23 +539,23 @@ export default function ClientConsultationsPage() {
               <p className="text-sm text-gray-600 mt-1">Podsumowanie zgłoszenia i powiązanych informacji.</p>
             </div>
             <div className="p-6 space-y-3 text-sm max-h-[70vh] overflow-auto">
-              <div><span className="text-gray-500">Status:</span> <span className="font-semibold">{statusLabel(selectedConsultation.status)}</span></div>
-              <div><span className="text-gray-500">Utworzono:</span> <span className="font-semibold">{new Date(selectedConsultation.created_at).toLocaleString('pl-PL')}</span></div>
-              <div><span className="text-gray-500">Termin:</span> <span className="font-semibold">{selectedConsultation.preferred_date || '-'} {selectedConsultation.preferred_time ? `• ${selectedConsultation.preferred_time}` : ''}</span></div>
+              <div><span className="text-gray-500">Status:</span> <span className="font-semibold break-words">{statusLabel(selectedConsultation.status)}</span></div>
+              <div><span className="text-gray-500">Utworzono:</span> <span className="font-semibold break-words">{new Date(selectedConsultation.created_at).toLocaleString('pl-PL')}</span></div>
+              <div><span className="text-gray-500">Termin:</span> <span className="font-semibold break-words">{selectedConsultation.preferred_date || '-'} {selectedConsultation.preferred_time ? `• ${selectedConsultation.preferred_time}` : ''}</span></div>
               {selectedConsultation.service_type && (
-                <div><span className="text-gray-500">Typ usługi:</span> <span className="font-semibold">{serviceLabel(selectedConsultation.service_type)}</span></div>
+                <div><span className="text-gray-500">Typ usługi:</span> <span className="font-semibold break-words">{serviceLabel(selectedConsultation.service_type)}</span></div>
               )}
               {selectedConsultation.inquiry_type && (
-                <div><span className="text-gray-500">Typ zapytania:</span> <span className="font-semibold">{inquiryLabel(selectedConsultation.inquiry_type)}</span></div>
+                <div><span className="text-gray-500">Typ zapytania:</span> <span className="font-semibold break-words">{inquiryLabel(selectedConsultation.inquiry_type)}</span></div>
               )}
               {selectedConsultation.message && (
-                <div><span className="text-gray-500">Wiadomość:</span> <span className="font-semibold whitespace-pre-line">{selectedConsultation.message}</span></div>
+                <div><span className="text-gray-500">Wiadomość:</span> <span className="font-semibold whitespace-pre-wrap break-words">{selectedConsultation.message}</span></div>
               )}
               {selectedConsultation.admin_notes && (
-                <div><span className="text-gray-500">Notatka administratora:</span> <span className="font-semibold whitespace-pre-line">{selectedConsultation.admin_notes}</span></div>
+                <div><span className="text-gray-500">Notatka administratora:</span> <span className="font-semibold whitespace-pre-wrap break-words">{selectedConsultation.admin_notes}</span></div>
               )}
               {selectedConsultation.quote_id && quotesById[selectedConsultation.quote_id] && (
-                <div><span className="text-gray-500">Powiązana wycena:</span> <span className="font-semibold">#{quotesById[selectedConsultation.quote_id].id.slice(0,6).toUpperCase()} • {quotesById[selectedConsultation.quote_id].area ?? '-'} m² • {humanize(quotesById[selectedConsultation.quote_id].floor_system)}</span></div>
+                <div><span className="text-gray-500">Powiązana wycena:</span> <span className="font-semibold break-words">#{quotesById[selectedConsultation.quote_id].id.slice(0,6).toUpperCase()} • {quotesById[selectedConsultation.quote_id].area ?? '-'} m² • {toPL('floor', quotesById[selectedConsultation.quote_id].floor_system)}</span></div>
               )}
             </div>
             <div className="px-6 pb-6 flex flex-wrap gap-2 justify-end">
