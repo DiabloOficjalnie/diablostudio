@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { createAdminClient } from '@/lib/supabase-server'
+import { ensureUUID } from '@/lib/id'
 
 type QuoteRow = {
   area?: number | null
@@ -38,7 +39,7 @@ export async function GET() {
       const { data, error } = await supabase
         .from('client_quotes')
         .select('area, price_min, price_max, total_min, total_max, status, created_at')
-        .eq('client_id', userId)
+        .eq('client_id', ensureUUID(userId))
 
       if (!error && Array.isArray(data)) {
         quotes = data as QuoteRow[]

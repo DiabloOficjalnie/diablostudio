@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createAdminClient } from '@/lib/supabase-server';
+import { ensureUUID } from '@/lib/id';
 
 export async function GET() {
   try {
@@ -14,7 +15,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from('client_documents')
       .select('id, title, url, type, created_at')
-      .eq('client_id', userId)
+      .eq('client_id', ensureUUID(userId))
       .order('created_at', { ascending: false });
 
     if (error) {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createAdminClient } from '@/lib/supabase-server';
+import { ensureUUID } from '@/lib/id';
 
 // Minimal event shape
 type ClientEvent = {
@@ -26,7 +27,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from('client_events')
       .select('id, type, details, created_at')
-      .eq('client_id', userId)
+      .eq('client_id', ensureUUID(userId))
       .order('created_at', { ascending: false })
       .limit(50);
 
@@ -57,7 +58,7 @@ export async function POST(request: NextRequest) {
     const supabase = createAdminClient();
 
     const payload: ClientEvent = {
-      client_id: userId,
+      client_id: ensureUUID(userId),
       type,
       details,
     };

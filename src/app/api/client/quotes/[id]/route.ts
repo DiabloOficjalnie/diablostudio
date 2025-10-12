@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createAdminClient } from '@/lib/supabase-server';
+import { ensureUUID } from '@/lib/id';
 
 // DELETE /api/client/quotes/:id
 // Bezpieczne usuwanie wyceny należącej do zalogowanego klienta
@@ -23,7 +24,7 @@ export async function DELETE(req: NextRequest, { params }: any) {
       .from('client_quotes')
       .delete()
       .eq('id', id)
-      .eq('client_id', userId);
+      .eq('client_id', ensureUUID(userId));
 
     if (error) {
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });

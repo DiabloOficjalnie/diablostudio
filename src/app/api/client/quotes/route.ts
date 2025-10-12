@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createAdminClient } from '@/lib/supabase-server';
+import { ensureUUID } from '@/lib/id';
 
 // GET - return quotes for the authenticated client
 export async function GET() {
@@ -15,7 +16,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from('client_quotes')
       .select('id, area, floor_system, substrate_condition, location, decorative_system, price_min, price_max, total_min, total_max, status, created_at')
-      .eq('client_id', userId)
+      .eq('client_id', ensureUUID(userId))
       .order('created_at', { ascending: false });
 
     if (error) {

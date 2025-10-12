@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createAdminClient } from '@/lib/supabase-server';
+import { ensureUUID } from '@/lib/id';
 
 export async function GET(req: Request) {
   try {
@@ -38,7 +39,7 @@ export async function GET(req: Request) {
     const { data, error } = await supabase
       .from('consultation_requests')
       .select('id, quote_id, preferred_date, preferred_time, message, status, created_at')
-      .eq('client_id', userId)
+      .eq('client_id', ensureUUID(userId))
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -76,7 +77,7 @@ export async function POST(req: Request) {
 
     // Try inserting with extended fields. If columns are missing in existing schema, fall back gracefully.
     const insertPayload = {
-      client_id: userId,
+      client_id: ensureUUID(userId),
       quote_id,
       preferred_date,
       preferred_time,
@@ -103,7 +104,7 @@ export async function POST(req: Request) {
       if (missingColumn) {
         // Fallback: insert minimal payload compatible with older schema
         const minimalPayload = {
-          client_id: userId,
+          client_id: ensureUUID(userId),
           quote_id,
           preferred_date,
           message,
@@ -152,7 +153,7 @@ export async function PATCH(req: Request) {
         .from('consultation_requests')
         .update({ status: 'cancelled' })
         .eq('id', id)
-        .eq('client_id', userId);
+        .eq('client_id', ensureUUID(userId));
 
       if (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });

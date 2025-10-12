@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClientComponentClient } from '@/lib/supabase'
+import { createAdminClient } from '@/lib/supabase-server'
+import { ensureUUID } from '@/lib/id'
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClientComponentClient()
+    const supabase = createAdminClient()
 
     const body = await request.json()
     const {
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest) {
       .from('client_quotes')
       .select('id, client_id')
       .eq('id', quoteId)
-      .eq('client_id', clientId)
+      .eq('client_id', ensureUUID(clientId))
       .single()
 
     if (quoteCheckError || !quote) {
@@ -49,7 +50,7 @@ export async function POST(request: NextRequest) {
     const { data: consultation, error: consultationError } = await supabase
       .from('consultation_requests')
       .insert({
-        client_id: clientId,
+        client_id: ensureUUID(clientId),
         quote_id: quoteId,
         preferred_date: preferredDate,
         preferred_time: preferredTime,

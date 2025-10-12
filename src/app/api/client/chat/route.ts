@@ -6,6 +6,7 @@ import {
   ChatMessageFormData,
   ClientChatResponse
 } from '@/lib/database-types'
+import { ensureUUID } from '@/lib/id'
 
 // GET - Pobierz wiadomości czatu klienta
 export async function GET(request: NextRequest) {
@@ -22,6 +23,7 @@ export async function GET(request: NextRequest) {
     }
 
     const user = userResult.data.user
+    const clientUUID = ensureUUID(user.id)
     const url = new URL(request.url)
     const limit = parseInt(url.searchParams.get('limit') || '50')
     const offset = parseInt(url.searchParams.get('offset') || '0')
@@ -29,7 +31,7 @@ export async function GET(request: NextRequest) {
     // Pobierz wiadomości czatu klienta
     const chatResult = await dbHelper.helpers.selectWithPagination<ClientChat>(
       'client_chat',
-      [{ column: 'client_id', operator: 'eq', value: user.id }],
+      [{ column: 'client_id', operator: 'eq', value: clientUUID }],
       { column: 'created_at', ascending: false },
       { page: 1, limit: limit }
     )
@@ -48,7 +50,7 @@ export async function GET(request: NextRequest) {
     const managerResult = await dbHelper.helpers.selectWithPagination(
       'client_managers',
       [
-        { column: 'client_id', operator: 'eq', value: user.id },
+        { column: 'client_id', operator: 'eq', value: clientUUID },
         { column: 'is_active', operator: 'eq', value: true }
       ]
     )
@@ -83,7 +85,7 @@ export async function GET(request: NextRequest) {
         { is_read: true },
         [
           { column: 'id', operator: 'in', value: `(${unreadIds.join(',')})` },
-          { column: 'client_id', operator: 'eq', value: user.id }
+          { column: 'client_id', operator: 'eq', value: clientUUID }
         ]
       )
     }
@@ -120,6 +122,7 @@ export async function POST(request: NextRequest) {
     }
 
     const user = userResult.data.user
+    const clientUUID = ensureUUID(user.id)
     const body: ChatMessageFormData = await request.json()
     const { message } = body
 
@@ -141,7 +144,7 @@ export async function POST(request: NextRequest) {
     const managerResult = await dbHelper.helpers.selectWithPagination(
       'client_managers',
       [
-        { column: 'client_id', operator: 'eq', value: user.id },
+        { column: 'client_id', operator: 'eq', value: clientUUID },
         { column: 'is_active', operator: 'eq', value: true }
       ]
     )
@@ -157,7 +160,7 @@ export async function POST(request: NextRequest) {
 
     // Utwórz wiadomość w czacie
     const chatData: ClientChatInsert = {
-      client_id: user.id,
+      client_id: clientUUID,
       admin_id: manager.admin_id,
       message: message.trim(),
       is_from_client: true,
@@ -206,6 +209,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const user = userResult.data.user
+    const clientUUID = ensureUUID(user.id)
     const body = await request.json()
     const { message_id, is_read = true } = body
 
@@ -221,7 +225,7 @@ export async function PUT(request: NextRequest) {
       'client_chat',
       [
         { column: 'id', operator: 'eq', value: message_id },
-        { column: 'client_id', operator: 'eq', value: user.id }
+        { column: 'client_id', operator: 'eq', value: clientUUID }
       ]
     )
 
@@ -276,6 +280,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const user = userResult.data.user
+    const clientUUID = ensureUUID(user.id)
     const url = new URL(request.url)
     const messageId = url.searchParams.get('id')
 
@@ -291,7 +296,7 @@ export async function DELETE(request: NextRequest) {
       'client_chat',
       [
         { column: 'id', operator: 'eq', value: messageId },
-        { column: 'client_id', operator: 'eq', value: user.id },
+        { column: 'client_id', operator: 'eq', value: clientUUID },
         { column: 'is_from_client', operator: 'eq', value: true }
       ]
     )

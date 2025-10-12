@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createAdminClient } from '@/lib/supabase-server';
+import { ensureUUID } from '@/lib/id';
 
 export async function GET() {
   try {
@@ -15,7 +16,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from('client_affiliate')
       .select('referral_code, referrals_count, discount_percentage, points, created_at')
-      .eq('client_id', userId)
+      .eq('client_id', ensureUUID(userId))
       .single();
 
     if (error || !data) {
