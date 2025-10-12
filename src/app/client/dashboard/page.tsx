@@ -1132,173 +1132,8 @@ function ClientDashboardContent() {
           </div>
         </div>
       </div>
-      {/* Hero */}
-      {false && (
-      <>
-      <section id="education" className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white">
-        <div className="absolute inset-0 bg-black/10" />
-        <div className="relative z-10 p-6 sm:p-10">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-bold leading-tight">Edukacja</h1>
-              <p className="mt-3 text-blue-100 text-lg max-w-2xl">
-                Krótkie, zrozumiałe materiały dla Klienta: co się wydarzy, jak się przygotować i jak dbać o posadzkę.
-              </p>
-            </div>
-            <div className="bg-white/10 backdrop-blur rounded-2xl p-4 min-w-[260px]">
-              <div className="text-sm text-blue-100 mb-2">Twój postęp</div>
-              <div className="text-3xl font-bold">{overallProgress}%</div>
-              <div className="w-full bg-white/20 rounded-full h-2 mt-2">
-                <div
-                  className="bg-green-400 h-2 rounded-full transition-all"
-                  style={{ width: `${overallProgress}%` }}
-                />
-              </div>
-              <div className="mt-3 text-xs text-blue-100">Postęp zapisywany automatycznie</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Filtry i wyszukiwarka */}
-      <section className="py-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => setActiveCategory('all')}
-              className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
-                activeCategory === 'all'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-blue-700 border border-blue-200 hover:bg-blue-50'
-              }`}
-            >
-              Wszystko
-            </button>
-            {(['journey', 'preparation', 'installation', 'aftercare', 'safety', 'tools'] as Array<
-              Exclude<typeof activeCategory, 'all'>
-            >).map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
-                  activeCategory === cat
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-blue-700 border border-blue-200 hover:bg-blue-50'
-                }`}
-              >
-                {CATEGORY_LABELS[cat]}
-              </button>
-            ))}
-          </div>
-
-          <div className="max-w-md w-full">
-            <input
-              type="text"
-              value={educationSearch}
-              onChange={(e) => setEducationSearch(e.target.value)}
-              placeholder="Szukaj w Edukacji..."
-              className="w-full px-4 py-3 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-600 bg-white"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Statystyki klienta */}
-      {activeSection !== 'education' && statistics && trends && (
-        <section className="mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
-              <div className="text-sm text-gray-500">Zakończone projekty</div>
-              <div className="text-2xl font-bold text-gray-900">{statistics?.completed_projects ?? 0}</div>
-            </div>
-            <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
-              <div className="text-sm text-gray-500">Łączna powierzchnia</div>
-              <div className="text-2xl font-bold text-gray-900">{statistics?.total_square_meters ?? 0} m²</div>
-            </div>
-            <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
-              <div className="text-sm text-gray-500">Oszczędności (szac.)</div>
-              <div className="text-2xl font-bold text-gray-900">{formatPLN(statistics?.total_savings ?? 0)}</div>
-            </div>
-            <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
-              <div className="text-sm text-gray-500">Aktualny rabat</div>
-              <div className="text-2xl font-bold text-gray-900">{statistics?.current_discount ?? 0}%</div>
-            </div>
-          </div>
-
-          <div className="mt-6 bg-white rounded-xl shadow-md border border-gray-200 p-4 h-72">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-bold text-gray-900">Trendy (ostatnie 30 dni)</h3>
-              <div className="text-xs text-gray-600">
-                m²: {Number(trends?.square_meters_growth ?? 0)}% • oszczędności: {Number(trends?.savings_growth ?? 0)}% • projekty: {Number(trends?.projects_growth ?? 0)}%
-              </div>
-            </div>
-            <div className="h-56">
-              <canvas ref={statsChartRef} />
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Kafle modułów */}
-      <section className="mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredModules.map((mod: any) => {
-            const progress = getModuleProgress(mod.id)
-            return (
-              <div
-                key={mod.id}
-                className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow"
-              >
-                <div className="p-6">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-[11px] uppercase tracking-wide text-blue-700/70 font-bold mb-1">
-                        {CATEGORY_LABELS[mod.category] || 'Inne'}
-                      </div>
-                      <h3 className="text-lg font-bold text-gray-900">{mod.title}</h3>
-                      <p className="text-gray-600 mt-2">{mod.description}</p>
-                      {mod.estimatedTime && (
-                        <div className="text-xs text-gray-500 mt-1">Czas: {mod.estimatedTime}</div>
-                      )}
-                    </div>
-                    <div className="text-right min-w-[90px]">
-                      <div className="text-sm text-gray-500">Postęp</div>
-                      <div className="font-bold text-gray-900">
-                        {progress.count}/{progress.total}
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
-                        <div
-                          className="bg-green-500 h-2 rounded-full"
-                          style={{ width: `${progress.percent}%` }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-5 flex items-center justify-between">
-                    <div className="text-xs text-gray-500">
-                      {mod.steps?.length || 0} {mod.steps?.length === 1 ? 'krok' : 'kroki'}
-                    </div>
-                    <button
-                      onClick={() => setActiveGuide(mod.id)}
-                      className="px-4 py-2 rounded-lg text-sm font-semibold transition-colors bg-blue-600 text-white hover:bg-blue-700"
-                    >
-                      Otwórz
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-
-        {filteredModules.length === 0 && (
-          <div className="text-center py-16 text-gray-600">
-            Brak wyników. Spróbuj zmienić kategorię lub użyć innego hasła.
-          </div>
-        )}
-      </section>
-      </>)}
+      {/* Hero (Edukacja) — wyłączone */}
+      {/* Blok edukacji w pulpicie został celowo wyłączony i przeniesiony do dedykowanej podstrony /client/education */}
       {/* Dane konta klienta */}
       <section className="mb-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -1538,6 +1373,7 @@ function ClientDashboardContent() {
                     Aktualności, poradniki, inspiracje i najważniejsze informacje.
                   </span>
                 </label>
+
                 <label className="flex flex-col gap-1">
                   <span className="inline-flex items-center gap-2">
                     <input
@@ -1551,6 +1387,7 @@ function ClientDashboardContent() {
                     Zmiany w ofercie, nowe systemy i informacje o dostępności.
                   </span>
                 </label>
+
                 <label className="flex flex-col gap-1">
                   <span className="inline-flex items-center gap-2">
                     <input
@@ -1564,6 +1401,7 @@ function ClientDashboardContent() {
                     Okazje cenowe, rabaty i limitowane akcje promocyjne.
                   </span>
                 </label>
+
                 <label className="flex flex-col gap-1">
                   <span className="inline-flex items-center gap-2">
                     <input
@@ -1635,6 +1473,19 @@ function ClientDashboardContent() {
                 <label className="flex flex-col gap-1">
                   <span className="inline-flex items-center gap-2">
                     <input
+                      type="checkbox"
+                      checked={marketingSettings.dataSharing}
+                      onChange={(e) =>
+                        setMarketingSettings((prev) => ({ ...prev, dataSharing: e.target.checked }))
+                      }
+                    />
+                    <span className="font-medium text-gray-900">Udostępnianie danych partnerom</span>
+                  </span>
+                  <span className="text-xs text-gray-700 pl-6">
+                    Zgoda na przetwarzanie danych przez zaufanych dostawców w celu realizacji usług.
+                  </span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
