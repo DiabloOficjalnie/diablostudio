@@ -1530,7 +1530,7 @@ function ClientDashboardContent() {
                       setConsultationForm({ ...consultationForm, preferredDate: e.target.value })
                       loadBookedSlots(e.target.value)
                     }}
-                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-indigo-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
                     required
                   />
                 </div>
@@ -1539,7 +1539,7 @@ function ClientDashboardContent() {
                   <select
                     value={consultationForm.preferredTime}
                     onChange={(e) => setConsultationForm({ ...consultationForm, preferredTime: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-indigo-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
                     required
                   >
                     <option value="">Wybierz godzinę</option>
@@ -1557,7 +1557,7 @@ function ClientDashboardContent() {
                     rows={3}
                     value={consultationForm.message}
                     onChange={(e) => setConsultationForm({ ...consultationForm, message: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-indigo-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
                     placeholder="Dodatkowe informacje..."
                   />
                 </div>

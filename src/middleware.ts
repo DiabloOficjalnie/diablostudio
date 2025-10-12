@@ -26,6 +26,22 @@ export default clerkMiddleware(async (auth, req) => {
     const { userId, redirectToSignIn } = await auth()
     const path = req.nextUrl.pathname
 
+    // 🎯 Referral cookie capture (?ref=CODE) → zapisz cookie i usuń parametr z URL
+    const ref = req.nextUrl.searchParams.get('ref')
+    if (ref) {
+        const url = req.nextUrl.clone()
+        url.searchParams.delete('ref')
+        const res = NextResponse.redirect(url)
+        res.cookies.set('referral_code', ref, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'lax',
+            path: '/',
+            maxAge: 60 * 60 * 24 * 365, // 1 rok
+        })
+        return res
+    }
+
     // Jeśli użytkownik jest zalogowany i wchodzi na stronę logowania → przekieruj do panelu klienta
     // (musi być przed sprawdzeniem tras publicznych)
     if (userId && path.startsWith('/login')) {

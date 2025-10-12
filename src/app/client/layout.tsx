@@ -17,6 +17,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     { label: 'Wyceny', href: '/client/quotes', icon: '📋' },
     { label: 'Konsultacje', href: '/client/consultations', icon: '📞' },
     { label: 'Dokumenty', href: '/client/documents', icon: '📄' },
+    { label: 'Program poleceń', href: '/client/referrals', icon: '🏷️' },
     { label: 'Edukacja', href: '/client/education', icon: '🎓' },
     { label: 'Powiadomienia', href: '/client/notifications', icon: '🔔' },
     { label: 'Ustawienia', href: '/client/settings', icon: '⚙️' },
