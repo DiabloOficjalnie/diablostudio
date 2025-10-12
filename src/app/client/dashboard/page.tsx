@@ -1524,26 +1524,58 @@ function ClientDashboardContent() {
             {/* Newsletter */}
             <div className="border rounded-lg p-4">
               <h3 className="font-semibold text-gray-900 mb-3">Newsletter</h3>
-              <div className="space-y-3 text-sm">
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={newsletterSettings.generalNewsletter}
-                    onChange={(e) => setNewsletterSettings(prev => ({ ...prev, generalNewsletter: e.target.checked }))} />
-                  Ogólny newsletter
+              <div className="space-y-4 text-sm">
+                <label className="flex flex-col gap-1">
+                  <span className="inline-flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={newsletterSettings.generalNewsletter}
+                      onChange={(e) => setNewsletterSettings(prev => ({ ...prev, generalNewsletter: e.target.checked }))}
+                    />
+                    <span className="font-medium text-gray-900">Ogólny newsletter</span>
+                  </span>
+                  <span className="text-xs text-gray-700 pl-6">
+                    Aktualności, poradniki, inspiracje i najważniejsze informacje.
+                  </span>
                 </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={newsletterSettings.productUpdates}
-                    onChange={(e) => setNewsletterSettings(prev => ({ ...prev, productUpdates: e.target.checked }))} />
-                  Aktualizacje produktów
+                <label className="flex flex-col gap-1">
+                  <span className="inline-flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={newsletterSettings.productUpdates}
+                      onChange={(e) => setNewsletterSettings(prev => ({ ...prev, productUpdates: e.target.checked }))}
+                    />
+                    <span className="font-medium text-gray-900">Aktualizacje produktów</span>
+                  </span>
+                  <span className="text-xs text-gray-700 pl-6">
+                    Zmiany w ofercie, nowe systemy i informacje o dostępności.
+                  </span>
                 </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={newsletterSettings.promotionalOffers}
-                    onChange={(e) => setNewsletterSettings(prev => ({ ...prev, promotionalOffers: e.target.checked }))} />
-                  Oferty promocyjne
+                <label className="flex flex-col gap-1">
+                  <span className="inline-flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={newsletterSettings.promotionalOffers}
+                      onChange={(e) => setNewsletterSettings(prev => ({ ...prev, promotionalOffers: e.target.checked }))}
+                    />
+                    <span className="font-medium text-gray-900">Oferty promocyjne</span>
+                  </span>
+                  <span className="text-xs text-gray-700 pl-6">
+                    Okazje cenowe, rabaty i limitowane akcje promocyjne.
+                  </span>
                 </label>
-                <label className="flex items-center gap-2">
-                  <input type="checkbox" checked={newsletterSettings.technicalNews}
-                    onChange={(e) => setNewsletterSettings(prev => ({ ...prev, technicalNews: e.target.checked }))} />
-                  Nowości techniczne
+                <label className="flex flex-col gap-1">
+                  <span className="inline-flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={newsletterSettings.technicalNews}
+                      onChange={(e) => setNewsletterSettings(prev => ({ ...prev, technicalNews: e.target.checked }))}
+                    />
+                    <span className="font-medium text-gray-900">Nowości techniczne</span>
+                  </span>
+                  <span className="text-xs text-gray-700 pl-6">
+                    Rekomendacje producentów, wytyczne TDS i porady techniczne.
+                  </span>
                 </label>
               </div>
             </div>
@@ -1551,48 +1583,58 @@ function ClientDashboardContent() {
             {/* Marketing */}
             <div className="border rounded-lg p-4">
               <h3 className="font-semibold text-gray-900 mb-3">Marketing</h3>
-              <div className="space-y-3 text-sm">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={marketingSettings.analyticsConsent}
-                    onChange={(e) =>
-                      setMarketingSettings((prev) => ({ ...prev, analyticsConsent: e.target.checked }))
-                    }
-                  />
-                  Zgoda na analitykę
+              <div className="space-y-4 text-sm">
+                <label className="flex flex-col gap-1">
+                  <span className="inline-flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={marketingSettings.analyticsConsent}
+                      onChange={(e) =>
+                        setMarketingSettings((prev) => ({ ...prev, analyticsConsent: e.target.checked }))
+                      }
+                    />
+                    <span className="font-medium text-gray-900">Zgoda na analitykę</span>
+                  </span>
+                  <span className="text-xs text-gray-700 pl-6">
+                    Pozwala nam mierzyć użycie panelu i ulepszać doświadczenie użytkownika.
+                  </span>
                 </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={marketingSettings.marketingEmails}
-                    onChange={(e) =>
-                      setMarketingSettings((prev) => ({ ...prev, marketingEmails: e.target.checked }))
-                    }
-                  />
-                  Maile marketingowe
+
+                <label className="flex flex-col gap-1">
+                  <span className="inline-flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={marketingSettings.marketingEmails}
+                      onChange={(e) =>
+                        setMarketingSettings((prev) => ({ ...prev, marketingEmails: e.target.checked }))
+                      }
+                    />
+                    <span className="font-medium text-gray-900">Maile marketingowe</span>
+                  </span>
+                  <span className="text-xs text-gray-700 pl-6">
+                    Otrzymuj informacje o wydarzeniach, nowościach i kampaniach.
+                  </span>
                 </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={marketingSettings.personalizedAds}
-                    onChange={(e) =>
-                      setMarketingSettings((prev) => ({ ...prev, personalizedAds: e.target.checked }))
-                    }
-                  />
-                  Spersonalizowane reklamy
+
+                <label className="flex flex-col gap-1">
+                  <span className="inline-flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={marketingSettings.personalizedAds}
+                      onChange={(e) =>
+                        setMarketingSettings((prev) => ({ ...prev, personalizedAds: e.target.checked }))
+                      }
+                    />
+                    <span className="font-medium text-gray-900">Spersonalizowane reklamy</span>
+                  </span>
+                  <span className="text-xs text-gray-700 pl-6">
+                    Pozwala dopasowywać treści marketingowe do Twoich potrzeb.
+                  </span>
                 </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={marketingSettings.dataSharing}
-                    onChange={(e) =>
-                      setMarketingSettings((prev) => ({ ...prev, dataSharing: e.target.checked }))
-                    }
-                  />
-                  Zgoda na udostępnianie danych partnerom
-                </label>
-              </div>
+
+                <label className="flex flex-col gap-1">
+                  <span className="inline-flex items-center gap-2">
+                    <input
             </div>
           </div>
         </div>
@@ -1749,34 +1791,12 @@ function ClientDashboardContent() {
                 </div>
               </div>
 
-              {/* Server Event Log */}
-              <div className="border rounded-lg overflow-hidden">
-                <div className="p-3 font-semibold border-b bg-gray-50 flex items-center justify-between">
-                  <span>Dziennik zdarzeń</span>
-                  <button onClick={loadEventsFromAPI} className="text-xs text-blue-600 hover:text-blue-800 underline">Odśwież</button>
-                </div>
-                <div className="max-h-80 overflow-auto divide-y">
-                  {isEventsLoading ? (
-                    <div className="p-3 text-sm text-gray-500">Ładowanie...</div>
-                  ) : clientEvents.length > 0 ? (
-                    clientEvents.map(e => (
-                      <div key={e.id} className="p-3">
-                        <div className="flex items-center justify-between">
-                          <div className="font-semibold text-gray-900">{e.type}</div>
-                          <span className="text-[11px] text-gray-500">{new Date(e.created_at).toLocaleString('pl-PL')}</span>
-                        </div>
-                        {e.details && (
-                          <pre className="text-[11px] text-gray-600 mt-1 whitespace-pre-wrap break-words">
-                            {(() => {
-                              try { return JSON.stringify(e.details, null, 2) } catch { return String(e.details) }
-                            })()}
-                          </pre>
-                        )}
-                      </div>
-                    ))
-                  ) : (
-                    <div className="p-3 text-sm text-gray-500">Brak zdarzeń.</div>
-                  )}
+              {/* Server Event Log hidden in dashboard view */}
+              <div className="border rounded-lg overflow-hidden bg-indigo-50/40 border-indigo-100">
+                <div className="p-4">
+                  <div className="text-sm text-indigo-900">
+                    Dziennik zdarzeń jest dostępny w panelu administratora. W panelu klienta wyświetlamy tylko bieżące powiadomienia.
+                  </div>
                 </div>
               </div>
             </div>

@@ -357,7 +357,7 @@ export default function ClientConsultationsPage() {
                         setForm({ ...form, preferredDate: e.target.value })
                         loadBooked(e.target.value)
                       }}
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-indigo-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
                       required
                     />
                   </div>
@@ -366,7 +366,7 @@ export default function ClientConsultationsPage() {
                     <select
                       value={form.preferredTime}
                       onChange={(e) => setForm({ ...form, preferredTime: e.target.value })}
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-indigo-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
                       required
                     >
                       <option value="">Wybierz godzinę</option>
@@ -384,7 +384,7 @@ export default function ClientConsultationsPage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Sposób kontaktu</label>
                     <div className="flex items-center gap-3">
-                      <label className="flex items-center gap-1 text-sm">
+                      <label className="flex items-center gap-2 text-sm font-medium text-gray-900">
                         <input
                           type="radio"
                           name="contactMethod"
@@ -393,7 +393,7 @@ export default function ClientConsultationsPage() {
                         />
                         Telefon
                       </label>
-                      <label className="flex items-center gap-1 text-sm">
+                      <label className="flex items-center gap-2 text-sm font-medium text-gray-900">
                         <input
                           type="radio"
                           name="contactMethod"
@@ -411,7 +411,7 @@ export default function ClientConsultationsPage() {
                       value={form.contactValue}
                       onChange={(e) => setForm({ ...form, contactValue: e.target.value })}
                       placeholder={form.contactMethod === 'phone' ? '+48 123 456 789' : 'jan@example.com'}
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-indigo-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
                     />
                     {form.contactMethod === 'email' && (user?.primaryEmailAddress?.emailAddress) && (
                       <label className="mt-2 flex items-center gap-2 text-xs text-gray-700">
@@ -438,7 +438,7 @@ export default function ClientConsultationsPage() {
                   <select
                     value={form.selectedQuoteId}
                     onChange={(e) => setForm({ ...form, selectedQuoteId: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-indigo-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
                   >
                     <option value="">Brak</option>
                     {quotes.map((q) => (
@@ -455,7 +455,7 @@ export default function ClientConsultationsPage() {
                     <select
                       value={form.serviceType}
                       onChange={(e) => setForm({ ...form, serviceType: e.target.value })}
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-indigo-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
                     >
                       <option value="standard">Standard</option>
                       <option value="tech_visit">Wizyta techniczna</option>
@@ -467,7 +467,7 @@ export default function ClientConsultationsPage() {
                     <select
                       value={form.inquiryType}
                       onChange={(e) => setForm({ ...form, inquiryType: e.target.value })}
-                      className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-indigo-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
                     >
                       <option value="client_request">Zapytanie klienta</option>
                       <option value="quote_followup">Kontynuacja po wycenie</option>
@@ -490,14 +490,14 @@ export default function ClientConsultationsPage() {
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 text-sm font-semibold"
+                  className="px-4 py-2 rounded-md border border-gray-300 text-gray-800 hover:bg-gray-100 text-sm font-semibold"
                 >
                   Anuluj
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 rounded-md border border-emerald-300 text-emerald-700 hover:bg-emerald-50 text-sm font-semibold disabled:opacity-60"
+                  className="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold disabled:opacity-60"
                 >
                   {submitting ? 'Wysyłanie...' : 'Wyślij prośbę'}
                 </button>
