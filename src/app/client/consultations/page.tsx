@@ -538,24 +538,48 @@ export default function ClientConsultationsPage() {
               <h3 className="text-xl font-bold text-gray-900">Szczegóły konsultacji</h3>
               <p className="text-sm text-gray-600 mt-1">Podsumowanie zgłoszenia i powiązanych informacji.</p>
             </div>
-            <div className="p-6 space-y-3 text-sm max-h-[70vh] overflow-auto">
-              <div><span className="text-gray-500">Status:</span> <span className="font-semibold break-words">{statusLabel(selectedConsultation.status)}</span></div>
-              <div><span className="text-gray-500">Utworzono:</span> <span className="font-semibold break-words">{new Date(selectedConsultation.created_at).toLocaleString('pl-PL')}</span></div>
-              <div><span className="text-gray-500">Termin:</span> <span className="font-semibold break-words">{selectedConsultation.preferred_date || '-'} {selectedConsultation.preferred_time ? `• ${selectedConsultation.preferred_time}` : ''}</span></div>
+            <div className="p-6 space-y-3 text-sm max-h-[70vh] overflow-auto break-words">
+              <div>
+                <div className="text-gray-500">Status:</div>
+                <div className="font-semibold whitespace-pre-wrap break-words">{statusLabel(selectedConsultation.status)}</div>
+              </div>
+              <div>
+                <div className="text-gray-500">Utworzono:</div>
+                <div className="font-semibold whitespace-pre-wrap break-words">{new Date(selectedConsultation.created_at).toLocaleString('pl-PL')}</div>
+              </div>
+              <div>
+                <div className="text-gray-500">Termin:</div>
+                <div className="font-semibold whitespace-pre-wrap break-words">{selectedConsultation.preferred_date || '-'} {selectedConsultation.preferred_time ? `• ${selectedConsultation.preferred_time}` : ''}</div>
+              </div>
               {selectedConsultation.service_type && (
-                <div><span className="text-gray-500">Typ usługi:</span> <span className="font-semibold break-words">{serviceLabel(selectedConsultation.service_type)}</span></div>
+                <div>
+                  <div className="text-gray-500">Typ usługi:</div>
+                  <div className="font-semibold whitespace-pre-wrap break-words">{serviceLabel(selectedConsultation.service_type)}</div>
+                </div>
               )}
               {selectedConsultation.inquiry_type && (
-                <div><span className="text-gray-500">Typ zapytania:</span> <span className="font-semibold break-words">{inquiryLabel(selectedConsultation.inquiry_type)}</span></div>
+                <div>
+                  <div className="text-gray-500">Typ zapytania:</div>
+                  <div className="font-semibold whitespace-pre-wrap break-words">{inquiryLabel(selectedConsultation.inquiry_type)}</div>
+                </div>
               )}
               {selectedConsultation.message && (
-                <div><span className="text-gray-500">Wiadomość:</span> <span className="font-semibold whitespace-pre-wrap break-words">{selectedConsultation.message}</span></div>
+                <div>
+                  <div className="text-gray-500">Wiadomość:</div>
+                  <div className="font-semibold whitespace-pre-wrap break-words">{selectedConsultation.message}</div>
+                </div>
               )}
               {selectedConsultation.admin_notes && (
-                <div><span className="text-gray-500">Notatka administratora:</span> <span className="font-semibold whitespace-pre-wrap break-words">{selectedConsultation.admin_notes}</span></div>
+                <div>
+                  <div className="text-gray-500">Notatka administratora:</div>
+                  <div className="font-semibold whitespace-pre-wrap break-words">{selectedConsultation.admin_notes}</div>
+                </div>
               )}
               {selectedConsultation.quote_id && quotesById[selectedConsultation.quote_id] && (
-                <div><span className="text-gray-500">Powiązana wycena:</span> <span className="font-semibold break-words">#{quotesById[selectedConsultation.quote_id].id.slice(0,6).toUpperCase()} • {quotesById[selectedConsultation.quote_id].area ?? '-'} m² • {toPL('floor', quotesById[selectedConsultation.quote_id].floor_system)}</span></div>
+                <div>
+                  <div className="text-gray-500">Powiązana wycena:</div>
+                  <div className="font-semibold whitespace-pre-wrap break-words">#{quotesById[selectedConsultation.quote_id].id.slice(0,6).toUpperCase()} • {quotesById[selectedConsultation.quote_id].area ?? '-'} m² • {toPL('floor', quotesById[selectedConsultation.quote_id].floor_system)}</div>
+                </div>
               )}
             </div>
             <div className="px-6 pb-6 flex flex-wrap gap-2 justify-end">

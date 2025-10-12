@@ -170,16 +170,58 @@ export default function ClientQuotesPage() {
   }
 
   const KEY_LABELS: Record<string, string> = {
+    // Preferencje kontaktu (różne warianty kluczy)
     preferred_contact_method: 'Preferowany kontakt',
-    preferred_contact_time: 'Preferowany czas kontaktu',
+    preferred_contact: 'Preferowany kontakt',
+    preferredcontact: 'Preferowany kontakt',
+    preferred_time: 'Preferowany czas kontaktu',
+    preferredtime: 'Preferowany czas kontaktu',
+    preferred_days: 'Preferowane dni',
+    preferreddays: 'Preferowane dni',
+
+    // Dane kontaktowe
     email: 'E‑mail',
     phone: 'Telefon',
+    email_contact: 'Kontakt e‑mail',
+    emailcontact: 'Kontakt e‑mail',
+    phone_contact: 'Kontakt telefoniczny',
+    phonecontact: 'Kontakt telefoniczny',
+
+    // Zgody/Regulaminy
     newsletter: 'Newsletter',
     rodo: 'Zgoda RODO',
     terms: 'Regulamin',
+    privacy: 'Polityka prywatności',
+    privacy_consent: 'Zgoda na prywatność',
     marketing: 'Zgody marketingowe'
   }
-  const formatKey = (k: string) => KEY_LABELS[k] || humanize(k)
+  const formatKey = (k: string) => KEY_LABELS[normalizeKey(k)] || humanize(k)
+
+  const VALUE_LABELS: Record<string, string> = {
+    any: 'Dowolnie',
+    morning: 'Rano',
+    afternoon: 'Popołudnie',
+    evening: 'Wieczorem',
+    weekdays: 'Dni robocze',
+    weekend: 'Weekend',
+    weekends: 'Weekend',
+    phone: 'Telefon',
+    email: 'E‑mail',
+    sms: 'SMS',
+    yes: 'Tak',
+    no: 'Nie',
+    true: 'Tak',
+    false: 'Nie'
+  }
+  const formatValue = (v: unknown) => {
+    if (typeof v === 'boolean') return v ? 'Tak' : 'Nie'
+    if (typeof v === 'string') {
+      const norm = normalizeKey(v).toLowerCase()
+      if (VALUE_LABELS[norm]) return VALUE_LABELS[norm]
+      return humanize(v)
+    }
+    return String(v)
+  }
 
   const renderKeyValueList = (obj: any) => {
     try {
@@ -189,9 +231,9 @@ export default function ClientQuotesPage() {
       return (
         <ul className="mt-1 space-y-1 text-sm">
           {entries.map(([k, v]) => (
-            <li key={String(k)} className="flex gap-2">
-              <span className="text-gray-500 min-w-40">{formatKey(String(k))}:</span>
-              <span className="font-semibold">{typeof v === 'boolean' ? (v ? 'Tak' : 'Nie') : String(v)}</span>
+            <li key={String(k)} className="grid grid-cols-[auto,1fr] gap-2 items-start">
+              <span className="text-gray-500">{formatKey(String(k))}:</span>
+              <span className="font-semibold text-gray-900 whitespace-pre-wrap break-words">{formatValue(v)}</span>
             </li>
           ))}
         </ul>
@@ -483,18 +525,45 @@ export default function ClientQuotesPage() {
               <h3 className="text-xl font-bold text-gray-900">Podgląd wyceny</h3>
             </div>
             <div className="p-6 space-y-3 text-sm max-h-[70vh] overflow-auto">
-              <div><span className="text-gray-500">Powierzchnia:</span> <span className="font-semibold break-words">{selectedQuote.area} m²</span></div>
-              <div><span className="text-gray-500">System:</span> <span className="font-semibold break-words">{toPL('floor', selectedQuote.floor_system)}</span></div>
-              <div><span className="text-gray-500">Dekoracja:</span> <span className="font-semibold break-words">{toPL('decor', selectedQuote.decorative_system)}</span></div>
-              <div><span className="text-gray-500">Podłoże:</span> <span className="font-semibold break-words">{toPL('substrate', selectedQuote.substrate_condition)}</span></div>
-              <div><span className="text-gray-500">Lokalizacja:</span> <span className="font-semibold break-words">{toPL('location', selectedQuote.location)}</span></div>
-              <div><span className="text-gray-500">Cena za m²:</span> <span className="font-semibold break-words">{formatPLN(selectedQuote.price_min)} – {formatPLN(selectedQuote.price_max)} / m²</span></div>
-              <div><span className="text-gray-500">Razem:</span> <span className="font-semibold break-words">{formatPLN(selectedQuote.total_min)} – {formatPLN(selectedQuote.total_max)}</span></div>
+              <div>
+                <div className="text-gray-500">Powierzchnia:</div>
+                <div className="font-semibold whitespace-pre-wrap break-words">{selectedQuote.area} m²</div>
+              </div>
+              <div>
+                <div className="text-gray-500">System:</div>
+                <div className="font-semibold whitespace-pre-wrap break-words">{toPL('floor', selectedQuote.floor_system)}</div>
+              </div>
+              <div>
+                <div className="text-gray-500">Dekoracja:</div>
+                <div className="font-semibold whitespace-pre-wrap break-words">{toPL('decor', selectedQuote.decorative_system)}</div>
+              </div>
+              <div>
+                <div className="text-gray-500">Podłoże:</div>
+                <div className="font-semibold whitespace-pre-wrap break-words">{toPL('substrate', selectedQuote.substrate_condition)}</div>
+              </div>
+              <div>
+                <div className="text-gray-500">Lokalizacja:</div>
+                <div className="font-semibold whitespace-pre-wrap break-words">{toPL('location', selectedQuote.location)}</div>
+              </div>
+              <div>
+                <div className="text-gray-500">Cena za m²:</div>
+                <div className="font-semibold whitespace-pre-wrap break-words">{formatPLN(selectedQuote.price_min)} – {formatPLN(selectedQuote.price_max)} / m²</div>
+              </div>
+              <div>
+                <div className="text-gray-500">Razem:</div>
+                <div className="font-semibold whitespace-pre-wrap break-words">{formatPLN(selectedQuote.total_min)} – {formatPLN(selectedQuote.total_max)}</div>
+              </div>
               {selectedQuote.consultation_date && (
-                <div><span className="text-gray-500">Termin konsultacji:</span> <span className="font-semibold break-words">{new Date(selectedQuote.consultation_date).toLocaleString('pl-PL')}</span></div>
+                <div>
+                  <div className="text-gray-500">Termin konsultacji:</div>
+                  <div className="font-semibold whitespace-pre-wrap break-words">{new Date(selectedQuote.consultation_date).toLocaleString('pl-PL')}</div>
+                </div>
               )}
               {selectedQuote.consultation_notes && (
-                <div><span className="text-gray-500">Notatki konsultacji:</span> <span className="font-semibold whitespace-pre-wrap break-words">{selectedQuote.consultation_notes}</span></div>
+                <div>
+                  <div className="text-gray-500">Notatki konsultacji:</div>
+                  <div className="font-semibold whitespace-pre-wrap break-words">{selectedQuote.consultation_notes}</div>
+                </div>
               )}
               <div className="pt-2 break-words">
                 <div className="text-gray-500">Preferencje kontaktu:</div>
@@ -508,8 +577,14 @@ export default function ClientQuotesPage() {
                   <div className="text-gray-400 text-sm">Brak</div>
                 )}
               </div>
-              <div><span className="text-gray-500">Status:</span> <span className="font-semibold break-words">{statusLabel(selectedQuote.status)}</span></div>
-              <div><span className="text-gray-500">Utworzono:</span> <span className="font-semibold break-words">{new Date(selectedQuote.created_at).toLocaleString('pl-PL')}</span></div>
+              <div>
+                <div className="text-gray-500">Status:</div>
+                <div className="font-semibold whitespace-pre-wrap break-words">{statusLabel(selectedQuote.status)}</div>
+              </div>
+              <div>
+                <div className="text-gray-500">Utworzono:</div>
+                <div className="font-semibold whitespace-pre-wrap break-words">{new Date(selectedQuote.created_at).toLocaleString('pl-PL')}</div>
+              </div>
             </div>
             <div className="px-6 pb-6 flex flex-wrap gap-2 justify-end">
               <Button variant="outline" size="sm" onClick={() => handleDownloadPDF(selectedQuote)}>Pobierz PDF</Button>
