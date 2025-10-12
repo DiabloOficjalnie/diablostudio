@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { FormField, Input, Select, Textarea, Radio, Checkbox } from '@/app/components/FormField'
+import Button from '@/app/components/Button'
 
 type Consultation = {
   id: string
@@ -296,12 +297,9 @@ export default function ClientConsultationsPage() {
                 Umów rozmowę z ekspertem. Wybierz dogodny termin i przekaż dodatkowe informacje.
               </p>
             </div>
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="self-start px-4 py-2 bg-white text-indigo-700 hover:bg-indigo-50 rounded-lg text-sm font-semibold border border-indigo-200"
-            >
+            <Button variant="secondary" onClick={() => setShowCreateModal(true)}>
               + Nowa konsultacja
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -394,19 +392,21 @@ export default function ClientConsultationsPage() {
                     )}
                   </div>
                   <div className="flex gap-2 sm:justify-end">
-                    <button
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => setSelectedConsultation(c)}
-                      className="px-3 py-1.5 text-xs font-semibold rounded-md border border-blue-300 text-blue-700 hover:bg-blue-50"
                     >
                       Szczegóły
-                    </button>
+                    </Button>
                     {(c.status === 'pending' || c.status === 'confirmed') && (
-                      <button
+                      <Button
+                        variant="danger"
+                        size="sm"
                         onClick={() => cancelConsultation(c.id)}
-                        className="px-3 py-1.5 text-xs font-semibold rounded-md border border-red-300 text-red-700 hover:bg-red-50"
                       >
                         Anuluj
-                      </button>
+                      </Button>
                     )}
                   </div>
                 </div>
@@ -437,9 +437,13 @@ export default function ClientConsultationsPage() {
             </div>
             <div className="px-6 pb-6 flex flex-wrap gap-2 justify-end">
               {(selectedConsultation.status === 'pending' || selectedConsultation.status === 'confirmed') && (
-                <button onClick={() => cancelConsultation(selectedConsultation.id)} className="px-4 py-2 rounded-md border border-red-300 text-red-700 hover:bg-red-50 text-sm font-semibold">Anuluj konsultację</button>
+                <Button variant="danger" onClick={() => cancelConsultation(selectedConsultation.id)}>
+                  Anuluj konsultację
+                </Button>
               )}
-              <button onClick={() => setSelectedConsultation(null)} className="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 text-sm font-semibold">Zamknij</button>
+              <Button variant="secondary" onClick={() => setSelectedConsultation(null)}>
+                Zamknij
+              </Button>
             </div>
           </div>
         </div>
@@ -579,20 +583,16 @@ export default function ClientConsultationsPage() {
                 </FormField>
               </div>
               <div className="px-6 pb-6 flex flex-wrap gap-2 justify-end">
-                <button
+                <Button
                   type="button"
+                  variant="secondary"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 rounded-md border border-gray-300 text-gray-800 hover:bg-gray-100 text-sm font-semibold"
                 >
                   Anuluj
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold disabled:opacity-60"
-                >
+                </Button>
+                <Button type="submit" disabled={submitting}>
                   {submitting ? 'Wysyłanie...' : 'Wyślij prośbę'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>

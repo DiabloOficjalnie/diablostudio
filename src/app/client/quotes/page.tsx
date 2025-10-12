@@ -5,6 +5,7 @@ import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import generateQuotePDF from '@/lib/pdfGenerator'
 import ConsultationRequestForm from '@/app/components/ConsultationRequestForm'
+import Button from '@/app/components/Button'
 
 interface ClientQuote {
   id: string
@@ -21,6 +22,8 @@ interface ClientQuote {
   status: 'saved' | 'consultation_requested' | 'in_progress' | 'completed'
   consultation_date?: string
   consultation_notes?: string
+  contact_preferences?: any | null
+  consents?: any | null
 }
 
 export default function ClientQuotesPage() {
@@ -70,6 +73,80 @@ export default function ClientQuotesPage() {
       .trim()
       .toLowerCase()
       .replace(/\b\w/g, (c) => c.toUpperCase())
+  }
+
+  // Mapowania kodów na polskie nazwy (fallback do humanize)
+  const DICT_FLOOR: Record<string, string> = {
+    epoxy: 'Epoksydowy',
+    polyurethane: 'Poliuretanowy',
+    microcement: 'Mikrocement',
+    industrial: 'Przemysłowy',
+    decorative: 'Dekoracyjny'
+  }
+  const DICT_DECOR: Record<string, string> = {
+    flakes: 'Płatki dekoracyjne',
+    quartz: 'Kwarc',
+    matte: 'Mat',
+    gloss: 'Połysk',
+    satin: 'Satyna'
+  }
+  const DICT_SUBSTRATE: Record<string, string> = {
+    concrete: 'Beton',
+    anhydrite: 'Anhydryt',
+    tiles: 'Płytki',
+    screed: 'Wylewka',
+    wood: 'Drewno'
+  }
+  const DICT_LOCATION: Record<string, string> = {
+    garage: 'Garaż',
+    living_room: 'Salon',
+    kitchen: 'Kuchnia',
+    terrace: 'Taras',
+    bathroom: 'Łazienka',
+    hall: 'Korytarz'
+  }
+
+  const toPL = (group: 'floor' | 'decor' | 'substrate' | 'location', value?: string) => {
+    if (!value) return ''
+    const key = value.toLowerCase()
+    const dict =
+      group === 'floor' ? DICT_FLOOR :
+      group === 'decor' ? DICT_DECOR :
+      group === 'substrate' ? DICT_SUBSTRATE :
+      DICT_LOCATION
+    return dict[key] || humanize(value)
+  }
+
+  const KEY_LABELS: Record<string, string> = {
+    preferred_contact_method: 'Preferowany kontakt',
+    preferred_contact_time: 'Preferowany czas kontaktu',
+    email: 'E‑mail',
+    phone: 'Telefon',
+    newsletter: 'Newsletter',
+    rodo: 'Zgoda RODO',
+    terms: 'Regulamin',
+    marketing: 'Zgody marketingowe'
+  }
+  const formatKey = (k: string) => KEY_LABELS[k] || humanize(k)
+
+  const renderKeyValueList = (obj: any) => {
+    try {
+      if (!obj) return null
+      const entries = Object.entries(obj)
+      if (entries.length === 0) return null
+      return (
+        <ul className="mt-1 space-y-1 text-sm">
+          {entries.map(([k, v]) => (
+            <li key={String(k)} className="flex gap-2">
+              <span className="text-gray-500 min-w-40">{formatKey(String(k))}:</span>
+              <span className="font-semibold">{typeof v === 'boolean' ? (v ? 'Tak' : 'Nie') : String(v)}</span>
+            </li>
+          ))}
+        </ul>
+      )
+    } catch {
+      return null
+    }
   }
 
   const formatPLN = (n: number) =>
@@ -238,12 +315,9 @@ export default function ClientQuotesPage() {
               <h1 className="text-2xl sm:text-3xl font-bold leading-tight">Wyceny</h1>
               <p className="mt-2 text-indigo-100">Lista wszystkich zapisanych kalkulacji</p>
             </div>
-            <a
-              href="/valuation"
-              className="px-4 py-2 bg-white text-indigo-700 hover:bg-indigo-50 rounded-lg text-sm font-semibold border border-indigo-200"
-            >
+            <Button variant="secondary" href="/valuation" size="md">
               + Nowa wycena
-            </a>
+            </Button>
           </div>
         </div>
       </div>
@@ -289,10 +363,10 @@ export default function ClientQuotesPage() {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div>
                     <div className="font-semibold text-gray-900">
-                      #{q.id.slice(0, 6).toUpperCase()} • {q.area} m² • {humanize(q.floor_system)}
+                      #{q.id.slice(0, 6).toUpperCase()} • {q.area} m² • {toPL('floor', q.floor_system)}
                     </div>
                     <div className="text-sm text-gray-600 mt-0.5">
-                      {humanize(q.location)} • {humanize(q.decorative_system)} • {humanize(q.substrate_condition)}
+                      {toPL('location', q.location)} • {toPL('decor', q.decorative_system)} • {toPL('substrate', q.substrate_condition)}
                     </div>
                     <div className="text-xs text-gray-500 mt-0.5">
                       {new Date(q.created_at).toLocaleString('pl-PL')}
@@ -313,30 +387,34 @@ export default function ClientQuotesPage() {
                     <div className="text-sm text-gray-700">Razem: {formatPLN(q.total_min)} – {formatPLN(q.total_max)}</div>
 
                     <div className="mt-3 flex flex-wrap gap-2 justify-end">
-                      <button
+                      <Button
+                        variant="primary"
+                        size="sm"
                         onClick={() => handleRequestConsultation(q)}
-                        className="px-3 py-1.5 text-xs font-semibold rounded-md bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
                       >
                         Umów konsultację
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="sm"
                         onClick={() => handlePreviewQuote(q)}
-                        className="px-3 py-1.5 text-xs font-semibold rounded-md border border-gray-300 hover:bg-gray-100"
                       >
                         Podgląd
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => handleDownloadPDF(q)}
-                        className="px-3 py-1.5 text-xs font-semibold rounded-md border border-blue-300 text-blue-700 hover:bg-blue-50"
                       >
                         Pobierz PDF
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="danger"
+                        size="sm"
                         onClick={() => handleDeleteQuote(q)}
-                        className="px-3 py-1.5 text-xs font-semibold rounded-md border border-red-300 text-red-700 hover:bg-red-50"
                       >
                         Usuń
-                      </button>
+                      </Button>
                   </div>
                 </div>
               </div>
@@ -354,17 +432,37 @@ export default function ClientQuotesPage() {
             </div>
             <div className="p-6 space-y-2 text-sm">
               <div><span className="text-gray-500">Powierzchnia:</span> <span className="font-semibold">{selectedQuote.area} m²</span></div>
-              <div><span className="text-gray-500">System:</span> <span className="font-semibold">{selectedQuote.floor_system}</span></div>
-              <div><span className="text-gray-500">Dekoracja:</span> <span className="font-semibold">{selectedQuote.decorative_system}</span></div>
-              <div><span className="text-gray-500">Podłoże:</span> <span className="font-semibold">{selectedQuote.substrate_condition}</span></div>
-              <div><span className="text-gray-500">Zakres cen:</span> <span className="font-semibold">{formatPLN(selectedQuote.total_min)} – {formatPLN(selectedQuote.total_max)}</span></div>
+              <div><span className="text-gray-500">System:</span> <span className="font-semibold">{toPL('floor', selectedQuote.floor_system)}</span></div>
+              <div><span className="text-gray-500">Dekoracja:</span> <span className="font-semibold">{toPL('decor', selectedQuote.decorative_system)}</span></div>
+              <div><span className="text-gray-500">Podłoże:</span> <span className="font-semibold">{toPL('substrate', selectedQuote.substrate_condition)}</span></div>
+              <div><span className="text-gray-500">Lokalizacja:</span> <span className="font-semibold">{toPL('location', selectedQuote.location)}</span></div>
+              <div><span className="text-gray-500">Cena za m²:</span> <span className="font-semibold">{formatPLN(selectedQuote.price_min)} – {formatPLN(selectedQuote.price_max)} / m²</span></div>
+              <div><span className="text-gray-500">Razem:</span> <span className="font-semibold">{formatPLN(selectedQuote.total_min)} – {formatPLN(selectedQuote.total_max)}</span></div>
+              {selectedQuote.consultation_date && (
+                <div><span className="text-gray-500">Termin konsultacji:</span> <span className="font-semibold">{new Date(selectedQuote.consultation_date).toLocaleString('pl-PL')}</span></div>
+              )}
+              {selectedQuote.consultation_notes && (
+                <div><span className="text-gray-500">Notatki konsultacji:</span> <span className="font-semibold">{selectedQuote.consultation_notes}</span></div>
+              )}
+              <div className="pt-2">
+                <div className="text-gray-500">Preferencje kontaktu:</div>
+                {renderKeyValueList(selectedQuote.contact_preferences) || (
+                  <div className="text-gray-400 text-sm">Brak</div>
+                )}
+              </div>
+              <div className="pt-1">
+                <div className="text-gray-500">Zgody:</div>
+                {renderKeyValueList(selectedQuote.consents) || (
+                  <div className="text-gray-400 text-sm">Brak</div>
+                )}
+              </div>
               <div><span className="text-gray-500">Status:</span> <span className="font-semibold">{statusLabel(selectedQuote.status)}</span></div>
               <div><span className="text-gray-500">Utworzono:</span> <span className="font-semibold">{new Date(selectedQuote.created_at).toLocaleString('pl-PL')}</span></div>
             </div>
             <div className="px-6 pb-6 flex flex-wrap gap-2 justify-end">
-              <button onClick={() => handleDownloadPDF(selectedQuote)} className="px-4 py-2 rounded-md border border-blue-300 text-blue-700 hover:bg-blue-50 text-sm font-semibold">Pobierz PDF</button>
-              <button onClick={() => handleRequestConsultation(selectedQuote)} className="px-4 py-2 rounded-md border border-emerald-300 text-emerald-700 hover:bg-emerald-50 text-sm font-semibold">Poproś o konsultację</button>
-              <button onClick={() => setShowQuotePreviewModal(false)} className="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 text-sm font-semibold">Zamknij</button>
+              <Button variant="outline" size="sm" onClick={() => handleDownloadPDF(selectedQuote)}>Pobierz PDF</Button>
+              <Button variant="secondary" size="sm" onClick={() => handleRequestConsultation(selectedQuote)}>Poproś o konsultację</Button>
+              <Button variant="secondary" size="sm" onClick={() => setShowQuotePreviewModal(false)}>Zamknij</Button>
             </div>
           </div>
         </div>
