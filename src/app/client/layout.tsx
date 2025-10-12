@@ -35,6 +35,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
   // Dynamic badges (quotes count for now)
   const [quotesCount, setQuotesCount] = useState<number>(0)
+  const [consultationsCount, setConsultationsCount] = useState<number>(0)
 
   // Persist UI preferences (collapsed/debug) in localStorage
   useEffect(() => {
@@ -83,6 +84,24 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     loadQuotes()
   }, [])
 
+  // Load consultations count for badge
+  useEffect(() => {
+    const loadConsultations = async () => {
+      try {
+        const res = await fetch('/api/client/consultations', { cache: 'no-store' })
+        const data = await res.json()
+        if (res.ok && data?.success && Array.isArray(data.consultations)) {
+          setConsultationsCount(data.consultations.length)
+        } else {
+          setConsultationsCount(0)
+        }
+      } catch {
+        setConsultationsCount(0)
+      }
+    }
+    loadConsultations()
+  }, [])
+
   // Navigation grouped in sections to mirror AdminLayout structure
   const navigationSections: NavigationSection[] = [
     {
@@ -117,6 +136,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
           title: 'Konsultacje',
           path: '/client/consultations',
           icon: '📞',
+          badge: consultationsCount,
           description: 'Żądania konsultacji'
         },
         {

@@ -948,6 +948,18 @@ function ClientDashboardContent() {
     }
   }
 
+  // Manual reload helper
+  function reloadAll() {
+    loadQuotes()
+    loadConsultationsFromAPI()
+    loadDocumentsFromAPI()
+    loadPhotosFromAPI()
+    loadAffiliateFromAPI()
+    loadSettingsFromAPI()
+    loadStatisticsFromAPI()
+    loadEventsFromAPI()
+  }
+
   // Load booked slots for chosen date
   async function loadBookedSlots(date: string) {
     if (!date) {
@@ -1029,32 +1041,56 @@ function ClientDashboardContent() {
     checkUser()
   }, [isLoaded, user])
 
+  // Load dashboard data as soon as Clerk is loaded and user is available
   useEffect(() => {
-    if (user && profile) {
-      // Attach pending homepage quote (saved in sessionStorage) to this account after login
-      ;(async () => {
-        try {
-          await attachPendingQuoteToAccount()
-        } catch (e) {
-          console.error('Attach pending quote error:', e)
-        }
-      })()
+    if (!isLoaded || !user) return
 
-      loadQuotes()
-      loadConsultationsFromAPI()
-      loadDocumentsFromAPI()
-      loadPhotosFromAPI()
-      loadAffiliateFromAPI()
-      loadSettingsFromAPI()
-      loadStatisticsFromAPI()
-      loadEventsFromAPI()
-      loadUserProgress() // Load user progress from database
-      // Check if 2FA is enabled for this user
-      if (profile.two_factor_enabled) {
-        setIsTwoFactorEnabled(true)
+    ;(async () => {
+      try {
+        await attachPendingQuoteToAccount()
+      } catch (e) {
+        console.error('Attach pending quote error:', e)
       }
+    })()
+
+    // Always fetch latest data (no-store used in requests)
+    loadQuotes()
+    loadConsultationsFromAPI()
+    loadDocumentsFromAPI()
+    loadPhotosFromAPI()
+    loadAffiliateFromAPI()
+    loadSettingsFromAPI()
+    loadStatisticsFromAPI()
+    loadEventsFromAPI()
+    loadUserProgress() // Load user progress from database
+
+    // 2FA indicator if profile is available
+    if (profile?.two_factor_enabled) {
+      setIsTwoFactorEnabled(true)
     }
-  }, [user, profile])
+  }, [isLoaded, user])
+
+  // Auto-refresh dashboard data on focus/visibility and periodically
+  useEffect(() => {
+    if (!isLoaded || !user) return
+
+    const onFocus = () => reloadAll()
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') reloadAll()
+    }
+
+    window.addEventListener('focus', onFocus)
+    document.addEventListener('visibilitychange', onVisibility)
+
+    // Poll every 60s for fresh data
+    const interval = setInterval(reloadAll, 60000)
+
+    return () => {
+      window.removeEventListener('focus', onFocus)
+      document.removeEventListener('visibilitychange', onVisibility)
+      clearInterval(interval)
+    }
+  }, [isLoaded, user])
 
   // Renderuj wykres trendów po załadowaniu danych
   useEffect(() => {
@@ -1123,12 +1159,20 @@ function ClientDashboardContent() {
               <h1 className="text-2xl sm:text-3xl font-bold leading-tight">Pulpit</h1>
               <p className="mt-2 text-indigo-100">Podsumowanie Twojego konta i aktywności</p>
             </div>
-            <button
-              onClick={() => { setShowNotificationCenter(true); loadEventsFromAPI(); }}
-              className="px-4 py-2 bg-white text-indigo-700 hover:bg-indigo-50 rounded-lg text-sm font-semibold border border-indigo-200"
-            >
-              🔔 Powiadomienia
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={reloadAll}
+                className="px-4 py-2 bg-white text-indigo-700 hover:bg-indigo-50 rounded-lg text-sm font-semibold border border-indigo-200"
+              >
+                🔄 Odśwież
+              </button>
+              <button
+                onClick={() => { setShowNotificationCenter(true); loadEventsFromAPI(); }}
+                className="px-4 py-2 bg-white text-indigo-700 hover:bg-indigo-50 rounded-lg text-sm font-semibold border border-indigo-200"
+              >
+                🔔 Powiadomienia
+              </button>
+            </div>
           </div>
         </div>
       </div>
