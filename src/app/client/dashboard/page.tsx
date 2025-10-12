@@ -1115,27 +1115,22 @@ function ClientDashboardContent() {
   // Edukacja – uproszczony, estetyczny i responsywny UI w panelu klienta
   return (
     <div className="min-h-screen bg-gray-50 p-6 sm:p-8 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex gap-2">
-          <button
-            onClick={() => setActiveSection('overview')}
-            className={`px-3 py-2 rounded-lg text-sm font-semibold border ${activeSection !== 'education' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-blue-700 border-blue-200 hover:bg-blue-50'}`}
-          >
-            Przegląd
-          </button>
-          <button
-            onClick={() => setActiveSection('education')}
-            className={`px-3 py-2 rounded-lg text-sm font-semibold border ${activeSection === 'education' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-blue-700 border-blue-200 hover:bg-blue-50'}`}
-          >
-            Edukacja
-          </button>
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-900 via-indigo-800 to-blue-900 text-white mb-6">
+        <div className="absolute inset-0 bg-black/10" />
+        <div className="relative z-10 p-6 sm:p-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold leading-tight">Pulpit</h1>
+              <p className="mt-2 text-indigo-100">Podsumowanie Twojego konta i aktywności</p>
+            </div>
+            <button
+              onClick={() => { setShowNotificationCenter(true); loadEventsFromAPI(); }}
+              className="px-4 py-2 bg-white text-indigo-700 hover:bg-indigo-50 rounded-lg text-sm font-semibold border border-indigo-200"
+            >
+              🔔 Powiadomienia
+            </button>
+          </div>
         </div>
-        <button
-          onClick={() => { setShowNotificationCenter(true); loadEventsFromAPI(); }}
-          className="px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg text-sm font-semibold border border-gray-200"
-        >
-          🔔 Powiadomienia
-        </button>
       </div>
       {/* Hero */}
       {false && (

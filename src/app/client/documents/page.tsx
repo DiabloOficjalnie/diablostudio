@@ -131,22 +131,22 @@ export default function ClientDocumentsPage() {
       </div>
 
       {/* Hero header */}
-      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white mb-6">
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-900 via-indigo-800 to-blue-900 text-white mb-6">
         <div className="absolute inset-0 bg-black/10" />
         <div className="relative z-10 p-6 sm:p-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold leading-tight">Dokumenty</h1>
-              <p className="mt-2 text-blue-100 max-w-2xl">
+              <p className="mt-2 text-indigo-100 max-w-2xl">
                 Wszystkie pliki udostępnione dla Twojego konta — faktury, protokoły, oferty i materiały dodatkowe.
               </p>
             </div>
-            <a
-              href="/client/dashboard"
-              className="self-start px-4 py-2 bg-white text-blue-700 hover:bg-blue-50 rounded-lg text-sm font-semibold border border-blue-200"
-            >
-              Panel
-            </a>
+          <a
+            href="/client/dashboard"
+            className="self-start px-4 py-2 bg-white text-indigo-700 hover:bg-indigo-50 rounded-lg text-sm font-semibold border border-indigo-200"
+          >
+            Panel
+          </a>
           </div>
         </div>
       </div>

@@ -49,6 +49,23 @@ export default function ClientConsultationsPage() {
   // Toasts
   const [toasts, setToasts] = useState<Array<{ id: string, type: 'success' | 'error' | 'info', text: string }>>([])
 
+  // Quotes for linking (optional)
+  const [quotes, setQuotes] = useState<Array<{ id: string; area?: number; floor_system?: string; created_at: string }>>([])
+
+  const loadQuotes = async () => {
+    try {
+      const res = await fetch('/api/client/quotes', { cache: 'no-store' })
+      const data = await res.json().catch(() => ({}))
+      if (res.ok && Array.isArray((data as any)?.quotes)) {
+        setQuotes((data as any).quotes as any)
+      } else {
+        setQuotes([])
+      }
+    } catch {
+      setQuotes([])
+    }
+  }
+
   const addToast = (type: 'success' | 'error' | 'info', text: string) => {
     const id = String(Date.now())
     setToasts(prev => [...prev, { id, type, text }])
@@ -80,6 +97,7 @@ export default function ClientConsultationsPage() {
       return
     }
     loadConsultations()
+    loadQuotes()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoaded, user])
 
@@ -207,19 +225,19 @@ export default function ClientConsultationsPage() {
       </div>
 
       {/* Header */}
-      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 text-white mb-6">
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-900 via-indigo-800 to-blue-900 text-white mb-6">
         <div className="absolute inset-0 bg-black/10" />
         <div className="relative z-10 p-6 sm:p-8">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold leading-tight">Konsultacje</h1>
-              <p className="mt-2 text-blue-100 max-w-2xl">
+              <p className="mt-2 text-indigo-100 max-w-2xl">
                 Umów rozmowę z ekspertem. Wybierz dogodny termin i przekaż dodatkowe informacje.
               </p>
             </div>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="self-start px-4 py-2 bg-white text-blue-700 hover:bg-blue-50 rounded-lg text-sm font-semibold border border-blue-200"
+              className="self-start px-4 py-2 bg-white text-indigo-700 hover:bg-indigo-50 rounded-lg text-sm font-semibold border border-indigo-200"
             >
               + Nowa konsultacja
             </button>
@@ -395,7 +413,40 @@ export default function ClientConsultationsPage() {
                       placeholder={form.contactMethod === 'phone' ? '+48 123 456 789' : 'jan@example.com'}
                       className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
+                    {form.contactMethod === 'email' && (user?.primaryEmailAddress?.emailAddress) && (
+                      <label className="mt-2 flex items-center gap-2 text-xs text-gray-700">
+                        <input
+                          type="checkbox"
+                          onChange={(e) =>
+                            setForm({
+                              ...form,
+                              contactValue: e.target.checked
+                                ? (user?.primaryEmailAddress?.emailAddress || '')
+                                : form.contactValue
+                            })
+                          }
+                        />
+                        Użyj adresu konta: <span className="font-semibold">{user?.primaryEmailAddress?.emailAddress}</span>
+                      </label>
+                    )}
                   </div>
+                </div>
+
+                {/* Link to existing quote (optional) */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Powiąż z wyceną (opcjonalnie)</label>
+                  <select
+                    value={form.selectedQuoteId}
+                    onChange={(e) => setForm({ ...form, selectedQuoteId: e.target.value })}
+                    className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Brak</option>
+                    {quotes.map((q) => (
+                      <option key={q.id} value={q.id}>
+                        #{q.id} • {q.area ?? '-'} m² • {q.floor_system ?? 'system'} • {new Date(q.created_at).toLocaleDateString('pl-PL')}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

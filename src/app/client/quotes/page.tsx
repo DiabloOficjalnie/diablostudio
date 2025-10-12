@@ -207,16 +207,15 @@ export default function ClientQuotesPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      {/* Header row */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Twoje wyceny</h1>
-          <p className="text-sm text-gray-600">Lista wszystkich zapisanych kalkulacji</p>
-        </div>
-        <a href="/valuation" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold">
-          + Nowa wycena
-        </a>
-      </div>
+      {/* Header */}
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-900 via-indigo-800 to-blue-900 text-white mb-6">
+        <div className="absolute inset-0 bg-black/10" />
+        <div className="relative z-10 p-6 sm:p-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold leading-tight">Wyceny</h1>
+              <p className="mt-2 text-indigo-100">Lista wszystkich zapisanych kalkulacji</p>
+            </div>
 
       {/* Notifications (toasts area) */}
       <div className="fixed bottom-6 right-6 space-y-2 z-50">

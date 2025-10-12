@@ -25,7 +25,6 @@ export default function ClientSettingsPage() {
   const [isSettingsLoading, setIsSettingsLoading] = useState(true)
   const [isSavingSettings, setIsSavingSettings] = useState(false)
   const [isTwoFactorEnabled, setIsTwoFactorEnabled] = useState(false)
-  const [statistics, setStatistics] = useState<any>(null)
 
   const [newsletterSettings, setNewsletterSettings] = useState<NewsletterSettings>({
     generalNewsletter: true,
@@ -66,22 +65,6 @@ export default function ClientSettingsPage() {
     })()
   }, [isLoaded, user, router])
 
-  useEffect(() => {
-    if (!isLoaded) return
-    if (!user) return
-    ;(async () => {
-      try {
-        const res = await fetch('/api/client/statistics', { cache: 'no-store' })
-        const data = await res.json().catch(() => ({}))
-        if (res.ok && (data as any)?.success) {
-          setStatistics((data as any).statistics || null)
-        }
-      } catch (e) {
-        console.error('loadStatistics error', e)
-      }
-    })()
-  }, [isLoaded, user])
-
   async function saveSettingsToAPI() {
     try {
       setIsSavingSettings(true)
@@ -108,27 +91,27 @@ export default function ClientSettingsPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      {/* Statystyki konta */}
-      {statistics && (
-        <div className="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
-            <div className="text-sm text-gray-500">Zakończone projekty</div>
-            <div className="text-2xl font-bold text-gray-900">{statistics?.completed_projects ?? 0}</div>
-          </div>
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
-            <div className="text-sm text-gray-500">Łączna powierzchnia</div>
-            <div className="text-2xl font-bold text-gray-900">{statistics?.total_square_meters ?? 0} m²</div>
-          </div>
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
-            <div className="text-sm text-gray-500">Oszczędności (szac.)</div>
-            <div className="text-2xl font-bold text-gray-900">{new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(Number(statistics?.total_savings ?? 0))}</div>
-          </div>
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-4">
-            <div className="text-sm text-gray-500">Aktualny rabat</div>
-            <div className="text-2xl font-bold text-gray-900">{statistics?.current_discount ?? 0}%</div>
+      {/* Header */}
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-900 via-indigo-800 to-blue-900 text-white mb-6">
+        <div className="absolute inset-0 bg-black/10" />
+        <div className="relative z-10 p-6 sm:p-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold leading-tight">Ustawienia</h1>
+              <p className="mt-2 text-indigo-100 max-w-2xl">
+                Zarządzaj preferencjami newslettera i marketingu oraz profilem i zabezpieczeniami konta.
+              </p>
+            </div>
+            <a
+              href="#profile"
+              className="self-start px-4 py-2 bg-white text-indigo-700 hover:bg-indigo-50 rounded-lg text-sm font-semibold border border-indigo-200"
+            >
+              Profil i 2FA
+            </a>
           </div>
         </div>
-      )}
+      </div>
+
       <div className="bg-white rounded-xl shadow-md border border-gray-200">
         <div className="p-6 border-b border-gray-100 flex items-center justify-between">
           <div>
@@ -174,38 +157,61 @@ export default function ClientSettingsPage() {
                 <div className="h-4 bg-gray-200 rounded w-3/4" />
               </div>
             ) : (
-              <div className="space-y-3 text-sm">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={newsletterSettings.generalNewsletter}
-                    onChange={(e) => setNewsletterSettings(prev => ({ ...prev, generalNewsletter: e.target.checked }))}
-                  />
-                  Ogólny newsletter
+              <div className="space-y-4 text-sm">
+                <label className="flex flex-col gap-1">
+                  <span className="inline-flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={newsletterSettings.generalNewsletter}
+                      onChange={(e) => setNewsletterSettings(prev => ({ ...prev, generalNewsletter: e.target.checked }))}
+                    />
+                    <span className="font-medium text-gray-900">Ogólny newsletter</span>
+                  </span>
+                  <span className="text-xs text-gray-600 pl-6">
+                    Aktualności, poradniki, inspiracje i najważniejsze informacje.
+                  </span>
                 </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={newsletterSettings.productUpdates}
-                    onChange={(e) => setNewsletterSettings(prev => ({ ...prev, productUpdates: e.target.checked }))}
-                  />
-                  Aktualizacje produktów
+
+                <label className="flex flex-col gap-1">
+                  <span className="inline-flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={newsletterSettings.productUpdates}
+                      onChange={(e) => setNewsletterSettings(prev => ({ ...prev, productUpdates: e.target.checked }))}
+                    />
+                    <span className="font-medium text-gray-900">Aktualizacje produktów</span>
+                  </span>
+                  <span className="text-xs text-gray-600 pl-6">
+                    Zmiany w ofercie, nowe systemy, modyfikacje oraz informacje o dostępności.
+                  </span>
                 </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={newsletterSettings.promotionalOffers}
-                    onChange={(e) => setNewsletterSettings(prev => ({ ...prev, promotionalOffers: e.target.checked }))}
-                  />
-                  Oferty promocyjne
+
+                <label className="flex flex-col gap-1">
+                  <span className="inline-flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={newsletterSettings.promotionalOffers}
+                      onChange={(e) => setNewsletterSettings(prev => ({ ...prev, promotionalOffers: e.target.checked }))}
+                    />
+                    <span className="font-medium text-gray-900">Oferty promocyjne</span>
+                  </span>
+                  <span className="text-xs text-gray-600 pl-6">
+                    Okazje cenowe, rabaty i limitowane akcje promocyjne.
+                  </span>
                 </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={newsletterSettings.technicalNews}
-                    onChange={(e) => setNewsletterSettings(prev => ({ ...prev, technicalNews: e.target.checked }))}
-                  />
-                  Nowości techniczne
+
+                <label className="flex flex-col gap-1">
+                  <span className="inline-flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={newsletterSettings.technicalNews}
+                      onChange={(e) => setNewsletterSettings(prev => ({ ...prev, technicalNews: e.target.checked }))}
+                    />
+                    <span className="font-medium text-gray-900">Nowości techniczne</span>
+                  </span>
+                  <span className="text-xs text-gray-600 pl-6">
+                    Rekomendacje producentów, wytyczne TDS i porady techniczne.
+                  </span>
                 </label>
               </div>
             )}
@@ -221,38 +227,61 @@ export default function ClientSettingsPage() {
                 <div className="h-4 bg-gray-200 rounded w-3/4" />
               </div>
             ) : (
-              <div className="space-y-3 text-sm">
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={marketingSettings.analyticsConsent}
-                    onChange={(e) => setMarketingSettings(prev => ({ ...prev, analyticsConsent: e.target.checked }))}
-                  />
-                  Zgoda na analitykę
+              <div className="space-y-4 text-sm">
+                <label className="flex flex-col gap-1">
+                  <span className="inline-flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={marketingSettings.analyticsConsent}
+                      onChange={(e) => setMarketingSettings(prev => ({ ...prev, analyticsConsent: e.target.checked }))}
+                    />
+                    <span className="font-medium text-gray-900">Zgoda na analitykę</span>
+                  </span>
+                  <span className="text-xs text-gray-600 pl-6">
+                    Pozwala nam mierzyć użycie panelu i ulepszać doświadczenie użytkownika.
+                  </span>
                 </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={marketingSettings.marketingEmails}
-                    onChange={(e) => setMarketingSettings(prev => ({ ...prev, marketingEmails: e.target.checked }))}
-                  />
-                  Maile marketingowe
+
+                <label className="flex flex-col gap-1">
+                  <span className="inline-flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={marketingSettings.marketingEmails}
+                      onChange={(e) => setMarketingSettings(prev => ({ ...prev, marketingEmails: e.target.checked }))}
+                    />
+                    <span className="font-medium text-gray-900">Maile marketingowe</span>
+                  </span>
+                  <span className="text-xs text-gray-600 pl-6">
+                    Otrzymuj informacje o wydarzeniach, nowościach i kampaniach.
+                  </span>
                 </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={marketingSettings.personalizedAds}
-                    onChange={(e) => setMarketingSettings(prev => ({ ...prev, personalizedAds: e.target.checked }))}
-                  />
-                  Spersonalizowane reklamy
+
+                <label className="flex flex-col gap-1">
+                  <span className="inline-flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={marketingSettings.personalizedAds}
+                      onChange={(e) => setMarketingSettings(prev => ({ ...prev, personalizedAds: e.target.checked }))}
+                    />
+                    <span className="font-medium text-gray-900">Spersonalizowane reklamy</span>
+                  </span>
+                  <span className="text-xs text-gray-600 pl-6">
+                    Pozwala dopasowywać treści marketingowe do Twoich potrzeb.
+                  </span>
                 </label>
-                <label className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={marketingSettings.dataSharing}
-                    onChange={(e) => setMarketingSettings(prev => ({ ...prev, dataSharing: e.target.checked }))}
-                  />
-                  Zgoda na udostępnianie danych partnerom
+
+                <label className="flex flex-col gap-1">
+                  <span className="inline-flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={marketingSettings.dataSharing}
+                      onChange={(e) => setMarketingSettings(prev => ({ ...prev, dataSharing: e.target.checked }))}
+                    />
+                    <span className="font-medium text-gray-900">Udostępnianie danych partnerom</span>
+                  </span>
+                  <span className="text-xs text-gray-600 pl-6">
+                    Zgoda na przetwarzanie danych przez zaufanych dostawców w celu realizacji usług.
+                  </span>
                 </label>
               </div>
             )}

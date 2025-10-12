@@ -50,24 +50,29 @@ export default function ClientNotificationsPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Powiadomienia</h1>
-          <p className="text-sm text-gray-600">Zdarzenia i komunikaty związane z Twoim kontem</p>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={loadEvents}
-            className="px-3 py-2 bg-white border border-blue-200 text-blue-700 hover:bg-blue-50 rounded-lg text-sm font-semibold"
-          >
-            Odśwież
-          </button>
-          <a
-            href="/client/dashboard"
-            className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold"
-          >
-            Panel
-          </a>
+      <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-indigo-900 via-indigo-800 to-blue-900 text-white mb-6">
+        <div className="absolute inset-0 bg-black/10" />
+        <div className="relative z-10 p-6 sm:p-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold leading-tight">Powiadomienia</h1>
+              <p className="mt-2 text-indigo-100">Zdarzenia i komunikaty związane z Twoim kontem</p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={loadEvents}
+                className="px-4 py-2 bg-white text-indigo-700 hover:bg-indigo-50 rounded-lg text-sm font-semibold border border-indigo-200"
+              >
+                Odśwież
+              </button>
+              <a
+                href="/client/dashboard"
+                className="px-4 py-2 bg-white text-indigo-700 hover:bg-indigo-50 rounded-lg text-sm font-semibold border border-indigo-200"
+              >
+                Panel
+              </a>
+            </div>
+          </div>
         </div>
       </div>
 
