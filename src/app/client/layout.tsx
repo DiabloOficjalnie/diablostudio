@@ -31,9 +31,39 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   const [showDebug, setShowDebug] = useState(false)
+  const isDebugAllowed = process.env.NODE_ENV !== 'production'
 
   // Dynamic badges (quotes count for now)
   const [quotesCount, setQuotesCount] = useState<number>(0)
+
+  // Persist UI preferences (collapsed/debug) in localStorage
+  useEffect(() => {
+    try {
+      if (typeof window === 'undefined') return
+      const savedCollapsed = localStorage.getItem('client_sidebar_collapsed')
+      const savedDebug = localStorage.getItem('client_debug_panel')
+      if (savedCollapsed !== null) setSidebarCollapsed(savedCollapsed === 'true')
+      if (savedDebug !== null) setShowDebug(savedDebug === 'true')
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    // Load client quotes count for badge
+    const loadQuotes = async () => {
+      try {
+        const res = await fetch('/api/client/quotes', { cache: 'no-store' })
+        const data = await res.json()
+        if (data?.success && Array.isArray(data.quotes)) {
+          setQuotesCount(data.quotes.length)
+        } else {
+          setQuotesCount(0)
+        }
+      } catch {
+        setQuotesCount(0)
+      }
+    }
+    loadQuotes()
+  }, [])
 
   useEffect(() => {
     // Load client quotes count for badge
@@ -194,7 +224,15 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               )}
             </div>
             <button
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              onClick={() => {
+                const next = !sidebarCollapsed
+                setSidebarCollapsed(next)
+                try {
+                  if (typeof window !== 'undefined') {
+                    localStorage.setItem('client_sidebar_collapsed', String(next))
+                  }
+                } catch {}
+              }}
               className="text-slate-400 hover:text-white transition-colors p-1"
               aria-label="Zwiń/rozwiń panel boczny"
             >
@@ -330,15 +368,23 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
       {/* Debug Panel Toggle Button */}
       <button
-        onClick={() => setShowDebug(!showDebug)}
-        className="fixed bottom-4 right-4 z-50 bg-gray-800 hover:bg-gray-900 text-white p-3 rounded-full shadow-lg transition-all transform hover:scale-110"
+        onClick={() => {
+          const next = !showDebug
+          setShowDebug(next)
+          try {
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('client_debug_panel', String(next))
+            }
+          } catch {}
+        }}
+        className={`fixed bottom-4 right-4 z-50 bg-gray-800 hover:bg-gray-900 text-white p-3 rounded-full shadow-lg transition-all transform hover:scale-110 ${!isDebugAllowed ? 'hidden' : ''}`}
         title="Debug Info"
       >
         <span className="text-sm">🔧</span>
       </button>
 
       {/* Debug Panel */}
-      {showDebug && (
+      {isDebugAllowed && showDebug && (
         <div className="fixed bottom-20 right-4 z-40 bg-white rounded-lg shadow-xl border p-4 w-80 max-h-96 overflow-y-auto">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-bold text-gray-900">Debug Info</h3>

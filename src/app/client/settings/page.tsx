@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { useUser, UserProfile } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
+import { Checkbox } from '@/app/components/FormField'
 
 type NewsletterSettings = {
   generalNewsletter: boolean
@@ -160,10 +161,9 @@ export default function ClientSettingsPage() {
               <div className="space-y-4 text-sm">
                 <label className="flex flex-col gap-1">
                   <span className="inline-flex items-center gap-2">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={newsletterSettings.generalNewsletter}
-                      onChange={(e) => setNewsletterSettings(prev => ({ ...prev, generalNewsletter: e.target.checked }))}
+                      onChange={(e) => setNewsletterSettings(prev => ({ ...prev, generalNewsletter: (e.target as HTMLInputElement).checked }))}
                     />
                     <span className="font-medium text-gray-900">Ogólny newsletter</span>
                   </span>
@@ -174,10 +174,9 @@ export default function ClientSettingsPage() {
 
                 <label className="flex flex-col gap-1">
                   <span className="inline-flex items-center gap-2">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={newsletterSettings.productUpdates}
-                      onChange={(e) => setNewsletterSettings(prev => ({ ...prev, productUpdates: e.target.checked }))}
+                      onChange={(e) => setNewsletterSettings(prev => ({ ...prev, productUpdates: (e.target as HTMLInputElement).checked }))}
                     />
                     <span className="font-medium text-gray-900">Aktualizacje produktów</span>
                   </span>
@@ -188,10 +187,9 @@ export default function ClientSettingsPage() {
 
                 <label className="flex flex-col gap-1">
                   <span className="inline-flex items-center gap-2">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={newsletterSettings.promotionalOffers}
-                      onChange={(e) => setNewsletterSettings(prev => ({ ...prev, promotionalOffers: e.target.checked }))}
+                      onChange={(e) => setNewsletterSettings(prev => ({ ...prev, promotionalOffers: (e.target as HTMLInputElement).checked }))}
                     />
                     <span className="font-medium text-gray-900">Oferty promocyjne</span>
                   </span>
@@ -202,10 +200,9 @@ export default function ClientSettingsPage() {
 
                 <label className="flex flex-col gap-1">
                   <span className="inline-flex items-center gap-2">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={newsletterSettings.technicalNews}
-                      onChange={(e) => setNewsletterSettings(prev => ({ ...prev, technicalNews: e.target.checked }))}
+                      onChange={(e) => setNewsletterSettings(prev => ({ ...prev, technicalNews: (e.target as HTMLInputElement).checked }))}
                     />
                     <span className="font-medium text-gray-900">Nowości techniczne</span>
                   </span>
@@ -230,10 +227,9 @@ export default function ClientSettingsPage() {
               <div className="space-y-4 text-sm">
                 <label className="flex flex-col gap-1">
                   <span className="inline-flex items-center gap-2">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={marketingSettings.analyticsConsent}
-                      onChange={(e) => setMarketingSettings(prev => ({ ...prev, analyticsConsent: e.target.checked }))}
+                      onChange={(e) => setMarketingSettings(prev => ({ ...prev, analyticsConsent: (e.target as HTMLInputElement).checked }))}
                     />
                     <span className="font-medium text-gray-900">Zgoda na analitykę</span>
                   </span>
@@ -244,10 +240,9 @@ export default function ClientSettingsPage() {
 
                 <label className="flex flex-col gap-1">
                   <span className="inline-flex items-center gap-2">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={marketingSettings.marketingEmails}
-                      onChange={(e) => setMarketingSettings(prev => ({ ...prev, marketingEmails: e.target.checked }))}
+                      onChange={(e) => setMarketingSettings(prev => ({ ...prev, marketingEmails: (e.target as HTMLInputElement).checked }))}
                     />
                     <span className="font-medium text-gray-900">Maile marketingowe</span>
                   </span>
@@ -258,10 +253,9 @@ export default function ClientSettingsPage() {
 
                 <label className="flex flex-col gap-1">
                   <span className="inline-flex items-center gap-2">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={marketingSettings.personalizedAds}
-                      onChange={(e) => setMarketingSettings(prev => ({ ...prev, personalizedAds: e.target.checked }))}
+                      onChange={(e) => setMarketingSettings(prev => ({ ...prev, personalizedAds: (e.target as HTMLInputElement).checked }))}
                     />
                     <span className="font-medium text-gray-900">Spersonalizowane reklamy</span>
                   </span>
@@ -272,10 +266,9 @@ export default function ClientSettingsPage() {
 
                 <label className="flex flex-col gap-1">
                   <span className="inline-flex items-center gap-2">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={marketingSettings.dataSharing}
-                      onChange={(e) => setMarketingSettings(prev => ({ ...prev, dataSharing: e.target.checked }))}
+                      onChange={(e) => setMarketingSettings(prev => ({ ...prev, dataSharing: (e.target as HTMLInputElement).checked }))}
                     />
                     <span className="font-medium text-gray-900">Udostępnianie danych partnerom</span>
                   </span>

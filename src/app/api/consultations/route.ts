@@ -157,7 +157,7 @@ export async function GET(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const supabase = createClientComponentClient()
+    const supabase = createAdminClient()
 
     const body = await request.json()
     const { id, status, notes } = body

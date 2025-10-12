@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import MainLayout from '../components/MainLayout'
+import { FormField, Input, Select, Textarea, Checkbox } from '@/app/components/FormField'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -121,12 +122,11 @@ export default function ContactPage() {
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
                         Imię i nazwisko *
                       </label>
-                      <input
+                      <Input
                         type="text"
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
-                        className="form-input"
                         placeholder="Twoje imię i nazwisko"
                         required
                       />
@@ -138,12 +138,11 @@ export default function ContactPage() {
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
                         Email *
                       </label>
-                      <input
+                      <Input
                         type="email"
                         name="email"
                         value={formData.email}
                         onChange={handleInputChange}
-                        className="form-input"
                         placeholder="twoj@email.com"
                         required
                       />
@@ -157,12 +156,11 @@ export default function ContactPage() {
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Telefon
                     </label>
-                    <input
+                    <Input
                       type="tel"
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      className="form-input"
                       placeholder="+48 123 456 789"
                     />
                   </div>
@@ -171,11 +169,10 @@ export default function ContactPage() {
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Temat *
                     </label>
-                    <select
+                    <Select
                       name="subject"
                       value={formData.subject}
                       onChange={handleInputChange}
-                      className="form-select border-white text-gray-900 bg-white"
                       required
                     >
                       <option value="">Wybierz temat</option>
@@ -184,32 +181,31 @@ export default function ContactPage() {
                       <option value="produkt">Pytanie o produkt</option>
                       <option value="projekt">Realizacja projektu</option>
                       <option value="inne">Inne</option>
-                    </select>
+                    </Select>
                   </div>
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Wiadomość *
                     </label>
-                    <textarea
+                    <Textarea
                       name="message"
                       value={formData.message}
                       onChange={handleInputChange}
                       rows={6}
-                      className="form-input resize-none"
+                      className="resize-none"
                       placeholder="Opisz swój projekt lub zadaj pytanie..."
                       required
-                    ></textarea>
+                    />
                   </div>
 
                   {/* Consents */}
                   <div className="space-y-3">
                     <label className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="mt-1 w-4 h-4 text-blue-600"
+                      <Checkbox
+                        className="mt-1 w-4 h-4"
                         checked={formData.phoneConsent}
-                        onChange={(e) => setFormData({ ...formData, phoneConsent: e.target.checked })}
+                        onChange={(e) => setFormData({ ...formData, phoneConsent: (e.target as HTMLInputElement).checked })}
                       />
                       <span className="text-sm text-gray-700">
                         Wyrażam zgodę na kontakt telefoniczny w celu realizacji zapytania.
@@ -217,11 +213,10 @@ export default function ContactPage() {
                     </label>
 
                     <label className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="mt-1 w-4 h-4 text-blue-600"
+                      <Checkbox
+                        className="mt-1 w-4 h-4"
                         checked={formData.marketingConsent}
-                        onChange={(e) => setFormData({ ...formData, marketingConsent: e.target.checked })}
+                        onChange={(e) => setFormData({ ...formData, marketingConsent: (e.target as HTMLInputElement).checked })}
                       />
                       <span className="text-sm text-gray-700">
                         Wyrażam zgodę na otrzymywanie informacji handlowych i materiałów marketingowych (opcjonalnie).
