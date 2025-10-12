@@ -533,12 +533,12 @@ export default function ClientConsultationsPage() {
       {/* Details modal */}
       {selectedConsultation && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-xl w-full shadow-2xl">
+          <div className="bg-white rounded-2xl max-w-xl w-full shadow-2xl text-gray-900">
             <div className="p-6 border-b">
               <h3 className="text-xl font-bold text-gray-900">Szczegóły konsultacji</h3>
               <p className="text-sm text-gray-600 mt-1">Podsumowanie zgłoszenia i powiązanych informacji.</p>
             </div>
-            <div className="p-6 space-y-3 text-sm max-h-[70vh] overflow-auto break-words">
+            <div className="p-6 space-y-3 text-sm max-h-[70vh] overflow-auto break-words text-gray-900">
               <div>
                 <div className="text-gray-500">Status:</div>
                 <div className="font-semibold whitespace-pre-wrap break-words">{statusLabel(selectedConsultation.status)}</div>
@@ -599,7 +599,7 @@ export default function ClientConsultationsPage() {
       {/* Create modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-xl w-full shadow-2xl">
+          <div className="bg-white rounded-2xl max-w-xl w-full shadow-2xl text-gray-900">
             <form onSubmit={handleCreate}>
               <div className="p-6 border-b">
                 <h3 className="text-xl font-bold text-gray-900">Nowa konsultacja</h3>

@@ -520,11 +520,11 @@ export default function ClientQuotesPage() {
 
       {showQuotePreviewModal && selectedQuote && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-xl w-full shadow-2xl">
+          <div className="bg-white rounded-2xl max-w-xl w-full shadow-2xl text-gray-900">
             <div className="p-6 border-b">
               <h3 className="text-xl font-bold text-gray-900">Podgląd wyceny</h3>
             </div>
-            <div className="p-6 space-y-3 text-sm max-h-[70vh] overflow-auto">
+            <div className="p-6 space-y-3 text-sm max-h-[70vh] overflow-auto text-gray-900">
               <div>
                 <div className="text-gray-500">Powierzchnia:</div>
                 <div className="font-semibold whitespace-pre-wrap break-words">{selectedQuote.area} m²</div>
@@ -597,7 +597,7 @@ export default function ClientQuotesPage() {
 
       {showConsultationModal && selectedQuote && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-xl w-full shadow-2xl">
+          <div className="bg-white rounded-2xl max-w-xl w-full shadow-2xl text-gray-900">
             <div className="p-6 border-b">
               <h3 className="text-xl font-bold text-gray-900">Prośba o konsultację</h3>
             </div>
