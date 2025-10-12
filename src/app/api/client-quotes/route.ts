@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase'
 import { verifyCaptcha, extractClientIp } from '@/lib/recaptcha'
+import { ensureUUID } from '@/lib/id'
 
 export async function POST(request: NextRequest) {
   try {
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest) {
     const { data: quote, error: quoteError } = await supabase
       .from('client_quotes')
       .insert({
-        client_id: clientId,
+        client_id: ensureUUID(clientId),
         area: quoteData.area,
         floor_system: quoteData.floorSystem,
         substrate_condition: quoteData.substrateCondition,

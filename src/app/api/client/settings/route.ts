@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createAdminClient } from '@/lib/supabase-server';
+import { ensureUUID } from '@/lib/id';
 
 type NewsletterSettings = {
   generalNewsletter: boolean
@@ -42,7 +43,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from('client_profiles')
       .select('newsletter_settings, marketing_settings, two_factor_enabled')
-      .eq('id', userId)
+      .eq('id', ensureUUID(userId))
       .single();
 
     if (error) {
@@ -93,7 +94,7 @@ export async function PUT(req: Request) {
         marketing_settings: marketing ?? DEFAULT_MARKETING,
         updated_at: new Date().toISOString()
       })
-      .eq('id', userId);
+      .eq('id', ensureUUID(userId));
 
     if (error) {
       // If update fails due to missing columns, still return success so UI remains functional
