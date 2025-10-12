@@ -1341,12 +1341,6 @@ function ClientDashboardContent() {
                           >
                             {labelQuoteStatus(q.status)}
                           </span>
-                          <div className="mt-3 flex flex-wrap gap-2 justify-end">
-                            <button onClick={() => handlePreviewQuote(q)} className="px-3 py-1.5 text-xs font-semibold rounded-md border border-gray-300 hover:bg-gray-100">Podgląd</button>
-                            <button onClick={() => handleDownloadPDF(q)} className="px-3 py-1.5 text-xs font-semibold rounded-md border border-blue-300 text-blue-700 hover:bg-blue-50">PDF</button>
-                            <button onClick={() => handleRequestConsultation(q)} className="px-3 py-1.5 text-xs font-semibold rounded-md border border-emerald-300 text-emerald-700 hover:bg-emerald-50">Konsultacja</button>
-                            <button onClick={() => handleDeleteQuote(q)} className="px-3 py-1.5 text-xs font-semibold rounded-md border border-red-300 text-red-700 hover:bg-red-50">Usuń</button>
-                          </div>
                         </div>
                       </div>
                     </div>
@@ -1471,20 +1465,20 @@ function ClientDashboardContent() {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div className="space-y-1">
                     <div className="text-sm text-gray-500">Twój kod polecający</div>
-                    <div className="text-2xl font-bold tracking-wider">{affiliate.referral_code}</div>
+                    <div className="text-2xl font-bold tracking-wider text-gray-900">{affiliate.referral_code}</div>
                   </div>
                   <div className="flex gap-6">
                     <div>
                       <div className="text-sm text-gray-500">Polecenia</div>
-                      <div className="text-xl font-bold">{affiliate.referrals_count}</div>
+                      <div className="text-xl font-bold text-gray-900">{affiliate.referrals_count}</div>
                     </div>
                     <div>
                       <div className="text-sm text-gray-500">Zniżka</div>
-                      <div className="text-xl font-bold">{affiliate.discount_percentage}%</div>
+                      <div className="text-xl font-bold text-gray-900">{affiliate.discount_percentage}%</div>
                     </div>
                     <div>
                       <div className="text-sm text-gray-500">Punkty</div>
-                      <div className="text-xl font-bold">{affiliate.points}</div>
+                      <div className="text-xl font-bold text-gray-900">{affiliate.points}</div>
                     </div>
                   </div>
                 </div>
@@ -1669,11 +1663,6 @@ function ClientDashboardContent() {
               <div><span className="text-gray-500">Dekoracja:</span> <span className="font-semibold">{selectedQuote.decorative_system}</span></div>
               <div><span className="text-gray-500">Podłoże:</span> <span className="font-semibold">{selectedQuote.substrate_condition}</span></div>
               <div><span className="text-gray-500">Zakres cen:</span> <span className="font-semibold">{formatPLN(selectedQuote.total_min)} – {formatPLN(selectedQuote.total_max)}</span></div>
-            </div>
-            <div className="px-6 pb-6 flex flex-wrap gap-2 justify-end">
-              <button onClick={() => handleDownloadPDF(selectedQuote)} className="px-4 py-2 rounded-md border border-blue-300 text-blue-700 hover:bg-blue-50 text-sm font-semibold">Pobierz PDF</button>
-              <button onClick={() => handleRequestConsultation(selectedQuote)} className="px-4 py-2 rounded-md border border-emerald-300 text-emerald-700 hover:bg-emerald-50 text-sm font-semibold">Poproś o konsultację</button>
-              <button onClick={() => setShowQuotePreviewModal(false)} className="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 text-sm font-semibold">Zamknij</button>
             </div>
           </div>
         </div>
