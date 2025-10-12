@@ -743,6 +743,27 @@ export default function ValuationPage() {
 
         // Open unified consultation modal with the newly created quote
         const newId = result?.id || result?.data?.id || null
+        try {
+          await fetch('/api/client/events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'quote_created',
+              details: {
+                id: newId,
+                area: currentArea,
+                floor_system: currentFloorSystem,
+                substrate_condition: currentSubstrate,
+                location: currentLocation,
+                decorative_system: currentDecorativeSystem,
+                price_min: priceRange?.min || 0,
+                price_max: priceRange?.max || 0,
+                total_min: (priceRange?.min || 0) * currentArea,
+                total_max: (priceRange?.max || 0) * currentArea
+              }
+            })
+          })
+        } catch {}
         if (newId) {
           setCreatedQuoteId(newId)
           setShowConsultationModal(true)

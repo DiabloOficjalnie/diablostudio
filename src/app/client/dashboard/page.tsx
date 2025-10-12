@@ -369,6 +369,8 @@ function ClientDashboardContent() {
   const [clientEvents, setClientEvents] = useState<Array<{ id: string; type: string; details?: any; created_at: string }>>([])
   const [showNotificationCenter, setShowNotificationCenter] = useState(false)
   const [isEventsLoading, setIsEventsLoading] = useState(false)
+  const [lastEventAt, setLastEventAt] = useState<number | null>(null)
+  const eventsInitRef = useRef(false)
 
   // Add notification function - global notifications
   const addNotification = (type: 'success' | 'error' | 'warning' | 'info', title: string, message: string) => {
@@ -424,13 +426,50 @@ function ClientDashboardContent() {
     }
   }
 
+  // Map event -> toast
+  function notifyForEvent(ev: { id?: string; type: string; details?: any; created_at?: string }) {
+    const t = ev.type
+    if (t === 'quote_created') {
+      const code = typeof ev?.details?.id === 'string' ? ev.details.id.slice(0, 6).toUpperCase() : ''
+      addNotification('success', 'Nowa wycena zapisana', code ? `Wycena #${code} została dodana do Twojego konta.` : 'Wycena została dodana do Twojego konta.')
+    } else if (t === 'consultation_created' || t === 'consultation_requested') {
+      const d = ev?.details || {}
+      const when = [d.preferred_date, d.preferred_time].filter(Boolean).join(' • ')
+      addNotification('success', 'Nowa konsultacja', when ? `Termin: ${when}` : 'Zgłoszono nową konsultację.')
+    } else {
+      addNotification('info', 'Aktualizacja konta', t || 'Zdarzenie systemowe')
+    }
+  }
+
   async function loadEventsFromAPI() {
     setIsEventsLoading(true)
     try {
       const res = await fetch('/api/client/events', { cache: 'no-store' })
       const data = await res.json().catch(() => ({}))
       if (res.ok && (data as any)?.success) {
-        setClientEvents(Array.isArray((data as any).events) ? (data as any).events : [])
+        const events = Array.isArray((data as any).events) ? (data as any).events : []
+        setClientEvents(events)
+
+        // Ustal najnowszy timestamp
+        const newest = events.reduce((max: number, ev: any) => {
+          const ts = ev?.created_at ? Date.parse(ev.created_at) : 0
+          return ts > max ? ts : max
+        }, 0)
+
+        if (!eventsInitRef.current) {
+          // Pierwsze ładowanie – zapamiętaj najnowszy i nie powiadamiaj wstecz
+          setLastEventAt(newest || Date.now())
+          eventsInitRef.current = true
+        } else if (lastEventAt) {
+          // Powiadom o nowych (późniejszych niż lastEventAt)
+          const fresh = events
+            .filter((ev: any) => (ev?.created_at ? Date.parse(ev.created_at) : 0) > lastEventAt)
+            // najstarsze nowe najpierw, żeby toasty były w kolejności
+            .sort((a: any, b: any) => Date.parse(a.created_at) - Date.parse(b.created_at))
+
+          fresh.forEach((ev: any) => notifyForEvent(ev))
+          if (newest && newest > lastEventAt) setLastEventAt(newest)
+        }
       }
     } catch (e) {
       console.error('loadEventsFromAPI error:', e)

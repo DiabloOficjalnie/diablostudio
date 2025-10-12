@@ -166,6 +166,23 @@ export default function ClientConsultationsPage() {
       })
       const body = await res.json().catch(() => ({}))
       if (!res.ok || !body?.success) throw new Error(body?.error || 'Nie udało się wysłać prośby o konsultację.')
+
+      // Zaloguj zdarzenie "consultation_created" dla panelu klienta (powiadomienie)
+      try {
+        await fetch('/api/client/events', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'consultation_created',
+            details: {
+              id: body?.id || null,
+              preferred_date: payload.preferred_date,
+              preferred_time: payload.preferred_time
+            }
+          })
+        })
+      } catch {}
+
       setShowCreateModal(false)
       setForm({
         preferredDate: '',
@@ -187,13 +204,8 @@ export default function ClientConsultationsPage() {
   }
 
   function buildMessage() {
-    const parts: string[] = []
-    if (form.notes && form.notes.trim()) parts.push(form.notes.trim())
-    if (form.contactValue && form.contactValue.trim()) {
-      const method = form.contactMethod === 'phone' ? 'telefon' : 'e-mail'
-      parts.push('Preferowany kontakt: ' + method + ' — ' + form.contactValue.trim())
-    }
-    return parts.join(' | ')
+    // Nie doklejaj "Preferowany kontakt" do wiadomości – wysyłamy tylko notatkę.
+    return (form.notes || '').trim()
   }
 
   async function cancelConsultation(id: string) {
@@ -380,6 +392,20 @@ export default function ClientConsultationsPage() {
     }
   }
 
+  // Wyodrębnij notatkę i preferowany kontakt z wiadomości (dla istniejących rekordów, gdzie były łączone)
+  const extractContactFromMessage = (msg?: string): { note: string; contact: string } => {
+    const res = { note: (msg || '').trim(), contact: '' }
+    if (!msg) return res
+    const parts = msg.split('|').map(p => p.trim()).filter(Boolean)
+    const idx = parts.findIndex(p => /^Preferowany kontakt:/i.test(p))
+    if (idx >= 0) {
+      res.contact = parts[idx].replace(/^Preferowany kontakt:\s*/i, '').trim()
+      parts.splice(idx, 1)
+      res.note = parts.join(' | ').trim()
+    }
+    return res
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Toasts */}
@@ -496,9 +522,15 @@ export default function ClientConsultationsPage() {
                       <span className="font-semibold">Termin: </span>
                       {c.preferred_date || '-'} {c.preferred_time ? `• ${c.preferred_time}` : ''}
                     </div>
-                    {c.message && (
-                      <div className="mt-1 text-sm text-gray-600 line-clamp-2">{c.message}</div>
-                    )}
+                    {(() => {
+                      const m = extractContactFromMessage(c.message)
+                      return (
+                        <>
+                          {m.note && <div className="mt-1 text-sm text-gray-600 line-clamp-2">{m.note}</div>}
+                          {m.contact && <div className="mt-1 text-xs text-gray-500">Preferowany kontakt: {m.contact}</div>}
+                        </>
+                      )
+                    })()}
                     {c.quote_id && quotesById[c.quote_id] && (
                       <div className="mt-1 text-xs text-gray-500">
                         Powiązana wycena: #{quotesById[c.quote_id].id.slice(0,6).toUpperCase()} • {quotesById[c.quote_id].area ?? '-'} m² • {toPL('floor', quotesById[c.quote_id].floor_system)}
@@ -563,12 +595,25 @@ export default function ClientConsultationsPage() {
                   <div className="font-semibold whitespace-pre-wrap break-words">{inquiryLabel(selectedConsultation.inquiry_type)}</div>
                 </div>
               )}
-              {selectedConsultation.message && (
-                <div>
-                  <div className="text-gray-500">Wiadomość:</div>
-                  <div className="font-semibold whitespace-pre-wrap break-words">{selectedConsultation.message}</div>
-                </div>
-              )}
+              {(() => {
+                const m = extractContactFromMessage(selectedConsultation.message)
+                return (
+                  <>
+                    {m.note && (
+                      <div>
+                        <div className="text-gray-500">Wiadomość:</div>
+                        <div className="font-semibold whitespace-pre-wrap break-words">{m.note}</div>
+                      </div>
+                    )}
+                    {m.contact && (
+                      <div>
+                        <div className="text-gray-500">Preferowany kontakt:</div>
+                        <div className="font-semibold whitespace-pre-wrap break-words">{m.contact}</div>
+                      </div>
+                    )}
+                  </>
+                )
+              })()}
               {selectedConsultation.admin_notes && (
                 <div>
                   <div className="text-gray-500">Notatka administratora:</div>
