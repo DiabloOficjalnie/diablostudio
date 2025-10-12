@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { createClientComponentClient } from '@/lib/supabase'
 import { Chart, registerables } from 'chart.js'
 import generateQuotePDF from '@/lib/pdfGenerator'
+import Button from '@/app/components/Button'
 Chart.register(...registerables)
 
 // Error Boundary Component
@@ -228,6 +229,123 @@ function ClientDashboardContent() {
   
   const formatPLN = (n: number) =>
     new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(Number(n || 0))
+
+  // Spolszczenie statusów (jak w widokach Wyceny/Konsultacje)
+  const labelQuoteStatus = (s: ClientQuote['status']) => {
+    switch (s) {
+      case 'saved': return 'Zapisano'
+      case 'consultation_requested': return 'Konsultacja zgłoszona'
+      case 'in_progress': return 'W trakcie'
+      case 'completed': return 'Zakończona'
+      default: return s
+    }
+  }
+  const labelConsultationStatus = (s: ConsultationRequest['status']) => {
+    switch (s) {
+      case 'pending': return 'Oczekujące'
+      case 'confirmed': return 'Potwierdzone'
+      case 'completed': return 'Zakończone'
+      case 'cancelled': return 'Anulowane'
+      default: return s
+    }
+  }
+
+  // Mapowania PL dla systemów/parametrów (spójne z widokiem Wyceny/Konsultacje)
+  const humanize = (v?: string) => {
+    if (!v) return ''
+    return v
+      .toString()
+      .replace(/[_\-]+/g, ' ')
+      .trim()
+      .toLowerCase()
+      .replace(/\b\w/g, (c) => c.toUpperCase())
+  }
+
+  const DICT_FLOOR: Record<string, string> = {
+    epoxy: 'Epoksydowy',
+    polyurethane: 'Poliuretanowy',
+    microcement: 'Mikrocement',
+    industrial: 'Przemysłowy',
+    decorative: 'Dekoracyjny'
+  }
+  const DICT_DECOR: Record<string, string> = {
+    flakes: 'Płatki dekoracyjne',
+    quartz: 'Kwarc',
+    matte: 'Mat',
+    gloss: 'Połysk',
+    satin: 'Satyna'
+  }
+  const DICT_SUBSTRATE: Record<string, string> = {
+    concrete: 'Beton',
+    anhydrite: 'Anhydryt',
+    tiles: 'Płytki',
+    screed: 'Wylewka',
+    wood: 'Drewno'
+  }
+  const DICT_LOCATION: Record<string, string> = {
+    garage: 'Garaż',
+    living_room: 'Salon',
+    kitchen: 'Kuchnia',
+    terrace: 'Taras',
+    bathroom: 'Łazienka',
+    hall: 'Korytarz'
+  }
+  const UNIVERSAL_TOKENS: Record<string, string> = {
+    indoor: 'Wewnątrz',
+    outdoor: 'Na zewnątrz',
+    smooth: 'Gładkie',
+    antislip: 'Antypoślizgowe',
+    anti_slip: 'Antypoślizgowe',
+    textured: 'Teksturowane',
+    rough: 'Chropowate',
+    matte: 'Mat',
+    matt: 'Mat',
+    gloss: 'Połysk',
+    glossy: 'Połysk',
+    high_gloss: 'Wysoki połysk',
+    semi_gloss: 'Półpołysk',
+    low_gloss: 'Niski połysk',
+    satin: 'Satyna',
+    good: 'Dobry',
+    average: 'Średni',
+    medium: 'Średni',
+    poor: 'Słaby',
+    bad: 'Zły',
+    standard: 'Standard',
+    premium: 'Premium',
+    coarse: 'Gruboziarniste',
+    fine: 'Drobnoziarniste',
+    fine_texture: 'Drobna tekstura',
+    coarse_texture: 'Gruba tekstura'
+  }
+  const normalizeKey = (s: string) =>
+    (s || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '')
+
+  const toPL = (group: 'floor' | 'decor' | 'substrate' | 'location', value?: string) => {
+    if (!value) return ''
+    const dict =
+      group === 'floor' ? DICT_FLOOR :
+      group === 'decor' ? DICT_DECOR :
+      group === 'substrate' ? DICT_SUBSTRATE :
+      DICT_LOCATION
+
+    const fullKey = normalizeKey(value)
+
+    if (dict[fullKey]) return dict[fullKey]
+
+    const parts = fullKey.split('_').filter(Boolean)
+    if (parts.length > 1) {
+      const mapped = parts.map(p => dict[p] || UNIVERSAL_TOKENS[p] || humanize(p))
+      return mapped.join(' • ')
+    }
+
+    if (UNIVERSAL_TOKENS[fullKey]) return UNIVERSAL_TOKENS[fullKey]
+
+    return humanize(value)
+  }
   
   // Notification system - pozycjonowane przy przycisku quiz
   const [quizNotifications, setQuizNotifications] = useState<{[key: string]: Array<{
@@ -1188,7 +1306,9 @@ function ClientDashboardContent() {
                 <h2 className="text-lg font-bold text-gray-900">Twoje wyceny</h2>
                 <p className="text-sm text-gray-500">Ostatnio zapisane kalkulacje z kalkulatora</p>
               </div>
-              <a href="/valuation" className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold">+ Nowa wycena</a>
+              <Button variant="secondary" href="/client/quotes" size="sm">
+                Przejdź do moich wycen
+              </Button>
             </div>
             <div className="p-6">
               {quotes && quotes.length > 0 ? (
@@ -1197,17 +1317,17 @@ function ClientDashboardContent() {
                     <div key={q.id} className="p-4 rounded-lg border bg-gray-50 hover:shadow-sm transition-all">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="font-semibold text-gray-900">{q.area} m² • {q.floor_system}</div>
+                          <div className="font-semibold text-gray-900">{q.area} m² • {toPL('floor', q.floor_system)}</div>
                           <div className="text-sm text-gray-600 mt-1">
-                            {q.location} • {q.decorative_system} • {q.substrate_condition}
+                            {toPL('location', q.location)} • {toPL('decor', q.decorative_system)} • {toPL('substrate', q.substrate_condition)}
                           </div>
                           <div className="text-sm text-gray-600 mt-1">
                             {new Date(q.created_at).toLocaleString('pl-PL')}
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-lg font-bold text-green-600">{q.price_min} - {q.price_max} PLN/m²</div>
-                          <div className="text-sm text-gray-700">Razem: {Math.round(q.total_min)} - {Math.round(q.total_max)} PLN</div>
+                          <div className="text-lg font-bold text-green-600">{formatPLN(q.price_min)} – {formatPLN(q.price_max)} / m²</div>
+                          <div className="text-sm text-gray-700">Razem: {formatPLN(q.total_min)} – {formatPLN(q.total_max)}</div>
                           <span
                             className={`inline-block mt-2 text-xs px-2 py-1 rounded-full border ${
                               q.status === 'completed'
@@ -1219,7 +1339,7 @@ function ClientDashboardContent() {
                                 : 'bg-gray-50 text-gray-700 border-gray-200'
                             }`}
                           >
-                            {q.status}
+                            {labelQuoteStatus(q.status)}
                           </span>
                           <div className="mt-3 flex flex-wrap gap-2 justify-end">
                             <button onClick={() => handlePreviewQuote(q)} className="px-3 py-1.5 text-xs font-semibold rounded-md border border-gray-300 hover:bg-gray-100">Podgląd</button>
@@ -1247,7 +1367,9 @@ function ClientDashboardContent() {
                 <h2 className="text-lg font-bold text-gray-900">Twoje konsultacje</h2>
                 <p className="text-sm text-gray-500">Nadchodzące i przeszłe zgłoszenia</p>
               </div>
-              <a href="/contact" className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold">Skontaktuj się</a>
+              <Button variant="secondary" href="/client/consultations" size="sm">
+                Sprawdź moje konsultacje
+              </Button>
             </div>
             <div className="p-6">
               {consultations && consultations.length > 0 ? (
@@ -1273,7 +1395,7 @@ function ClientDashboardContent() {
                                 : 'bg-gray-50 text-gray-700 border-gray-200'
                             }`}
                           >
-                            {c.status}
+                            {labelConsultationStatus(c.status)}
                           </span>
                         </div>
                       </div>
