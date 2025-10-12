@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
+import { FormField, Input, Select, Textarea, Radio, Checkbox } from '@/app/components/FormField'
 
 type Consultation = {
   id: string
@@ -35,7 +36,16 @@ export default function ClientConsultationsPage() {
   const [bookedSlots, setBookedSlots] = useState<string[]>([])
   const [availableSlots, setAvailableSlots] = useState<string[]>(DEFAULT_SLOTS)
   const [submitting, setSubmitting] = useState(false)
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    preferredDate: string
+    preferredTime: string
+    serviceType: 'standard' | 'tech_visit' | 'offer_review'
+    inquiryType: 'client_request' | 'quote_followup'
+    contactMethod: 'phone' | 'email'
+    contactValue: string
+    notes: string
+    selectedQuoteId: string
+  }>({
     preferredDate: '',
     preferredTime: '',
     serviceType: 'standard',
@@ -213,12 +223,16 @@ export default function ClientConsultationsPage() {
       {/* Toasts */}
       <div className="fixed bottom-6 right-6 space-y-2 z-50">
         {toasts.map(t => (
-          <div key={t.id}
-               className={`px-4 py-3 rounded-lg shadow-lg border text-sm ${
-                 t.type === 'success' ? 'bg-green-50 text-green-800 border-green-200' :
-                 t.type === 'error' ? 'bg-red-50 text-red-800 border-red-200' :
-                 'bg-blue-50 text-blue-800 border-blue-200'
-               }`}>
+          <div
+            key={t.id}
+            className={`px-4 py-3 rounded-lg shadow-lg border text-sm ${
+              t.type === 'success'
+                ? 'bg-green-50 text-green-800 border-green-200'
+                : t.type === 'error'
+                ? 'bg-red-50 text-red-800 border-red-200'
+                : 'bg-blue-50 text-blue-800 border-blue-200'
+            }`}
+          >
             {t.text}
           </div>
         ))}
@@ -256,29 +270,36 @@ export default function ClientConsultationsPage() {
                 activeTab === tab ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
               }`}
             >
-              {tab === 'all' ? 'Wszystkie' :
-               tab === 'pending' ? 'Oczekujące' :
-               tab === 'confirmed' ? 'Potwierdzone' :
-               tab === 'completed' ? 'Zakończone' : 'Anulowane'}
+              {tab === 'all'
+                ? 'Wszystkie'
+                : tab === 'pending'
+                ? 'Oczekujące'
+                : tab === 'confirmed'
+                ? 'Potwierdzone'
+                : tab === 'completed'
+                ? 'Zakończone'
+                : 'Anulowane'}
             </button>
           ))}
         </div>
         <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
-          <input
-            type="date"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-white focus:border-white"
-            aria-label="Filtruj po dacie"
-          />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Szukaj po wiadomości, dacie lub godzinie..."
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm w-full sm:w-72 focus:outline-none focus:ring-2 focus:ring-white focus:border-white"
-            aria-label="Szukaj"
-          />
+          <FormField>
+            <Input
+              type="date"
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              aria-label="Filtruj po dacie"
+            />
+          </FormField>
+          <FormField className="sm:w-72">
+            <Input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Szukaj po wiadomości, dacie lub godzinie..."
+              aria-label="Szukaj"
+            />
+          </FormField>
         </div>
       </div>
 
@@ -348,45 +369,39 @@ export default function ClientConsultationsPage() {
               </div>
               <div className="p-6 space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Data*</label>
-                    <input
+                  <FormField label="Data*" required>
+                    <Input
                       type="date"
                       value={form.preferredDate}
                       onChange={(e) => {
                         setForm({ ...form, preferredDate: e.target.value })
                         loadBooked(e.target.value)
                       }}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-white focus:border-white"
                       required
                     />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Godzina*</label>
-                    <select
+                  </FormField>
+                  <FormField label="Godzina*" required>
+                    <Select
                       value={form.preferredTime}
                       onChange={(e) => setForm({ ...form, preferredTime: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-white focus:border-white"
                       required
                     >
                       <option value="">Wybierz godzinę</option>
                       {availableSlots.map((s) => (
                         <option key={s} value={s}>{s}</option>
                       ))}
-                    </select>
+                    </Select>
                     {bookedSlots.length > 0 && (
-                      <div className="mt-1 text-xs text-gray-500">Zajęte: {bookedSlots.join(', ')}</div>
+                      <p className="mt-1 text-xs text-gray-500">Zajęte: {bookedSlots.join(', ')}</p>
                     )}
-                  </div>
+                  </FormField>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Sposób kontaktu</label>
+                  <FormField label="Sposób kontaktu">
                     <div className="flex items-center gap-3">
                       <label className="flex items-center gap-2 text-sm font-medium text-gray-900">
-                        <input
-                          type="radio"
+                        <Radio
                           name="contactMethod"
                           checked={form.contactMethod === 'phone'}
                           onChange={() => setForm({ ...form, contactMethod: 'phone' })}
@@ -394,8 +409,7 @@ export default function ClientConsultationsPage() {
                         Telefon
                       </label>
                       <label className="flex items-center gap-2 text-sm font-medium text-gray-900">
-                        <input
-                          type="radio"
+                        <Radio
                           name="contactMethod"
                           checked={form.contactMethod === 'email'}
                           onChange={() => setForm({ ...form, contactMethod: 'email' })}
@@ -403,24 +417,21 @@ export default function ClientConsultationsPage() {
                         E‑mail
                       </label>
                     </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Dane kontaktowe</label>
-                    <input
+                  </FormField>
+                  <FormField label="Dane kontaktowe">
+                    <Input
                       type={form.contactMethod === 'phone' ? 'tel' : 'email'}
                       value={form.contactValue}
                       onChange={(e) => setForm({ ...form, contactValue: e.target.value })}
                       placeholder={form.contactMethod === 'phone' ? '+48 123 456 789' : 'jan@example.com'}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-white focus:border-white"
                     />
                     {form.contactMethod === 'email' && (user?.primaryEmailAddress?.emailAddress) && (
                       <label className="mt-2 flex items-center gap-2 text-xs text-gray-700">
-                        <input
-                          type="checkbox"
+                        <Checkbox
                           onChange={(e) =>
                             setForm({
                               ...form,
-                              contactValue: e.target.checked
+                              contactValue: (e.target as HTMLInputElement).checked
                                 ? (user?.primaryEmailAddress?.emailAddress || '')
                                 : form.contactValue
                             })
@@ -429,16 +440,14 @@ export default function ClientConsultationsPage() {
                         Użyj adresu konta: <span className="font-semibold">{user?.primaryEmailAddress?.emailAddress}</span>
                       </label>
                     )}
-                  </div>
+                  </FormField>
                 </div>
 
                 {/* Link to existing quote (optional) */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Powiąż z wyceną (opcjonalnie)</label>
-                  <select
+                <FormField label="Powiąż z wyceną (opcjonalnie)">
+                  <Select
                     value={form.selectedQuoteId}
                     onChange={(e) => setForm({ ...form, selectedQuoteId: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-white focus:border-white"
                   >
                     <option value="">Brak</option>
                     {quotes.map((q) => (
@@ -446,45 +455,39 @@ export default function ClientConsultationsPage() {
                         #{q.id} • {q.area ?? '-'} m² • {q.floor_system ?? 'system'} • {new Date(q.created_at).toLocaleDateString('pl-PL')}
                       </option>
                     ))}
-                  </select>
-                </div>
+                  </Select>
+                </FormField>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Typ usługi</label>
-                    <select
+                  <FormField label="Typ usługi">
+                    <Select
                       value={form.serviceType}
-                      onChange={(e) => setForm({ ...form, serviceType: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-white focus:border-white"
+                      onChange={(e) => setForm({ ...form, serviceType: e.target.value as typeof form.serviceType })}
                     >
                       <option value="standard">Standard</option>
                       <option value="tech_visit">Wizyta techniczna</option>
                       <option value="offer_review">Omówienie oferty</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Typ zapytania</label>
-                    <select
+                    </Select>
+                  </FormField>
+                  <FormField label="Typ zapytania">
+                    <Select
                       value={form.inquiryType}
-                      onChange={(e) => setForm({ ...form, inquiryType: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-white focus:border-white"
+                      onChange={(e) => setForm({ ...form, inquiryType: e.target.value as typeof form.inquiryType })}
                     >
                       <option value="client_request">Zapytanie klienta</option>
                       <option value="quote_followup">Kontynuacja po wycenie</option>
-                    </select>
-                  </div>
+                    </Select>
+                  </FormField>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Uwagi dla eksperta</label>
-                  <textarea
+                <FormField label="Uwagi dla eksperta">
+                  <Textarea
                     rows={3}
                     value={form.notes}
                     onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-white focus:border-white"
                     placeholder="Opcjonalnie: krótki opis projektu, preferencje..."
                   />
-                </div>
+                </FormField>
               </div>
               <div className="px-6 pb-6 flex flex-wrap gap-2 justify-end">
                 <button
