@@ -216,6 +216,15 @@ export default function ClientQuotesPage() {
               <h1 className="text-2xl sm:text-3xl font-bold leading-tight">Wyceny</h1>
               <p className="mt-2 text-indigo-100">Lista wszystkich zapisanych kalkulacji</p>
             </div>
+            <a
+              href="/valuation"
+              className="px-4 py-2 bg-white text-indigo-700 hover:bg-indigo-50 rounded-lg text-sm font-semibold border border-indigo-200"
+            >
+              + Nowa wycena
+            </a>
+          </div>
+        </div>
+      </div>
 
       {/* Notifications (toasts area) */}
       <div className="fixed bottom-6 right-6 space-y-2 z-50">
@@ -266,8 +275,7 @@ export default function ClientQuotesPage() {
                     <div className="text-xs text-gray-500 mt-0.5">
                       {new Date(q.created_at).toLocaleString('pl-PL')}
                     </div>
-                    <div className="mt-1 inline-block text-[11px] px-2 py-0.5 rounded-full border
-                      ">
+                    <div className="mt-1 inline-block text-[11px] px-2 py-0.5 rounded-full border">
                       <span className={
                         q.status === 'completed' ? 'bg-green-50 text-green-700 border border-green-200 px-2 py-0.5 rounded-full' :
                         q.status === 'in_progress' ? 'bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full' :
