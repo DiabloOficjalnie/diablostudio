@@ -203,17 +203,17 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
           </div>
 
           {/* User Info Card */}
-          <div className="bg-gradient-to-br from-slate-800 to-slate-700 rounded-xl p-4 border border-slate-600">
+          <div className="bg-gradient-to-br from-slate-800 to-slate-700 rounded-xl p-4 border border-slate-600 overflow-hidden">
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center text-white font-bold text-sm">
+              <div className="flex items-center flex-1 min-w-0">
+                <div className="w-8 h-8 flex-shrink-0 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center text-white font-bold text-sm">
                   {isLoaded && user?.firstName
                     ? `${(user.firstName[0] || 'U').toUpperCase()}${(user.lastName?.[0] || '').toUpperCase()}`
                     : 'U'}
                 </div>
                 {!sidebarCollapsed && (
-                  <div className="ml-3">
-                    <p className="text-sm font-medium text-white">
+                  <div className="ml-3 min-w-0">
+                    <p className="text-sm font-medium text-white truncate">
                       {isLoaded && user ? `${user.firstName || 'Użytkownik'} ${user.lastName || ''}` : 'Użytkownik'}
                     </p>
                     <p className="text-xs text-blue-400 truncate">
@@ -224,7 +224,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                   </div>
                 )}
               </div>
-              <div className="text-xl">🧑‍💼</div>
+              <div className="text-xl flex-shrink-0 ml-2">🧑‍💼</div>
             </div>
             <div className="flex items-center gap-2 text-xs text-slate-300">
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
