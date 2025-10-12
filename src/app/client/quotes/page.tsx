@@ -51,6 +51,27 @@ export default function ClientQuotesPage() {
     selectedQuoteId: ''
   })
 
+  // Pomocnicze mapowania i formatowanie nazw dla klienta
+  const statusLabel = (s: ClientQuote['status']) => {
+    switch (s) {
+      case 'saved': return 'Zapisano'
+      case 'consultation_requested': return 'Konsultacja zgłoszona'
+      case 'in_progress': return 'W trakcie'
+      case 'completed': return 'Zakończona'
+      default: return s
+    }
+  }
+
+  const humanize = (v?: string) => {
+    if (!v) return ''
+    return v
+      .toString()
+      .replace(/[_\-]+/g, ' ')
+      .trim()
+      .toLowerCase()
+      .replace(/\b\w/g, (c) => c.toUpperCase())
+  }
+
   const formatPLN = (n: number) =>
     new Intl.NumberFormat('pl-PL', { style: 'currency', currency: 'PLN' }).format(Number(n || 0))
 
@@ -268,10 +289,10 @@ export default function ClientQuotesPage() {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div>
                     <div className="font-semibold text-gray-900">
-                      #{q.id.slice(0, 6).toUpperCase()} • {q.area} m² • {q.floor_system}
+                      #{q.id.slice(0, 6).toUpperCase()} • {q.area} m² • {humanize(q.floor_system)}
                     </div>
                     <div className="text-sm text-gray-600 mt-0.5">
-                      {q.location} • {q.decorative_system} • {q.substrate_condition}
+                      {humanize(q.location)} • {humanize(q.decorative_system)} • {humanize(q.substrate_condition)}
                     </div>
                     <div className="text-xs text-gray-500 mt-0.5">
                       {new Date(q.created_at).toLocaleString('pl-PL')}
@@ -283,13 +304,13 @@ export default function ClientQuotesPage() {
                         q.status === 'consultation_requested' ? 'bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full' :
                         'bg-gray-50 text-gray-700 border border-gray-200 px-2 py-0.5 rounded-full'
                       }>
-                        {q.status}
+                        {statusLabel(q.status)}
                       </span>
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-bold text-green-600">{q.price_min} - {q.price_max} PLN/m²</div>
-                    <div className="text-sm text-gray-700">Razem: {Math.round(q.total_min)} - {Math.round(q.total_max)} PLN</div>
+                    <div className="text-lg font-bold text-green-600">{formatPLN(q.price_min)} – {formatPLN(q.price_max)} / m²</div>
+                    <div className="text-sm text-gray-700">Razem: {formatPLN(q.total_min)} – {formatPLN(q.total_max)}</div>
 
                     <div className="mt-3 flex flex-wrap gap-2 justify-end">
                       <button
@@ -308,7 +329,7 @@ export default function ClientQuotesPage() {
                         onClick={() => handleDownloadPDF(q)}
                         className="px-3 py-1.5 text-xs font-semibold rounded-md border border-blue-300 text-blue-700 hover:bg-blue-50"
                       >
-                        PDF
+                        Pobierz PDF
                       </button>
                       <button
                         onClick={() => handleDeleteQuote(q)}
@@ -337,6 +358,8 @@ export default function ClientQuotesPage() {
               <div><span className="text-gray-500">Dekoracja:</span> <span className="font-semibold">{selectedQuote.decorative_system}</span></div>
               <div><span className="text-gray-500">Podłoże:</span> <span className="font-semibold">{selectedQuote.substrate_condition}</span></div>
               <div><span className="text-gray-500">Zakres cen:</span> <span className="font-semibold">{formatPLN(selectedQuote.total_min)} – {formatPLN(selectedQuote.total_max)}</span></div>
+              <div><span className="text-gray-500">Status:</span> <span className="font-semibold">{statusLabel(selectedQuote.status)}</span></div>
+              <div><span className="text-gray-500">Utworzono:</span> <span className="font-semibold">{new Date(selectedQuote.created_at).toLocaleString('pl-PL')}</span></div>
             </div>
             <div className="px-6 pb-6 flex flex-wrap gap-2 justify-end">
               <button onClick={() => handleDownloadPDF(selectedQuote)} className="px-4 py-2 rounded-md border border-blue-300 text-blue-700 hover:bg-blue-50 text-sm font-semibold">Pobierz PDF</button>

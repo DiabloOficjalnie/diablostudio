@@ -31,6 +31,7 @@ export default function ClientConsultationsPage() {
   const [search, setSearch] = useState('')
   const [dateFilter, setDateFilter] = useState<string>('')
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [selectedConsultation, setSelectedConsultation] = useState<Consultation | null>(null)
 
   // Create form
   const [bookedSlots, setBookedSlots] = useState<string[]>([])
@@ -61,6 +62,13 @@ export default function ClientConsultationsPage() {
 
   // Quotes for linking (optional)
   const [quotes, setQuotes] = useState<Array<{ id: string; area?: number; floor_system?: string; created_at: string }>>([])
+  const quotesById = useMemo(() => {
+    const map: Record<string, any> = {}
+    for (const q of quotes) {
+      if (q?.id) map[q.id] = q
+    }
+    return map
+  }, [quotes])
 
   const loadQuotes = async () => {
     try {
@@ -184,6 +192,24 @@ export default function ClientConsultationsPage() {
     return parts.join(' | ')
   }
 
+  async function cancelConsultation(id: string) {
+    try {
+      const res = await fetch('/api/client/consultations', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, action: 'cancel' })
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok || !body?.success) throw new Error(body?.error || 'Nie udało się anulować konsultacji.')
+      addToast('success', 'Konsultacja anulowana.')
+      await loadConsultations()
+    } catch (e: any) {
+      addToast('error', e?.message || 'Wystąpił błąd podczas anulowania.')
+    } finally {
+      setSelectedConsultation(null)
+    }
+  }
+
   const filteredConsultations = useMemo(() => {
     let list = [...consultations]
     if (activeTab !== 'all') {
@@ -216,6 +242,27 @@ export default function ClientConsultationsPage() {
       default:
         return `${base} bg-gray-50 text-gray-700 border-gray-200`
     }
+  }
+
+  // Mapowanie statusów i humanizacja nazw dla klienta
+  const statusLabel = (s: Consultation['status']) => {
+    switch (s) {
+      case 'pending': return 'Oczekujące'
+      case 'confirmed': return 'Potwierdzone'
+      case 'completed': return 'Zakończone'
+      case 'cancelled': return 'Anulowane'
+      default: return s
+    }
+  }
+
+  const humanize = (v?: string) => {
+    if (!v) return ''
+    return v
+      .toString()
+      .replace(/[_\-]+/g, ' ')
+      .trim()
+      .toLowerCase()
+      .replace(/\b\w/g, (c) => c.toUpperCase())
   }
 
   return (
@@ -328,7 +375,7 @@ export default function ClientConsultationsPage() {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className={statusBadge(c.status)}>{c.status}</span>
+                      <span className={statusBadge(c.status)}>{statusLabel(c.status)}</span>
                       <span className="text-xs text-gray-500 truncate">
                         Utworzono: {new Date(c.created_at).toLocaleString('pl-PL')}
                       </span>
@@ -340,14 +387,27 @@ export default function ClientConsultationsPage() {
                     {c.message && (
                       <div className="mt-1 text-sm text-gray-600 line-clamp-2">{c.message}</div>
                     )}
+                    {c.quote_id && quotesById[c.quote_id] && (
+                      <div className="mt-1 text-xs text-gray-500">
+                        Powiązana wycena: #{quotesById[c.quote_id].id.slice(0,6).toUpperCase()} • {quotesById[c.quote_id].area ?? '-'} m² • {humanize(quotesById[c.quote_id].floor_system)}
+                      </div>
+                    )}
                   </div>
                   <div className="flex gap-2 sm:justify-end">
-                    <a
-                      href="/client/consultations"
+                    <button
+                      onClick={() => setSelectedConsultation(c)}
                       className="px-3 py-1.5 text-xs font-semibold rounded-md border border-blue-300 text-blue-700 hover:bg-blue-50"
                     >
                       Szczegóły
-                    </a>
+                    </button>
+                    {(c.status === 'pending' || c.status === 'confirmed') && (
+                      <button
+                        onClick={() => cancelConsultation(c.id)}
+                        className="px-3 py-1.5 text-xs font-semibold rounded-md border border-red-300 text-red-700 hover:bg-red-50"
+                      >
+                        Anuluj
+                      </button>
+                    )}
                   </div>
                 </div>
               </li>
@@ -355,6 +415,35 @@ export default function ClientConsultationsPage() {
           </ul>
         )}
       </div>
+
+      {/* Details modal */}
+      {selectedConsultation && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-xl w-full shadow-2xl">
+            <div className="p-6 border-b">
+              <h3 className="text-xl font-bold text-gray-900">Szczegóły konsultacji</h3>
+              <p className="text-sm text-gray-600 mt-1">Podsumowanie zgłoszenia i powiązanych informacji.</p>
+            </div>
+            <div className="p-6 space-y-2 text-sm">
+              <div><span className="text-gray-500">Status:</span> <span className="font-semibold">{statusLabel(selectedConsultation.status)}</span></div>
+              <div><span className="text-gray-500">Utworzono:</span> <span className="font-semibold">{new Date(selectedConsultation.created_at).toLocaleString('pl-PL')}</span></div>
+              <div><span className="text-gray-500">Termin:</span> <span className="font-semibold">{selectedConsultation.preferred_date || '-'} {selectedConsultation.preferred_time ? `• ${selectedConsultation.preferred_time}` : ''}</span></div>
+              {selectedConsultation.message && (
+                <div><span className="text-gray-500">Wiadomość:</span> <span className="font-semibold">{selectedConsultation.message}</span></div>
+              )}
+              {selectedConsultation.quote_id && quotesById[selectedConsultation.quote_id] && (
+                <div><span className="text-gray-500">Powiązana wycena:</span> <span className="font-semibold">#{quotesById[selectedConsultation.quote_id].id.slice(0,6).toUpperCase()} • {quotesById[selectedConsultation.quote_id].area ?? '-'} m² • {humanize(quotesById[selectedConsultation.quote_id].floor_system)}</span></div>
+              )}
+            </div>
+            <div className="px-6 pb-6 flex flex-wrap gap-2 justify-end">
+              {(selectedConsultation.status === 'pending' || selectedConsultation.status === 'confirmed') && (
+                <button onClick={() => cancelConsultation(selectedConsultation.id)} className="px-4 py-2 rounded-md border border-red-300 text-red-700 hover:bg-red-50 text-sm font-semibold">Anuluj konsultację</button>
+              )}
+              <button onClick={() => setSelectedConsultation(null)} className="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 text-sm font-semibold">Zamknij</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Create modal */}
       {showCreateModal && (
@@ -452,7 +541,7 @@ export default function ClientConsultationsPage() {
                     <option value="">Brak</option>
                     {quotes.map((q) => (
                       <option key={q.id} value={q.id}>
-                        #{q.id} • {q.area ?? '-'} m² • {q.floor_system ?? 'system'} • {new Date(q.created_at).toLocaleDateString('pl-PL')}
+                        #{q.id.slice(0,6).toUpperCase()} • {q.area ?? '-'} m² • {humanize(q.floor_system ?? 'system')} • {new Date(q.created_at).toLocaleDateString('pl-PL')}
                       </option>
                     ))}
                   </Select>
