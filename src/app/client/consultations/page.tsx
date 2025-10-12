@@ -14,6 +14,9 @@ type Consultation = {
   message: string
   status: 'pending' | 'confirmed' | 'completed' | 'cancelled'
   created_at: string
+  service_type?: string
+  inquiry_type?: string
+  admin_notes?: string | null
 }
 
 const DEFAULT_SLOTS = ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00']
@@ -266,6 +269,23 @@ export default function ClientConsultationsPage() {
       .replace(/\b\w/g, (c) => c.toUpperCase())
   }
 
+  // Mapowania etykiet dla konsultacji
+  const serviceLabel = (v?: string) => {
+    switch (v) {
+      case 'standard': return 'Standard'
+      case 'tech_visit': return 'Wizyta techniczna'
+      case 'offer_review': return 'Omówienie oferty'
+      default: return humanize(v || '')
+    }
+  }
+  const inquiryLabel = (v?: string) => {
+    switch (v) {
+      case 'client_request': return 'Zapytanie klienta'
+      case 'quote_followup': return 'Kontynuacja po wycenie'
+      default: return humanize(v || '')
+    }
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       {/* Toasts */}
@@ -424,12 +444,21 @@ export default function ClientConsultationsPage() {
               <h3 className="text-xl font-bold text-gray-900">Szczegóły konsultacji</h3>
               <p className="text-sm text-gray-600 mt-1">Podsumowanie zgłoszenia i powiązanych informacji.</p>
             </div>
-            <div className="p-6 space-y-2 text-sm">
+            <div className="p-6 space-y-3 text-sm max-h-[70vh] overflow-auto">
               <div><span className="text-gray-500">Status:</span> <span className="font-semibold">{statusLabel(selectedConsultation.status)}</span></div>
               <div><span className="text-gray-500">Utworzono:</span> <span className="font-semibold">{new Date(selectedConsultation.created_at).toLocaleString('pl-PL')}</span></div>
               <div><span className="text-gray-500">Termin:</span> <span className="font-semibold">{selectedConsultation.preferred_date || '-'} {selectedConsultation.preferred_time ? `• ${selectedConsultation.preferred_time}` : ''}</span></div>
+              {selectedConsultation.service_type && (
+                <div><span className="text-gray-500">Typ usługi:</span> <span className="font-semibold">{serviceLabel(selectedConsultation.service_type)}</span></div>
+              )}
+              {selectedConsultation.inquiry_type && (
+                <div><span className="text-gray-500">Typ zapytania:</span> <span className="font-semibold">{inquiryLabel(selectedConsultation.inquiry_type)}</span></div>
+              )}
               {selectedConsultation.message && (
-                <div><span className="text-gray-500">Wiadomość:</span> <span className="font-semibold">{selectedConsultation.message}</span></div>
+                <div><span className="text-gray-500">Wiadomość:</span> <span className="font-semibold whitespace-pre-line">{selectedConsultation.message}</span></div>
+              )}
+              {selectedConsultation.admin_notes && (
+                <div><span className="text-gray-500">Notatka administratora:</span> <span className="font-semibold whitespace-pre-line">{selectedConsultation.admin_notes}</span></div>
               )}
               {selectedConsultation.quote_id && quotesById[selectedConsultation.quote_id] && (
                 <div><span className="text-gray-500">Powiązana wycena:</span> <span className="font-semibold">#{quotesById[selectedConsultation.quote_id].id.slice(0,6).toUpperCase()} • {quotesById[selectedConsultation.quote_id].area ?? '-'} m² • {humanize(quotesById[selectedConsultation.quote_id].floor_system)}</span></div>

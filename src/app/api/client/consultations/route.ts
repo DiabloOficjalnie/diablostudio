@@ -38,7 +38,7 @@ export async function GET(req: Request) {
     // Otherwise return consultations for the logged in client
     const { data, error } = await supabase
       .from('consultation_requests')
-      .select('id, quote_id, preferred_date, preferred_time, message, status, created_at')
+      .select('id, quote_id, preferred_date, preferred_time, message, status, created_at, service_type, inquiry_type, admin_notes')
       .eq('client_id', ensureUUID(userId))
       .order('created_at', { ascending: false });
 

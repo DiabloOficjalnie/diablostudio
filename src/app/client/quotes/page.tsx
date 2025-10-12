@@ -106,15 +106,52 @@ export default function ClientQuotesPage() {
     hall: 'Korytarz'
   }
 
+  const normalizeKey = (s: string) =>
+    (s || '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '')
+
+  // Dodatkowe ogólne mapowania tokenów (stosowane przy złożonych nazwach typu "indoor smooth")
+  const UNIVERSAL_TOKENS: Record<string, string> = {
+    indoor: 'Wewnątrz',
+    outdoor: 'Na zewnątrz',
+    smooth: 'Gładkie',
+    antislip: 'Antypoślizgowe',
+    anti_slip: 'Antypoślizgowe',
+    textured: 'Teksturowane',
+    rough: 'Chropowate',
+    matte: 'Mat',
+    matt: 'Mat',
+    gloss: 'Połysk',
+    satin: 'Satyna'
+  }
+
   const toPL = (group: 'floor' | 'decor' | 'substrate' | 'location', value?: string) => {
     if (!value) return ''
-    const key = value.toLowerCase()
     const dict =
       group === 'floor' ? DICT_FLOOR :
       group === 'decor' ? DICT_DECOR :
       group === 'substrate' ? DICT_SUBSTRATE :
       DICT_LOCATION
-    return dict[key] || humanize(value)
+
+    const fullKey = normalizeKey(value)
+
+    // 1) Próba dokładnego dopasowania
+    if (dict[fullKey]) return dict[fullKey]
+
+    // 2) Mapowanie złożonych nazw po tokenach (np. "indoor_smooth" → "Wewnątrz • Gładkie")
+    const parts = fullKey.split('_').filter(Boolean)
+    if (parts.length > 1) {
+      const mapped = parts.map(p => dict[p] || UNIVERSAL_TOKENS[p] || humanize(p))
+      return mapped.join(' • ')
+    }
+
+    // 3) Fallback – próba mapowania pojedynczego tokena w słowniku uniwersalnym
+    if (UNIVERSAL_TOKENS[fullKey]) return UNIVERSAL_TOKENS[fullKey]
+
+    // 4) Ostatecznie humanizacja
+    return humanize(value)
   }
 
   const KEY_LABELS: Record<string, string> = {
@@ -430,7 +467,7 @@ export default function ClientQuotesPage() {
             <div className="p-6 border-b">
               <h3 className="text-xl font-bold text-gray-900">Podgląd wyceny</h3>
             </div>
-            <div className="p-6 space-y-2 text-sm">
+            <div className="p-6 space-y-3 text-sm max-h-[70vh] overflow-auto">
               <div><span className="text-gray-500">Powierzchnia:</span> <span className="font-semibold">{selectedQuote.area} m²</span></div>
               <div><span className="text-gray-500">System:</span> <span className="font-semibold">{toPL('floor', selectedQuote.floor_system)}</span></div>
               <div><span className="text-gray-500">Dekoracja:</span> <span className="font-semibold">{toPL('decor', selectedQuote.decorative_system)}</span></div>
