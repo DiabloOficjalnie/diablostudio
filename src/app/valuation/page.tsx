@@ -8,6 +8,7 @@ import generateQuotePDF from '@/lib/pdfGenerator'
 import MainLayout from '../components/MainLayout'
 import InstructionGuide from './components/InstructionGuide'
 import { executeRecaptcha } from '@/lib/recaptcha-client'
+import ConsultationRequestForm from '@/app/components/ConsultationRequestForm'
 
 // Loading Spinner Component
 const LoadingSpinner = () => (
@@ -318,6 +319,8 @@ export default function ValuationPage() {
   const [calculationProgress, setCalculationProgress] = useState(0)
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [showRegisterModal, setShowRegisterModal] = useState(false)
+  const [showConsultationModal, setShowConsultationModal] = useState(false)
+  const [createdQuoteId, setCreatedQuoteId] = useState<string | null>(null)
 
   const priceRef = useRef<HTMLDivElement>(null)
 
@@ -738,12 +741,15 @@ export default function ValuationPage() {
 
         console.log('Client quote saved successfully:', result)
 
-        alert('Wycena została zapisana w Twoim koncie! Możesz ją teraz zobaczyć w panelu klienta.')
+        // Open unified consultation modal with the newly created quote
+        const newId = result?.id || result?.data?.id || null
+        if (newId) {
+          setCreatedQuoteId(newId)
+          setShowConsultationModal(true)
+        }
+
         setShowContactForm(false)
         setContactData({ name: '', email: '', phone: '' })
-
-        // Redirect to client dashboard
-        window.location.href = '/client/dashboard'
       } else {
         // User is not logged in - save as anonymous customer
         console.log('User is not logged in, saving as anonymous customer')
@@ -1784,6 +1790,26 @@ export default function ValuationPage() {
                 Zamknij
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Consultation Modal (authenticated flow after saving quote) */}
+      {showConsultationModal && user && createdQuoteId && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-xl w-full shadow-2xl">
+            <div className="p-6 border-b">
+              <h3 className="text-xl font-bold text-gray-900">Prośba o konsultację</h3>
+            </div>
+            <ConsultationRequestForm
+              quoteId={createdQuoteId}
+              onClose={() => setShowConsultationModal(false)}
+              onSubmitted={() => {
+                alert('Wysłano prośbę o konsultację.')
+                setShowConsultationModal(false)
+              }}
+              className="pt-0"
+            />
           </div>
         </div>
       )}

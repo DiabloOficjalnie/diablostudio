@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import generateQuotePDF from '@/lib/pdfGenerator'
+import ConsultationRequestForm from '@/app/components/ConsultationRequestForm'
 
 interface ClientQuote {
   id: string
@@ -291,19 +292,30 @@ export default function ClientQuotesPage() {
                     <div className="text-sm text-gray-700">Razem: {Math.round(q.total_min)} - {Math.round(q.total_max)} PLN</div>
 
                     <div className="mt-3 flex flex-wrap gap-2 justify-end">
-                      <button onClick={() => handlePreviewQuote(q)} className="px-3 py-1.5 text-xs font-semibold rounded-md border border-gray-300 hover:bg-gray-100">
+                      <button
+                        onClick={() => handleRequestConsultation(q)}
+                        className="px-3 py-1.5 text-xs font-semibold rounded-md bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+                      >
+                        Umów konsultację
+                      </button>
+                      <button
+                        onClick={() => handlePreviewQuote(q)}
+                        className="px-3 py-1.5 text-xs font-semibold rounded-md border border-gray-300 hover:bg-gray-100"
+                      >
                         Podgląd
                       </button>
-                      <button onClick={() => handleDownloadPDF(q)} className="px-3 py-1.5 text-xs font-semibold rounded-md border border-blue-300 text-blue-700 hover:bg-blue-50">
+                      <button
+                        onClick={() => handleDownloadPDF(q)}
+                        className="px-3 py-1.5 text-xs font-semibold rounded-md border border-blue-300 text-blue-700 hover:bg-blue-50"
+                      >
                         PDF
                       </button>
-                      <button onClick={() => handleRequestConsultation(q)} className="px-3 py-1.5 text-xs font-semibold rounded-md border border-emerald-300 text-emerald-700 hover:bg-emerald-50">
-                        Konsultacja
-                      </button>
-                      <button onClick={() => handleDeleteQuote(q)} className="px-3 py-1.5 text-xs font-semibold rounded-md border border-red-300 text-red-700 hover:bg-red-50">
+                      <button
+                        onClick={() => handleDeleteQuote(q)}
+                        className="px-3 py-1.5 text-xs font-semibold rounded-md border border-red-300 text-red-700 hover:bg-red-50"
+                      >
                         Usuń
                       </button>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -334,71 +346,20 @@ export default function ClientQuotesPage() {
         </div>
       )}
 
-      {showConsultationModal && (
+      {showConsultationModal && selectedQuote && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-xl w-full shadow-2xl">
-            <form onSubmit={handleConsultationSubmit}>
-              <div className="p-6 border-b">
-                <h3 className="text-xl font-bold text-gray-900">Prośba o konsultację</h3>
-              </div>
-              <div className="p-6 space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Data*</label>
-                  <input
-                    type="date"
-                    value={consultationForm.preferredDate}
-                    onChange={(e) => {
-                      setConsultationForm({ ...consultationForm, preferredDate: e.target.value })
-                      loadBookedSlots(e.target.value)
-                    }}
-                    className="w-full px-3 py-2 border border-indigo-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Godzina*</label>
-                  <select
-                    value={consultationForm.preferredTime}
-                    onChange={(e) => setConsultationForm({ ...consultationForm, preferredTime: e.target.value })}
-                    className="w-full px-3 py-2 border border-indigo-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
-                    required
-                  >
-                    <option value="">Wybierz godzinę</option>
-                    {availableSlots.map((s) => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
-                  {bookedSlots.length > 0 && (
-                    <div className="mt-1 text-xs text-gray-500">Zajęte: {bookedSlots.join(', ')}</div>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Wiadomość</label>
-                  <textarea
-                    rows={3}
-                    value={consultationForm.message}
-                    onChange={(e) => setConsultationForm({ ...consultationForm, message: e.target.value })}
-                    className="w-full px-3 py-2 border border-indigo-200 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-600"
-                    placeholder="Dodatkowe informacje..."
-                  />
-                </div>
-              </div>
-              <div className="px-6 pb-6 flex flex-wrap gap-2 justify-end">
-                <button
-                  type="button"
-                  onClick={() => setShowConsultationModal(false)}
-                  className="px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-100 text-sm font-semibold"
-                >
-                  Anuluj
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded-md border border-emerald-300 text-emerald-700 hover:bg-emerald-50 text-sm font-semibold"
-                >
-                  Wyślij prośbę
-                </button>
-              </div>
-            </form>
+            <div className="p-6 border-b">
+              <h3 className="text-xl font-bold text-gray-900">Prośba o konsultację</h3>
+            </div>
+            <ConsultationRequestForm
+              quoteId={selectedQuote.id}
+              onClose={() => setShowConsultationModal(false)}
+              onSubmitted={() => {
+                addNotification('success', 'Wysłano prośbę', 'Twoja prośba o konsultację została przyjęta.')
+              }}
+              className="pt-0"
+            />
           </div>
         </div>
       )}
