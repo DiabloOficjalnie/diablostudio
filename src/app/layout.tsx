@@ -6,6 +6,7 @@ import Script from 'next/script'
 import { ClerkProvider } from '@clerk/nextjs'
 import { plPL } from '@clerk/localizations'
 import './globals.css'
+import { Suspense } from 'react'
 import GoogleAnalyticsReporter from './components/GoogleAnalyticsReporter'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -93,7 +94,9 @@ export default function RootLayout({
         </head>
         <body className={inter.className} suppressHydrationWarning={true}>
           {children}
-          <GoogleAnalyticsReporter />
+          <Suspense fallback={null}>
+            <GoogleAnalyticsReporter />
+          </Suspense>
           <SpeedInsights />
           <Analytics />
         </body>
