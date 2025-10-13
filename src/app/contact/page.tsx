@@ -77,6 +77,7 @@ export default function ContactPage() {
   }
 
   const [status, setStatus] = useState<{ type: 'idle' | 'loading' | 'success' | 'error'; message?: string }>({ type: 'idle' })
+  const [successInfo, setSuccessInfo] = useState<{ ticketId?: string; email?: string }>({})
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -99,7 +100,8 @@ export default function ContactPage() {
       if (!res.ok || data?.success === false) {
         throw new Error(data?.error || 'Nie udało się wysłać wiadomości.')
       }
-      setStatus({ type: 'success', message: 'Dziękujemy! Skontaktujemy się w ciągu 24 godzin.' })
+      setStatus({ type: 'success', message: 'Dziękujemy! Twoja wiadomość została wysłana.' })
+      setSuccessInfo({ ticketId: data?.id, email: formData.email })
       // Reset formularza
       setFormData({
         name: '',
@@ -149,7 +151,50 @@ export default function ContactPage() {
                   </p>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                {status.type === 'success' && (
+                  <div className="p-4 rounded-lg border border-green-200 bg-green-50 text-green-800 mb-4">
+                    <div className="flex items-start gap-3">
+                      <div className="text-2xl">✅</div>
+                      <div>
+                        <div className="font-bold">Wiadomość została wysłana</div>
+                        <div className="text-sm mt-1">
+                          Dziękujemy za kontakt! Odpowiemy w ciągu 24 godzin (dni robocze).
+                        </div>
+                        {successInfo.email && (
+                          <div className="text-sm mt-1">
+                            Potwierdzenie wysłaliśmy na: <span className="font-semibold">{successInfo.email}</span>
+                          </div>
+                        )}
+                        {successInfo.ticketId && (
+                          <div className="text-sm mt-1">
+                            ID zgłoszenia: <span className="font-mono font-semibold">#{String(successInfo.ticketId).slice(0,6).toUpperCase()}</span>
+                          </div>
+                        )}
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          <a
+                            href="/valuation"
+                            className="px-3 py-2 bg-white text-green-700 border border-green-300 rounded-lg text-sm font-semibold hover:bg-green-100"
+                          >
+                            Oblicz wycenę
+                          </a>
+                          <a
+                            href="/client/quotes"
+                            className="px-3 py-2 bg-white text-green-700 border border-green-300 rounded-lg text-sm font-semibold hover:bg-green-100"
+                          >
+                            Moje wyceny
+                          </a>
+                          <a
+                            href="/"
+                            className="px-3 py-2 bg-white text-green-700 border border-green-300 rounded-lg text-sm font-semibold hover:bg-green-100"
+                          >
+                            Wróć na stronę główną
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                <form onSubmit={handleSubmit} className={`space-y-6 ${status.type === 'success' ? 'hidden' : ''}`}>
                   {status.type !== 'idle' && (
                     <div className={`p-3 rounded-lg text-sm border ${status.type === 'loading'
                       ? 'bg-blue-50 text-blue-800 border-blue-200'
