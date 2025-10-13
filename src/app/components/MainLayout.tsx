@@ -134,28 +134,53 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 </Link>
               ))}
               <div className="h-6 w-px bg-gray-300" />
-              {isLoaded ? (
-                user ? (
-                  <Link
-                    href="/client/dashboard"
-                    className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-lg transition-all hover:scale-105 shadow-md"
-                    title="Panel klienta"
-                  >
-                    <span className="mr-2">📂</span>
-                    Panel klienta
-                  </Link>
-                ) : (
-                  <Link
-                    href="/login"
-                    className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-all hover:scale-105 shadow-md"
-                    title="Zaloguj się"
-                  >
-                    <span className="mr-2">👤</span>
-                    Zaloguj się
-                  </Link>
-                )
-              ) : null}
             </nav>
+
+            {/* Desktop Auth CTA */}
+            <div className="hidden md:block ml-4 flex-shrink-0">
+              {isLoaded && user ? (
+                <Link
+                  href="/client/dashboard"
+                  className="inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-lg transition-all hover:scale-105 shadow-md"
+                  title="Panel klienta"
+                >
+                  <span className="mr-2">📂</span>
+                  Panel klienta
+                </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg transition-all hover:scale-105 shadow-md"
+                  title="Zaloguj się"
+                >
+                  <span className="mr-2">👤</span>
+                  Zaloguj się
+                </Link>
+              )}
+            </div>
+
+            {/* Mobile Auth CTA (mobile) */}
+            <div className="md:hidden mr-2">
+              {isLoaded && user ? (
+                <Link
+                  href="/client/dashboard"
+                  className="inline-flex items-center px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-lg transition-all shadow-md"
+                  title="Panel klienta"
+                >
+                  <span className="mr-1">📂</span>
+                  Panel
+                </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  className="inline-flex items-center px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-all shadow-md"
+                  title="Zaloguj się"
+                >
+                  <span className="mr-1">👤</span>
+                  Zaloguj
+                </Link>
+              )}
+            </div>
 
             {/* Mobile Menu Button */}
             <button
@@ -200,27 +225,25 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
                 {/* Login / Panel klienta (mobile) */}
                 <div className="space-y-2">
-                  {isLoaded ? (
-                    user ? (
-                      <Link
-                        href="/client/dashboard"
-                        onClick={toggleMobileMenu}
-                        className="block w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-lg text-center transition-all shadow-md"
-                      >
-                        <span className="mr-2">📂</span>
-                        Panel klienta
-                      </Link>
-                    ) : (
-                      <a
-                        href="/login"
-                        onClick={toggleMobileMenu}
-                        className="block w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg text-center transition-all shadow-md"
-                      >
-                        <span className="mr-2">👤</span>
-                        Zaloguj się
-                      </a>
-                    )
-                  ) : null}
+                  {isLoaded && user ? (
+                    <Link
+                      href="/client/dashboard"
+                      onClick={toggleMobileMenu}
+                      className="block w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-lg text-center transition-all shadow-md"
+                    >
+                      <span className="mr-2">📂</span>
+                      Panel klienta
+                    </Link>
+                  ) : (
+                    <a
+                      href="/login"
+                      onClick={toggleMobileMenu}
+                      className="block w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg text-center transition-all shadow-md"
+                    >
+                      <span className="mr-2">👤</span>
+                      Zaloguj się
+                    </a>
+                  )}
                 </div>
               </nav>
             </div>
@@ -253,7 +276,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
             <div className="md:col-span-1 text-left">
               <h3 className="text-xl font-bold mb-2">DecoSol</h3>
               <p className="text-gray-400 text-sm max-w-xs mb-0 hidden md:block">
-                Profesjonalne posadzki żywiczne – epoksydowe i poliuretanowe. Tworzymy trwałe i estetyczne rozwiązania dla domu, biura i przemysłu.
+                Solidna podstawa twoich wnętrz.
               </p>
             </div>
 
