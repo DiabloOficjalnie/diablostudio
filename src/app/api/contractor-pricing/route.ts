@@ -39,6 +39,21 @@ export async function GET(_request: NextRequest) {
       .maybeSingle()
 
     if (error) {
+      // Graceful fallback when the table doesn't exist yet (e.g. dev env without DB migrations)
+      const msg = (error as any)?.message || ''
+      const code = (error as any)?.code || ''
+      if (code === 'PGRST205' || /Could not find the table|relation "contractor_pricing" does not exist/i.test(msg)) {
+        console.warn('contractor_pricing table missing - returning empty pricing as fallback')
+        return NextResponse.json({
+          success: true,
+          pricing_data: emptyPricing()
+        }, {
+          headers: {
+            'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=3600'
+          }
+        })
+      }
+
       console.error('Error fetching contractor pricing:', error)
       return NextResponse.json({ error: 'Failed to fetch contractor pricing data' }, { status: 500 })
     }
@@ -48,6 +63,10 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({
         success: true,
         pricing_data: emptyPricing()
+      }, {
+        headers: {
+          'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=3600'
+        }
       })
     }
 
@@ -56,6 +75,10 @@ export async function GET(_request: NextRequest) {
       pricing_data: data.pricing_data ?? emptyPricing(),
       version: data.version ?? 1,
       updated_at: data.updated_at
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=3600'
+      }
     })
   } catch (error) {
     console.error('Error fetching contractor pricing:', error)

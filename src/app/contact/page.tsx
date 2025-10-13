@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import MainLayout from '../components/MainLayout'
 import { FormField, Input, Select, Textarea, Checkbox } from '@/app/components/FormField'
+import { executeRecaptcha } from '@/lib/recaptcha-client'
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -83,6 +84,7 @@ export default function ContactPage() {
     e.preventDefault()
     setStatus({ type: 'loading', message: 'Wysyłanie...' })
     try {
+      const token = await executeRecaptcha('contact_form')
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -93,7 +95,8 @@ export default function ContactPage() {
           subject: formData.subject,
           message: formData.message,
           marketingConsent: formData.marketingConsent,
-          phoneConsent: formData.phoneConsent
+          phoneConsent: formData.phoneConsent,
+          recaptchaToken: token
         })
       })
       const data = await res.json().catch(() => ({}))

@@ -87,7 +87,7 @@ const defaultConfig: APIConfig = {
     },
     cors: {
       enabled: true,
-      allowedOrigins: ['https://diablostudio.pl', 'http://localhost:3000'],
+      allowedOrigins: ['https://decosol.pl'],
       allowedMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key']
     }

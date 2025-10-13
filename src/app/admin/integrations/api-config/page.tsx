@@ -91,7 +91,7 @@ export default function APIConfigPage() {
       },
       cors: {
         enabled: true,
-        allowedOrigins: ['https://diablostudio.pl', 'http://localhost:3000'],
+        allowedOrigins: ['https://decosol.pl'],
         allowedMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key']
       }
@@ -462,7 +462,7 @@ export default function APIConfigPage() {
                           })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
                           rows={3}
-                          placeholder="https://diablostudio.pl&#10;http://localhost:3000"
+                          placeholder="https://decosol.pl"
                         />
                       </div>
 

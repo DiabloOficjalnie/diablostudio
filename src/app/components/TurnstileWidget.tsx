@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useId, useRef } from 'react'
-import { NEXT_PUBLIC_TURNSTILE_SITE_KEY, TURNSTILE_SITE_KEY } from '@/lib/env'
+import { NEXT_PUBLIC_TURNSTILE_SITE_KEY } from '@/lib/env'
 
 declare global {
   interface Window {
@@ -32,7 +32,7 @@ export default function TurnstileWidget({
 }: Props) {
   const id = useId()
   const containerRef = useRef<HTMLDivElement | null>(null)
-  const resolvedSiteKey = siteKey || NEXT_PUBLIC_TURNSTILE_SITE_KEY || TURNSTILE_SITE_KEY || ''
+  const resolvedSiteKey = siteKey || NEXT_PUBLIC_TURNSTILE_SITE_KEY || ''
 
   useEffect(() => {
     // Guard: need site key

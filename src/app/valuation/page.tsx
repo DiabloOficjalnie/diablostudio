@@ -546,7 +546,7 @@ export default function ValuationPage() {
       const area = parseFloat(room.area) || 0
       return total + area
     }, 0)
-    console.log('Calculated total area:', total, 'rooms:', rooms)
+    
     return total
   }
 
@@ -608,11 +608,11 @@ export default function ValuationPage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    console.log('=== FORM SUBMISSION DEBUG ===')
-    console.log('Room areas:', rooms.map(r => ({ name: r.name, area: r.area })))
+    
+    
 
     const totalArea = calculateTotalArea()
-    console.log('Calculated total area:', totalArea)
+    
 
     // Use React state instead of DOM queries for better reliability
     const floorSystem = selectedFloorSystem
@@ -620,7 +620,7 @@ export default function ValuationPage() {
     const location = selectedLocation
     const decorativeSystem = selectedDecorative
 
-    console.log('Form values:', { totalArea, floorSystem, substrateCondition, location, decorativeSystem })
+    
 
     // Check if all required fields are filled
     if (!totalArea || totalArea <= 0) {
@@ -655,7 +655,7 @@ export default function ValuationPage() {
 
         // Calculate final price using database pricing data
         const calculatedPrice = calculatePrice(totalArea, floorSystem, decorativeSystem, substrateCondition, location, pricingData)
-        console.log('Calculated price:', calculatedPrice)
+        
 
         setPriceRange(calculatedPrice)
         setShowSuccessMessage(true)
@@ -682,15 +682,6 @@ export default function ValuationPage() {
       const currentLocation = selectedLocation
       const currentSubstrate = selectedSubstrate
 
-      console.log('Current form values:', {
-        area: currentArea,
-        floorSystem: currentFloorSystem,
-        decorativeSystem: currentDecorativeSystem,
-        location: currentLocation,
-        substrate: currentSubstrate,
-        priceRange
-      })
-
       if (!currentArea || currentArea <= 0) {
         setShowAreaNotification(true)
         return
@@ -707,7 +698,7 @@ export default function ValuationPage() {
 
       if (user) {
         // User is logged in - save to client account
-        console.log('User is logged in, saving to client account:', user.id)
+        
 
         const clientQuoteData = {
           area: currentArea,
@@ -723,7 +714,7 @@ export default function ValuationPage() {
           consents
         }
 
-        console.log('Sending client quote to API (authenticated flow):', clientQuoteData)
+        
 
         const response = await fetch('/api/client/quotes', {
           method: 'POST',
@@ -739,7 +730,7 @@ export default function ValuationPage() {
           throw new Error(result.error || 'Błąd podczas zapisywania wyceny')
         }
 
-        console.log('Client quote saved successfully:', result)
+        
 
         // Open unified consultation modal with the newly created quote
         const newId = result?.id || result?.data?.id || null
@@ -773,7 +764,7 @@ export default function ValuationPage() {
         setContactData({ name: '', email: '', phone: '' })
       } else {
         // User is not logged in - save as anonymous customer
-        console.log('User is not logged in, saving as anonymous customer')
+        
 
         const requestData = {
           customerData: {
@@ -797,7 +788,7 @@ export default function ValuationPage() {
           recaptchaToken: token,
         }
 
-        console.log('Sending anonymous quote to API:', requestData)
+        
 
         const response = await fetch('/api/customer-quotes', {
           method: 'POST',
@@ -813,7 +804,7 @@ export default function ValuationPage() {
           throw new Error(result.error || 'Błąd podczas zapisywania danych')
         }
 
-        console.log('Anonymous quote saved successfully:', result)
+        
 
         alert('Dziękujemy! Skontaktujemy się z Państwem w ciągu 24 godzin z szczegółową wyceną PDF.')
         setShowContactForm(false)

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { createAdminClient } from '@/lib/supabase-server';
 import { ensureUUID } from '@/lib/id';
+import { verifyCaptcha, extractClientIp } from '@/lib/recaptcha';
 
 type ContactPayload = {
   name: string;
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest) {
     // Optional auth – formularz kontaktowy może być anonimowy
     const { userId } = await auth().catch(() => ({ userId: null as string | null }));
 
-    const body = (await req.json().catch(() => ({}))) as Partial<ContactPayload>;
+    const body = (await req.json().catch(() => ({}))) as Partial<ContactPayload> & { recaptchaToken?: string };
 
     const name = String(body.name || '').trim();
     const email = String(body.email || '').trim();
@@ -33,6 +34,31 @@ export async function POST(req: NextRequest) {
         { success: false, error: 'Wymagane pola: imię i nazwisko, e-mail, temat, wiadomość.' },
         { status: 400 }
       );
+    }
+
+    // Anti-bot verification (reCAPTCHA / Enterprise fallback)
+    try {
+      const ip = extractClientIp(req.headers)
+      const captcha = await verifyCaptcha(body.recaptchaToken, ip, 'contact_form')
+      if (!captcha.success) {
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn('Captcha verification failed (dev bypass):', captcha)
+        } else {
+          return NextResponse.json(
+            { success: false, error: 'Weryfikacja antybot nie powiodła się.' },
+            { status: 400 }
+          )
+        }
+      }
+    } catch (e: any) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('Captcha verification error (dev bypass):', e?.message || e)
+      } else {
+        return NextResponse.json(
+          { success: false, error: 'Weryfikacja antybot nie powiodła się.' },
+          { status: 400 }
+        )
+      }
     }
 
     const supabase = createAdminClient();
