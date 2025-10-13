@@ -52,6 +52,7 @@ export default function NewsletterForm({ variant = 'card', className = '', sourc
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    watch,
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -61,6 +62,8 @@ export default function NewsletterForm({ variant = 'card', className = '', sourc
       marketing_consent: false,
     },
   });
+
+  const consentsChecked = watch(['privacy_consent', 'marketing_consent']).every(Boolean);
 
   useEffect(() => {
     if (status.type === 'success') {
@@ -149,7 +152,7 @@ export default function NewsletterForm({ variant = 'card', className = '', sourc
               <input
                 type="text"
                 placeholder="np. Jan"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-900 placeholder-gray-400"
                 {...register('first_name')}
               />
             </div>
@@ -158,7 +161,7 @@ export default function NewsletterForm({ variant = 'card', className = '', sourc
               <input
                 type="email"
                 placeholder="np. jan.kowalski@example.com"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 bg-white text-gray-900 placeholder-gray-400"
                 {...register('email')}
                 aria-invalid={!!errors.email}
               />
@@ -194,7 +197,8 @@ export default function NewsletterForm({ variant = 'card', className = '', sourc
           <div className="flex items-center gap-3">
             <button
               type="submit"
-              disabled={isSubmitting || status.type === 'loading'}
+              disabled={isSubmitting || status.type === 'loading' || !consentsChecked}
+              title={!consentsChecked ? 'Zaznacz wymagane zgody' : undefined}
               className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {status.type === 'loading' ? 'Zapisywanie...' : 'Zapisz mnie'}

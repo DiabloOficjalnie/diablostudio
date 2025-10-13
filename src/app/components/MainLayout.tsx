@@ -295,6 +295,17 @@ export default function MainLayout({ children }: MainLayoutProps) {
           {/* Bottom bar */}
           <div className="mt-4 flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-400 text-sm">© 2024 DecoSol. Wszystkie prawa zastrzeżone.</p>
+            <p className="text-gray-400 text-sm">
+              Strona stworzona przez:{' '}
+              <a
+                href="https://www.nexlabs.pl"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-300 hover:text-white underline"
+              >
+                www.nexlabs.pl
+              </a>
+            </p>
           </div>
         </div>
       </footer>
