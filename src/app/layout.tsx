@@ -6,8 +6,11 @@ import Script from 'next/script'
 import { ClerkProvider } from '@clerk/nextjs'
 import { plPL } from '@clerk/localizations'
 import './globals.css'
+import GoogleAnalyticsReporter from './components/GoogleAnalyticsReporter'
 
 const inter = Inter({ subsets: ['latin'] })
+
+const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://decosol.pl'),
@@ -79,13 +82,18 @@ export default function RootLayout({
               })
             }}
           />
-          <Script src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-G0KX4ZHEMB'}`} strategy="afterInteractive" />
-          <Script id="ga4-init" strategy="afterInteractive">
-            {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config','${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-G0KX4ZHEMB'}');`}
-          </Script>
+          {GA_ID ? (
+            <>
+              <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} strategy="afterInteractive" />
+              <Script id="ga4-init" strategy="afterInteractive">
+                {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config','${GA_ID}',{send_page_view:false});`}
+              </Script>
+            </>
+          ) : null}
         </head>
         <body className={inter.className} suppressHydrationWarning={true}>
           {children}
+          <GoogleAnalyticsReporter />
           <SpeedInsights />
           <Analytics />
         </body>

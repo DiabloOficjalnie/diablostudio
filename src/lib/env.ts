@@ -29,6 +29,9 @@ interface EnvironmentVariables {
   RECAPTCHA_ENTERPRISE_PROJECT_ID?: string
   RECAPTCHA_ENTERPRISE_SITE_KEY?: string
 
+  // Google Analytics
+  NEXT_PUBLIC_GA_MEASUREMENT_ID?: string
+
   // Optional: Add other environment variables as needed
   // NEXT_PUBLIC_SUPABASE_ANON_KEY?: string
   // DATABASE_URL?: string
@@ -60,6 +63,9 @@ function validateEnvironmentVariables(): EnvironmentVariables {
     NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_ENABLED: process.env.NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_ENABLED || 'false',
     RECAPTCHA_ENTERPRISE_PROJECT_ID: process.env.RECAPTCHA_ENTERPRISE_PROJECT_ID,
     RECAPTCHA_ENTERPRISE_SITE_KEY: process.env.RECAPTCHA_ENTERPRISE_SITE_KEY,
+
+    // Google Analytics
+    NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
   }
 
   // Check for missing required variables (using placeholder values)
@@ -110,4 +116,5 @@ export const {
   NEXT_PUBLIC_RECAPTCHA_ENTERPRISE_ENABLED,
   RECAPTCHA_ENTERPRISE_PROJECT_ID,
   RECAPTCHA_ENTERPRISE_SITE_KEY,
+  NEXT_PUBLIC_GA_MEASUREMENT_ID,
 } = env

@@ -137,6 +137,33 @@ Aplikacja może być wdrożona na dowolnej platformie wspierającej Next.js:
 - Railway
 - DigitalOcean App Platform
 
+## 📈 Google Analytics (GA4) na Vercel
+
+Aby włączyć Google Analytics 4 w projekcie hostowanym na Vercel:
+
+1. W Vercel → Project Settings → Environment Variables dodaj:
+   - NEXT_PUBLIC_GA_MEASUREMENT_ID = G-XXXXXXXXXX
+2. Wdróż aplikację ponownie (Redeploy).
+
+Implementacja w kodzie (już gotowa w repozytorium):
+- src/app/layout.tsx – warunkowe ładowanie gtag.js tylko gdy istnieje NEXT_PUBLIC_GA_MEASUREMENT_ID oraz inicjalizacja z send_page_view:false, aby uniknąć podwójnego zliczania odsłon.
+- src/app/components/GoogleAnalyticsReporter.tsx – komponent klientowy, który wysyła zdarzenia page_view przy każdej nawigacji App Router (usePathname/useSearchParams). Zawiera retry, aby poczekać na gotowość gtag.
+- src/lib/env.ts – dodana obsługa zmiennej NEXT_PUBLIC_GA_MEASUREMENT_ID.
+- .env.local.example – wskazówka jaką zmienną dodać w Vercel.
+
+Zachowanie:
+- Zdarzenia GA wysyłane są wyłącznie w środowisku production; w dev nie są emitowane.
+- Skrypty GA nie załadują się, jeśli NEXT_PUBLIC_GA_MEASUREMENT_ID nie jest ustawione.
+- Użytkownicy z adblockami mogą nie pojawiać się w Realtime.
+
+Weryfikacja:
+1. Ustaw NEXT_PUBLIC_GA_MEASUREMENT_ID w Vercel i zdeployuj zmiany.
+2. Odwiedź stronę i przejdź kilka podstron.
+3. W GA4 wejdź w Raporty → Realtime – powinna być widoczna aktywność (czasem trzeba odczekać do kilku minut).
+
+Uwagi dot. prywatności:
+- Ten projekt nie zawiera banera zgody. Jeżeli wymagania prawne tego wymagają, dodaj mechanizm zgody i ładuj GA dopiero po opt-in użytkownika.
+
 ## 📊 Roadmap
 
 ### Wersja 1.0 (Aktualna) ✅
