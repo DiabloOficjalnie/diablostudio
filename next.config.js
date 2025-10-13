@@ -3,20 +3,19 @@ const ContentSecurityPolicy = `
   default-src 'self';
   base-uri 'self';
   form-action 'self';
-  frame-ancestors 'none';
+  frame-ancestors 'self' https://tagassistant.google.com;
   script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://*.clerk.com https://*.clerk.dev https://www.gstatic.com/recaptcha/ https://www.google.com/recaptcha/;
   style-src 'self' 'unsafe-inline';
   img-src 'self' data: blob: https://www.google-analytics.com https://www.googletagmanager.com;
   font-src 'self' data:;
-  connect-src 'self' https://*.supabase.co https://api.beehiiv.com https://www.google-analytics.com https://region1.google-analytics.com https://*.clerk.com https://*.clerk.dev;
-  frame-src 'self' https://*.clerk.com https://*.clerk.dev https://www.google.com/recaptcha/ https://recaptcha.google.com;
+  connect-src 'self' https://*.supabase.co https://api.beehiiv.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://tagassistant.google.com https://*.clerk.com https://*.clerk.dev;
+  frame-src 'self' https://*.clerk.com https://*.clerk.dev https://www.google.com/recaptcha/ https://recaptcha.google.com https://www.googletagmanager.com https://tagassistant.google.com;
 `.replace(/\\n/g, ' ');
 
 /** Hardened security headers for all routes */
 const securityHeaders = [
   { key: 'Content-Security-Policy', value: ContentSecurityPolicy },
   { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' }, // 2 years
-  { key: 'X-Frame-Options', value: 'DENY' }, // also enforced by frame-ancestors
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },

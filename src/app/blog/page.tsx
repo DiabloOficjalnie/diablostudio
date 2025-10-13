@@ -7,6 +7,8 @@ import NewsletterForm from '../components/NewsletterForm'
 
 export const dynamic = 'force-dynamic'
 
+export const runtime = 'nodejs'
+
 type BlogPost = {
   id: string
   title: string

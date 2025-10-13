@@ -5,6 +5,9 @@ import { createClient } from '@supabase/supabase-js'
 import { Suspense } from 'react'
 import NewsletterForm from '../../components/NewsletterForm'
 
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 type BlogPost = {
   id: string
   title: string
