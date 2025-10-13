@@ -91,12 +91,13 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function BlogIndexPage({
   searchParams
 }: {
-  searchParams?: { [key: string]: string | string[] | undefined }
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
-  const page = Math.max(1, Number(searchParams?.page || 1))
-  const limit = Math.min(24, Math.max(6, Number(searchParams?.limit || 9)))
-  const category = (searchParams?.category as string) || undefined
-  const search = (searchParams?.q as string) || undefined
+  const params = await searchParams
+  const page = Math.max(1, Number(params?.page || 1))
+  const limit = Math.min(24, Math.max(6, Number(params?.limit || 9)))
+  const category = (params?.category as string) || undefined
+  const search = (params?.q as string) || undefined
 
   let posts: BlogPost[] = []
   let total = 0
