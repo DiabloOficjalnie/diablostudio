@@ -10,11 +10,11 @@ import { executeRecaptcha } from '@/lib/recaptcha-client';
 const schema = z.object({
   first_name: z.string().trim().max(100).optional(),
   email: z.string().trim().min(1, 'Email jest wymagany').email('Nieprawidłowy adres email'),
-  privacy_consent: z.literal(true, {
-    errorMap: () => ({ message: 'Wymagana akceptacja Polityki prywatności/Regulaminu.' }),
+  privacy_consent: z.boolean().refine(v => v === true, {
+    message: 'Wymagana akceptacja Polityki prywatności/Regulaminu.',
   }),
-  marketing_consent: z.literal(true, {
-    errorMap: () => ({ message: 'Wymagana zgoda marketingowa na newsletter.' }),
+  marketing_consent: z.boolean().refine(v => v === true, {
+    message: 'Wymagana zgoda marketingowa na newsletter.',
   }),
 });
 
