@@ -738,7 +738,8 @@ export default function HomePage() {
       {/* Newsletter CTA (above decorative systems) */}
       <section className="py-12 bg-gradient-to-r from-indigo-700 to-purple-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white/10 backdrop-blur rounded-2xl p-6 sm:p-8 text-white text-center shadow-2xl border border-white/20 ring-1 ring-white/30">
+          <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 text-white text-center shadow-2xl ring-1 ring-white/30 bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-600">
+            <div className="pointer-events-none absolute -top-24 -right-24 w-72 h-72 rounded-full bg-white/10 blur-3xl" />
             <h3 className="text-3xl font-bold mb-3">📬 Dołącz do newslettera DecoSol</h3>
             <p className="text-indigo-100 mb-6">
               Porady ekspertów, inspiracje oraz promocje – 1-2 razy w miesiącu. Żadnego spamu.
