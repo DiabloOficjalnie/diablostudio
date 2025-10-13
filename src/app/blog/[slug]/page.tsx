@@ -57,11 +57,11 @@ async function getPostBySlug(slug: string): Promise<BlogPost | null> {
 }
 
 type PageProps = {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = params
+  const { slug } = await params
   const post = await getPostBySlug(slug)
 
   if (!post) {
@@ -121,7 +121,7 @@ async function incrementViewCount(postId: string, currentViews?: number | null) 
 }
 
 export default async function BlogPostPage({ params }: PageProps) {
-  const { slug } = params
+  const { slug } = await params
   const post = await getPostBySlug(slug)
 
   if (!post) {
