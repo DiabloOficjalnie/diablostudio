@@ -1,16 +1,16 @@
 /** @type {import('next').NextConfig} */
-const ContentSecurityPolicy = `
-  default-src 'self';
-  base-uri 'self';
-  form-action 'self';
-  frame-ancestors 'self' https://tagassistant.google.com;
-  script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://*.clerk.com https://*.clerk.dev https://www.gstatic.com/recaptcha/ https://www.google.com/recaptcha/;
-  style-src 'self' 'unsafe-inline';
-  img-src 'self' data: blob: https://www.google-analytics.com https://www.googletagmanager.com;
-  font-src 'self' data:;
-  connect-src 'self' https://*.supabase.co https://api.beehiiv.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://tagassistant.google.com https://*.clerk.com https://*.clerk.dev;
-  frame-src 'self' https://*.clerk.com https://*.clerk.dev https://www.google.com/recaptcha/ https://recaptcha.google.com https://www.googletagmanager.com https://tagassistant.google.com;
-`.replace(/\\n/g, ' ');
+const ContentSecurityPolicy = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'self' https://tagassistant.google.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://*.clerk.com https://*.clerk.dev https://www.gstatic.com/recaptcha/ https://www.google.com/recaptcha/",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https://www.google-analytics.com https://www.googletagmanager.com",
+  "font-src 'self' data:",
+  "connect-src 'self' https://*.supabase.co https://api.beehiiv.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com https://tagassistant.google.com https://*.clerk.com https://*.clerk.dev",
+  "frame-src 'self' https://*.clerk.com https://*.clerk.dev https://www.google.com/recaptcha/ https://recaptcha.google.com https://www.googletagmanager.com https://tagassistant.google.com"
+].join('; ');
 
 /** Hardened security headers for all routes */
 const securityHeaders = [
