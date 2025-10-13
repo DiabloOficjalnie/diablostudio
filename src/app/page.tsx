@@ -793,7 +793,7 @@ export default function HomePage() {
                 value={newsletterFirstNameTop}
                 onChange={(e) => setNewsletterFirstNameTop(e.target.value)}
                 placeholder="Twoje imię"
-                className="w-full sm:w-auto flex-1 form-input"
+                className="w-full sm:max-w-xs flex-1 form-input"
                 aria-label="Imię do newslettera"
               />
               <input
@@ -802,9 +802,14 @@ export default function HomePage() {
                 value={newsletterEmailTop}
                 onChange={(e) => setNewsletterEmailTop(e.target.value)}
                 placeholder="Twój adres e-mail"
-                className="w-full sm:w-auto flex-1 form-input"
+                className="w-full sm:max-w-xs flex-1 form-input"
                 aria-label="Adres e-mail do newslettera"
               />
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-white/90 w-full sm:w-auto">
+                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-2 py-1"><span className="text-green-300">✓</span>1–2/mies.</div>
+                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-2 py-1"><span className="text-green-300">✓</span>Zero spamu</div>
+                <div className="hidden sm:flex items-center gap-2 bg-white/10 rounded-lg px-2 py-1"><span className="text-green-300">✓</span>Porady i promocje</div>
+              </div>
               <div className="w-full sm:w-auto flex flex-col gap-2">
                 <label className="flex items-start gap-2 text-xs text-white/90">
                   <input
@@ -1992,7 +1997,7 @@ export default function HomePage() {
                 value={newsletterFirstNameBlog}
                 onChange={(e) => setNewsletterFirstNameBlog(e.target.value)}
                 placeholder="Twoje imię"
-                className="flex-1 form-input"
+                className="w-full sm:max-w-xs flex-1 form-input"
                 aria-label="Imię do newslettera"
               />
               <input
@@ -2001,9 +2006,14 @@ export default function HomePage() {
                 value={newsletterEmailBlog}
                 onChange={(e) => setNewsletterEmailBlog(e.target.value)}
                 placeholder="Twój adres e-mail"
-                className="flex-1 form-input"
+                className="w-full sm:max-w-xs flex-1 form-input"
                 aria-label="Adres e-mail do newslettera"
               />
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-white/90 w-full sm:w-auto">
+                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-2 py-1"><span className="text-green-300">✓</span>1–2/mies.</div>
+                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-2 py-1"><span className="text-green-300">✓</span>Zero spamu</div>
+                <div className="hidden sm:flex items-center gap-2 bg-white/10 rounded-lg px-2 py-1"><span className="text-green-300">✓</span>Porady i promocje</div>
+              </div>
               <div className="w-full sm:w-auto flex flex-col gap-2">
                 <label className="flex items-start gap-2 text-xs text-white/90">
                   <input

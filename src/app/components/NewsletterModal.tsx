@@ -166,11 +166,12 @@ export default function NewsletterModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="newsletter-title">
       <div className="absolute inset-0 bg-black/60" onClick={() => handleClose('snooze')} />
-      <div className="relative bg-white rounded-2xl w-full max-w-sm sm:max-w-md md:max-w-xl shadow-2xl overflow-hidden">
+      <div className="relative bg-white rounded-2xl w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl shadow-2xl overflow-hidden">
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 sm:p-6 md:p-7">
           <div className="flex items-center justify-between">
             <h3 id="newsletter-title" className="text-lg sm:text-xl md:text-2xl font-bold">
               📧 Dołącz do newslettera
+              <span className="ml-2 inline-flex items-center text-[10px] sm:text-xs bg-white/20 text-white px-2 py-0.5 rounded-full">🎁 Poradnik PDF gratis</span>
             </h3>
             <button
               onClick={() => handleClose('snooze')}
@@ -235,7 +236,7 @@ export default function NewsletterModal({
               </div>
 
               {/* Selling points */}
-              <div className="hidden sm:grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-gray-600">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs md:text-sm text-gray-600">
                 <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
                   <span className="text-green-600">✓</span>
                   1–2 wiadomości/miesiąc
@@ -288,6 +289,13 @@ export default function NewsletterModal({
                 </div>
               )}
 
+              <div className="mt-2 text-[11px] sm:text-xs text-gray-500 flex items-center gap-3">
+                <span className="inline-flex items-center gap-1"><span className="text-green-600">🔒</span> Bezpieczne szyfrowanie</span>
+                <span className="hidden sm:inline">•</span>
+                <span className="inline-flex items-center gap-1"><span className="text-green-600">↩︎</span> Wypis w 1 klik</span>
+                <span className="hidden md:inline">•</span>
+                <span className="hidden md:inline">Brak spamu</span>
+              </div>
               <div className="flex items-center justify-between text-xs text-gray-500 pt-2">
                 <button
                   type="button"

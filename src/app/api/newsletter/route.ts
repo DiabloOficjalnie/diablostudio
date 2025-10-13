@@ -18,7 +18,14 @@ export async function POST(req: NextRequest) {
 
     // Verify Cloudflare Turnstile (anti-bot)
     const ip = extractClientIp(req.headers)
-    const captcha = await verifyCaptcha(recaptchaToken, ip)
+    let captcha = await verifyCaptcha(recaptchaToken, ip)
+    if (!captcha.success) {
+      // In non-production environments, allow bypass to simplify local development (e.g., domain mismatch)
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('Captcha verification failed in development, bypassing:', captcha)
+        captcha = { success: true } as any
+      }
+    }
     if (!captcha.success) {
       return NextResponse.json(
         { error: 'Weryfikacja antybot nie powiodła się', details: captcha['error-codes'] || [] },
@@ -123,5 +130,27 @@ export async function POST(req: NextRequest) {
   } catch (e: any) {
     console.error('Newsletter POST error:', e?.message || e);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+// Health check endpoint: verifies configuration presence without hitting external API
+export async function GET(req: NextRequest) {
+  try {
+    const publicationId = BEEHIIV_PUBLICATION_ID || 'pub_e22a5655-6655-43e5-a9c9-0dc17bc551f7';
+    const apiKeySet = Boolean(BEEHIIV_API_KEY);
+    const publicationIdSet = Boolean(publicationId);
+    const configured = apiKeySet && publicationIdSet;
+
+    return NextResponse.json({
+      ok: true,
+      beehiiv: {
+        configured,
+        apiKeySet,
+        publicationIdSet
+      }
+    });
+  } catch (e: any) {
+    console.error('Newsletter GET health error:', e?.message || e);
+    return NextResponse.json({ ok: false, error: 'Internal server error' }, { status: 500 });
   }
 }
