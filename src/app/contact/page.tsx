@@ -76,10 +76,43 @@ export default function ContactPage() {
     })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [status, setStatus] = useState<{ type: 'idle' | 'loading' | 'success' | 'error'; message?: string }>({ type: 'idle' })
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission here
-    console.log('Form submitted:', formData)
+    setStatus({ type: 'loading', message: 'Wysyłanie...' })
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone || null,
+          subject: formData.subject,
+          message: formData.message,
+          marketingConsent: formData.marketingConsent,
+          phoneConsent: formData.phoneConsent
+        })
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || data?.success === false) {
+        throw new Error(data?.error || 'Nie udało się wysłać wiadomości.')
+      }
+      setStatus({ type: 'success', message: 'Dziękujemy! Skontaktujemy się w ciągu 24 godzin.' })
+      // Reset formularza
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: '',
+        marketingConsent: false,
+        phoneConsent: false,
+      })
+    } catch (err: any) {
+      setStatus({ type: 'error', message: err?.message || 'Wystąpił błąd. Spróbuj ponownie.' })
+    }
   }
 
   return (
@@ -117,6 +150,16 @@ export default function ContactPage() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {status.type !== 'idle' && (
+                    <div className={`p-3 rounded-lg text-sm border ${status.type === 'loading'
+                      ? 'bg-blue-50 text-blue-800 border-blue-200'
+                      : status.type === 'success'
+                      ? 'bg-green-50 text-green-800 border-green-200'
+                      : 'bg-red-50 text-red-800 border-red-200'
+                    }`}>
+                      {status.message}
+                    </div>
+                  )}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -233,10 +276,10 @@ export default function ContactPage() {
 
                   <button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 px-6 rounded-lg transition-all transform hover:scale-105 shadow-lg font-semibold text-lg"
+                    disabled={status.type === 'loading'}
+                    className={`w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 px-6 rounded-lg transition-all transform ${status.type === 'loading' ? 'opacity-60 cursor-not-allowed' : 'hover:scale-105'} shadow-lg font-semibold text-lg`}
                   >
-                    Wyślij wiadomość
-                    <span className="ml-2">📤</span>
+                    {status.type === 'loading' ? 'Wysyłanie...' : 'Wyślij wiadomość'} <span className="ml-2">📤</span>
                   </button>
                 </form>
               </div>

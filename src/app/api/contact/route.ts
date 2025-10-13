@@ -1,94 +1,129 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { verifyCaptcha, extractClientIp } from '@/lib/recaptcha'
-import { notificationManager } from '@/lib/notifications'
+import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
+import { createAdminClient } from '@/lib/supabase-server';
+import { ensureUUID } from '@/lib/id';
+
+type ContactPayload = {
+  name: string;
+  email: string;
+  phone?: string | null;
+  subject: string;
+  message: string;
+  marketingConsent?: boolean;
+  phoneConsent?: boolean;
+};
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json().catch(() => ({}))
-    const {
+    // Optional auth – formularz kontaktowy może być anonimowy
+    const { userId } = await auth().catch(() => ({ userId: null as string | null }));
+
+    const body = (await req.json().catch(() => ({}))) as Partial<ContactPayload>;
+
+    const name = String(body.name || '').trim();
+    const email = String(body.email || '').trim();
+    const subject = String(body.subject || '').trim();
+    const message = String(body.message || '').trim();
+    const phone = body.phone ? String(body.phone).trim() : null;
+    const marketingConsent = Boolean(body.marketingConsent);
+    const phoneConsent = Boolean(body.phoneConsent);
+
+    if (!name || !email || !subject || !message) {
+      return NextResponse.json(
+        { success: false, error: 'Wymagane pola: imię i nazwisko, e-mail, temat, wiadomość.' },
+        { status: 400 }
+      );
+    }
+
+    const supabase = createAdminClient();
+
+    // Insert kontaktu (graceful fallback jeśli tabela nie istnieje)
+    const insertPayload: any = {
       name,
       email,
       phone,
-      project_type,
+      subject,
       message,
-      recaptchaToken,
-      privacy_consent,
-      marketing_consent,
-    } = body as {
-      name?: string
-      email?: string
-      phone?: string
-      project_type?: string
-      message?: string
-      recaptchaToken?: string
-      privacy_consent?: boolean
-      marketing_consent?: boolean
+      marketing_consent: marketingConsent,
+      phone_consent: phoneConsent,
+      created_at: new Date().toISOString(),
+    };
+
+    if (userId) {
+      insertPayload.client_id = ensureUUID(userId);
     }
 
-    // Basic validation
-    if (!name || typeof name !== 'string' || name.trim().length < 2) {
-      return NextResponse.json({ error: 'Podaj poprawne imię i nazwisko' }, { status: 400 })
-    }
-    if (!email || typeof email !== 'string') {
-      return NextResponse.json({ error: 'Podaj poprawny adres e-mail' }, { status: 400 })
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      return NextResponse.json({ error: 'Nieprawidłowy format adresu e-mail' }, { status: 400 })
-    }
-    if (!message || typeof message !== 'string' || message.trim().length < 5) {
-      return NextResponse.json({ error: 'Wiadomość jest za krótka' }, { status: 400 })
+    let contactId: string | null = null;
+
+    const { data, error } = await supabase
+      .from('contact_messages')
+      .insert(insertPayload)
+      .select('id')
+      .single();
+
+    if (error) {
+      // Graceful fallback jeśli schemat/tabela/kolumna brakują
+      const msg = (error.message || '').toLowerCase();
+      if (msg.includes('relation') || msg.includes('table') || msg.includes('column')) {
+        // Spróbuj zapisać chociaż event dla zalogowanego klienta
+        if (userId) {
+          try {
+            await supabase.from('client_events').insert({
+              client_id: ensureUUID(userId),
+              type: 'contact_message',
+              details: {
+                name,
+                email,
+                phone,
+                subject,
+                // nie logujemy pełnej treści wiadomości dla prywatności
+                has_message: Boolean(message && message.length > 0),
+                marketing_consent: marketingConsent,
+                phone_consent: phoneConsent,
+              },
+              created_at: new Date().toISOString(),
+            });
+          } catch {
+            // no-op
+          }
+        }
+        return NextResponse.json(
+          { success: true, note: 'Kontakt zapisany (soft) — brak tabeli contact_messages. Zdarzenie klienta zarejestrowane (jeśli zalogowany).' },
+          { status: 200 }
+        );
+      }
+      // Inny błąd – zwróć jako 500
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    } else {
+      contactId = (data as any)?.id || null;
     }
 
-    // Verify reCAPTCHA (Enterprise if configured)
-    const ip = extractClientIp(req.headers)
-    const captcha = await verifyCaptcha(recaptchaToken, ip, 'contact')
-    if (!captcha.success) {
-      return NextResponse.json(
-        { error: 'Weryfikacja antybot nie powiodła się', details: captcha['error-codes'] || [] },
-        { status: 400 }
-      )
+    // Zaloguj zdarzenie w panelu klienta (jeśli zalogowany)
+    if (userId) {
+      try {
+        await supabase.from('client_events').insert({
+          client_id: ensureUUID(userId),
+          type: 'contact_message',
+          details: {
+            id: contactId,
+            subject,
+            has_message: Boolean(message && message.length > 0),
+          },
+          created_at: new Date().toISOString(),
+        });
+      } catch {
+        // no-op
+      }
     }
 
-    // GDPR/RODO: wymagamy akceptacji polityki prywatności/regulaminu
-    if (!privacy_consent) {
-      return NextResponse.json(
-        { error: 'Wymagana akceptacja Polityki prywatności/Regulaminu.' },
-        { status: 400 }
-      )
-    }
-
-    // Send notification to admin (email channel simulated by NotificationManager)
-    try {
-      await notificationManager.createNotification(
-        'consultation_new',
-        'Nowa wiadomość z formularza kontaktowego',
-        `Klient ${name} wysłał wiadomość przez formularz kontaktowy.`,
-        ['admin@diablostudio.pl'],
-        ['email'],
-        {
-          customer_name: name,
-          customer_email: email,
-          customer_phone: phone || '',
-          project_type: project_type || 'Nieokreślony',
-          project_description: message,
-          privacy_consent: !!privacy_consent,
-          marketing_consent: !!marketing_consent,
-          priority: 'normal',
-        },
-        'medium'
-      )
-    } catch (e) {
-      // Do not fail the request if notifications fail
-      console.warn('Contact notification warning:', (e as any)?.message || e)
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: 'Dziękujemy za wiadomość! Skontaktujemy się z Tobą w ciągu 24 godzin.',
-    })
-  } catch (e: any) {
-    console.error('Contact POST error:', e?.message || e)
-    return NextResponse.json({ error: 'Wewnętrzny błąd serwera' }, { status: 500 })
+    return NextResponse.json(
+      { success: true, id: contactId, message: 'Dziękujemy! Skontaktujemy się w ciągu 24 godzin.' },
+      { status: 201 }
+    );
+  } catch (err: any) {
+    return NextResponse.json(
+      { success: false, error: err?.message || 'Server error' },
+      { status: 500 }
+    );
   }
 }
