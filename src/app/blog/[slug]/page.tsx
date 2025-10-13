@@ -2,6 +2,8 @@ import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import MainLayout from '../../components/MainLayout'
 import { createClient } from '@supabase/supabase-js'
+import { Suspense } from 'react'
+import NewsletterForm from '../../components/NewsletterForm'
 
 type BlogPost = {
   id: string
@@ -54,12 +56,12 @@ async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   return data as unknown as BlogPost
 }
 
-type PageProps = { 
-  params: Promise<{ slug: string }> 
+type PageProps = {
+  params: { slug: string }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params
+  const { slug } = params
   const post = await getPostBySlug(slug)
 
   if (!post) {
@@ -119,7 +121,7 @@ async function incrementViewCount(postId: string, currentViews?: number | null) 
 }
 
 export default async function BlogPostPage({ params }: PageProps) {
-  const { slug } = await params
+  const { slug } = params
   const post = await getPostBySlug(slug)
 
   if (!post) {
@@ -294,6 +296,13 @@ export default async function BlogPostPage({ params }: PageProps) {
             </a>
           </div>
         </div>
+
+        {/* Newsletter CTA */}
+        <section className="mt-12">
+          <Suspense fallback={null}>
+            <NewsletterForm variant="card" source="blog_post_card" />
+          </Suspense>
+        </section>
 
         {/* Related Articles CTA */}
         <div className="mt-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 text-white text-center">

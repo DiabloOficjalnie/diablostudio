@@ -5,6 +5,8 @@ import Image from 'next/image'
 import MainLayout from './components/MainLayout'
 import ReviewForm from './components/ReviewForm'
 import { executeRecaptcha } from '@/lib/recaptcha-client'
+import { Suspense } from 'react'
+import NewsletterForm from './components/NewsletterForm'
 
 interface Review {
   id: string
@@ -750,101 +752,9 @@ export default function HomePage() {
                 <div className="text-sm mt-1">Potwierdzenie wysłaliśmy na podany adres e‑mail.</div>
               </div>
             )}
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault()
-                try {
-                  const params = new URLSearchParams(window.location.search)
-                  const utm_source = params.get('utm_source') || undefined
-                  const utm_medium = params.get('utm_medium') || undefined
-                  const utm_campaign = params.get('utm_campaign') || undefined
-
-                  const res = await fetch('/api/newsletter', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      email: newsletterEmailTop,
-                      first_name: newsletterFirstNameTop,
-                      source: 'homepage_top',
-                      recaptchaToken: await executeRecaptcha('newsletter_top'),
-                      marketing_consent: newsletterMarketingTop === true,
-                      privacy_consent: newsletterPrivacyTop === true,
-                      utm_source,
-                      utm_medium,
-                      utm_campaign,
-                    })
-                  })
-                  const data = await res.json()
-                  if (!res.ok || data.error) {
-                    setNewsletterStatusTop(data.error || 'Wystąpił błąd. Spróbuj ponownie.')
-                  } else {
-                    setNewsletterStatusTop(data.message || 'Dziękujemy za zapis!')
-                    setNewsletterFirstNameTop('')
-                    setNewsletterEmailTop('')
-                  }
-                } catch {
-                  setNewsletterStatusTop('Wystąpił błąd. Spróbuj ponownie.')
-                }
-              }}
-              className={`flex flex-col sm:flex-row gap-3 justify-center ${newsletterSuccessTop ? 'hidden' : ''}`}
-            >
-              <input
-                type="text"
-                value={newsletterFirstNameTop}
-                onChange={(e) => setNewsletterFirstNameTop(e.target.value)}
-                placeholder="Twoje imię"
-                className="w-full sm:max-w-xs flex-1 form-input"
-                aria-label="Imię do newslettera"
-              />
-              <input
-                type="email"
-                required
-                value={newsletterEmailTop}
-                onChange={(e) => setNewsletterEmailTop(e.target.value)}
-                placeholder="Twój adres e-mail"
-                className="w-full sm:max-w-xs flex-1 form-input"
-                aria-label="Adres e-mail do newslettera"
-              />
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs text-white/90 w-full sm:w-auto">
-                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-2 py-1"><span className="text-green-300">✓</span>1–2/mies.</div>
-                <div className="flex items-center gap-2 bg-white/10 rounded-lg px-2 py-1"><span className="text-green-300">✓</span>Zero spamu</div>
-                <div className="hidden sm:flex items-center gap-2 bg-white/10 rounded-lg px-2 py-1"><span className="text-green-300">✓</span>Porady i promocje</div>
-              </div>
-              <div className="w-full sm:w-auto flex flex-col gap-2">
-                <label className="flex items-start gap-2 text-xs text-white/90">
-                  <input
-                    type="checkbox"
-                    className="mt-0.5"
-                    checked={newsletterPrivacyTop}
-                    onChange={(e) => setNewsletterPrivacyTop(e.target.checked)}
-                    required
-                  />
-                  <span>
-                    Akceptuję <a href="/privacy" className="underline">Politykę prywatności</a> i <a href="/terms" className="underline">Regulamin</a>.
-                  </span>
-                </label>
-                <label className="flex items-start gap-2 text-xs text-white/90">
-                  <input
-                    type="checkbox"
-                    className="mt-0.5"
-                    checked={newsletterMarketingTop}
-                    onChange={(e) => setNewsletterMarketingTop(e.target.checked)}
-                    required
-                  />
-                  <span>Wyrażam zgodę na otrzymywanie informacji handlowych (newsletter) drogą elektroniczną.</span>
-                </label>
-                <button
-                  type="submit"
-                  disabled={!newsletterEmailTop || !newsletterPrivacyTop || !newsletterMarketingTop}
-                  className="btn-primary px-8 py-3 disabled:opacity-60 disabled:cursor-not-allowed"
-                >
-                  Zapisz się
-                </button>
-              </div>
-            </form>
-            {newsletterStatusTop && (
-              <p className="mt-3 text-sm text-indigo-100">{newsletterStatusTop}</p>
-            )}
+            <Suspense fallback={null}>
+              <NewsletterForm variant="card" source="home_top_card" />
+            </Suspense>
           </div>
         </div>
       </section>

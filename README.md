@@ -137,6 +137,27 @@ Aplikacja może być wdrożona na dowolnej platformie wspierającej Next.js:
 - Railway
 - DigitalOcean App Platform
 
+## 🏷️ Google Tag Manager (GTM) na Vercel
+
+Aby skorzystać z Google Tag Manager:
+
+1. W Vercel → Project Settings → Environment Variables dodaj:
+   - NEXT_PUBLIC_GTM_ID = GTM-XXXXXXX
+2. Wdróż aplikację ponownie (Redeploy).
+
+Implementacja w kodzie (już gotowa w repozytorium):
+- src/app/layout.tsx – wstawia snippet GTM w sekcji <head> (strategia beforeInteractive) oraz noscript iframe tuż po otwarciu <body>, zgodnie z zaleceniami Google.
+- Priorytet: jeżeli ustawiony jest NEXT_PUBLIC_GTM_ID, GTM ładuje się zamiast bezpośredniego GA (gtag.js). Obsługę GA4 skonfiguruj w GTM (Tag GA4 Configuration + triggery).
+- Wersja bezpośredniego GA jest wykorzystywana tylko gdy GTM nie jest ustawiony.
+
+Weryfikacja:
+1. Po deployu, otwórz witrynę i sprawdź w Podglądzie GTM (Preview/Debug) czy zdarzenia są rejestrowane.
+2. Skonfiguruj w GTM tag GA4 (Measurement ID z GA) i trigger (np. Page View lub History Change) aby wysyłać page_view do GA.
+
+Uwagi:
+- Brak banera zgody – jeśli wymagane, załaduj GTM i/lub tagi dopiero po opt-in użytkownika.
+- Adblockery mogą blokować GTM/GA.
+
 ## 📈 Google Analytics (GA4) na Vercel
 
 Aby włączyć Google Analytics 4 w projekcie hostowanym na Vercel:

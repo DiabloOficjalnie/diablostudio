@@ -32,6 +32,9 @@ interface EnvironmentVariables {
   // Google Analytics
   NEXT_PUBLIC_GA_MEASUREMENT_ID?: string
 
+  // Google Tag Manager
+  NEXT_PUBLIC_GTM_ID?: string
+
   // Optional: Add other environment variables as needed
   // NEXT_PUBLIC_SUPABASE_ANON_KEY?: string
   // DATABASE_URL?: string
@@ -66,6 +69,9 @@ function validateEnvironmentVariables(): EnvironmentVariables {
 
     // Google Analytics
     NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
+
+    // Google Tag Manager
+    NEXT_PUBLIC_GTM_ID: process.env.NEXT_PUBLIC_GTM_ID,
   }
 
   // Check for missing required variables (using placeholder values)
@@ -117,4 +123,5 @@ export const {
   RECAPTCHA_ENTERPRISE_PROJECT_ID,
   RECAPTCHA_ENTERPRISE_SITE_KEY,
   NEXT_PUBLIC_GA_MEASUREMENT_ID,
+  NEXT_PUBLIC_GTM_ID,
 } = env

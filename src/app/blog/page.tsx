@@ -2,6 +2,8 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import MainLayout from '../components/MainLayout'
 import { createClient } from '@supabase/supabase-js'
+import { Suspense } from 'react'
+import NewsletterForm from '../components/NewsletterForm'
 
 export const dynamic = 'force-dynamic'
 
@@ -89,16 +91,23 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function BlogIndexPage({
   searchParams
 }: {
-  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
+  searchParams?: { [key: string]: string | string[] | undefined }
 }) {
-  const params = await searchParams
-  const page = Math.max(1, Number(params?.page || 1))
-  const limit = Math.min(24, Math.max(6, Number(params?.limit || 9)))
-  const category = (params?.category as string) || undefined
-  const search = (params?.q as string) || undefined
+  const page = Math.max(1, Number(searchParams?.page || 1))
+  const limit = Math.min(24, Math.max(6, Number(searchParams?.limit || 9)))
+  const category = (searchParams?.category as string) || undefined
+  const search = (searchParams?.q as string) || undefined
 
-  const { posts, total } = await getPostsDirect({ page, limit, category, featured: false, search })
-  const pages = Math.ceil(total / limit)
+  let posts: BlogPost[] = []
+  let total = 0
+  try {
+    const res = await getPostsDirect({ page, limit, category, featured: false, search })
+    posts = res.posts
+    total = res.total
+  } catch (e) {
+    console.error('Blog index fatal fetch error:', e)
+  }
+  const pages = Math.ceil((total || 0) / limit)
 
   const categories = [
     { label: 'Wszystkie', val: 'wszystkie', icon: '🗂️' },
@@ -297,18 +306,9 @@ export default async function BlogIndexPage({
             </div>
           </div>
 
-          <div className="rounded-2xl p-8 border-2 border-gray-200 bg-white">
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">Dołącz do newslettera</h3>
-            <p className="text-gray-600 mb-6">Trendy, porady i promocje – 1–2 razy w miesiącu. Zero spamu.</p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <a href="/edukacja" className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700">
-                Przegląd poradników <span className="ml-2">📖</span>
-              </a>
-              <a href="/login" className="inline-flex items-center px-6 py-3 border-2 border-indigo-600 text-indigo-600 rounded-lg font-semibold hover:bg-indigo-50">
-                Zapisz się <span className="ml-2">📧</span>
-              </a>
-            </div>
-          </div>
+          <Suspense fallback={null}>
+            <NewsletterForm variant="card" source="blog_index_card" />
+          </Suspense>
         </section>
       </div>
     </MainLayout>
