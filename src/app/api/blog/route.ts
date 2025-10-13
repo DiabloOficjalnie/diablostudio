@@ -3,10 +3,27 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    const supabase = createClient(supabaseUrl, supabaseAnonKey)
     const { searchParams } = new URL(request.url)
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    // Graceful fallback when env is missing: return empty list instead of 500
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.warn('API /api/blog: Missing Supabase env, returning empty list')
+      const page = parseInt(searchParams.get('page') || '1')
+      const limit = parseInt(searchParams.get('limit') || '6')
+      return NextResponse.json({
+        posts: [],
+        pagination: {
+          page,
+          limit,
+          total: 0,
+          pages: 0
+        }
+      })
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '6')
@@ -64,10 +81,15 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('Error fetching blog posts:', error)
-      return NextResponse.json(
-        { error: 'Failed to fetch blog posts' },
-        { status: 500 }
-      )
+      return NextResponse.json({
+        posts: [],
+        pagination: {
+          page,
+          limit,
+          total: count || 0,
+          pages: Math.ceil((count || 0) / limit)
+        }
+      })
     }
 
     return NextResponse.json({
@@ -82,9 +104,18 @@ export async function GET(request: NextRequest) {
 
   } catch (error) {
     console.error('Error in blog API:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    // Graceful fallback to avoid breaking public pages
+    const { searchParams } = new URL(request.url)
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '6')
+    return NextResponse.json({
+      posts: [],
+      pagination: {
+        page,
+        limit,
+        total: 0,
+        pages: 0
+      }
+    })
   }
 }

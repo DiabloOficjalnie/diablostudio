@@ -40,20 +40,25 @@ async function getSupabaseAnon() {
 }
 
 async function getPostBySlug(slug: string): Promise<BlogPost | null> {
-  const supabase = await getSupabaseAnon()
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .select('*')
-    .eq('slug', slug)
-    .eq('status', 'published')
-    .not('published_at', 'is', null)
-    .single()
+  try {
+    const supabase = await getSupabaseAnon()
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*')
+      .eq('slug', slug)
+      .eq('status', 'published')
+      .not('published_at', 'is', null)
+      .single()
 
-  if (error) {
-    console.error('Error fetching post by slug:', error)
+    if (error) {
+      console.error('Error fetching post by slug:', error)
+      return null
+    }
+    return data as unknown as BlogPost
+  } catch (e) {
+    console.error('Error initializing Supabase or fetching post by slug:', e)
     return null
   }
-  return data as unknown as BlogPost
 }
 
 type PageProps = {

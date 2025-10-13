@@ -8,6 +8,7 @@ import { plPL } from '@clerk/localizations'
 import './globals.css'
 import { Suspense } from 'react'
 import GoogleAnalyticsReporter from './components/GoogleAnalyticsReporter'
+import GoogleTagManagerReporter from './components/GoogleTagManagerReporter'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -112,11 +113,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             />
           ) : null}
           {children}
-          {GTM_ID ? null : (
-            <Suspense fallback={null}>
-              <GoogleAnalyticsReporter />
-            </Suspense>
-          )}
+          <Suspense fallback={null}>
+            {GTM_ID ? <GoogleTagManagerReporter /> : <GoogleAnalyticsReporter />}
+          </Suspense>
           <SpeedInsights />
           <Analytics />
         </body>

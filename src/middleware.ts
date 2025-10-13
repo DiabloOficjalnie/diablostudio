@@ -71,7 +71,6 @@ export default clerkMiddleware(async (auth, req) => {
     return applySecurityHeaders(req, httpsRedirect)
   }
 
-  const { userId, redirectToSignIn } = await auth()
   const path = req.nextUrl.pathname
 
   // 🎯 Referral cookie capture (?ref=CODE) → zapisz cookie i usuń parametr z URL
@@ -91,28 +90,33 @@ export default clerkMiddleware(async (auth, req) => {
   }
 
   // Jeśli użytkownik jest zalogowany i wchodzi na stronę logowania → przekieruj do panelu klienta
-  // (musi być przed sprawdzeniem tras publicznych)
-  if (userId && path.startsWith('/login')) {
-    const expired = req.nextUrl.searchParams.get('expired')
-    if (expired !== '1') {
-      const res = NextResponse.redirect(new URL('/client/dashboard', req.url))
-      return applySecurityHeaders(req, res)
-    }
-  }
+  // (przeniesione do sekcji tras publicznych z lokalnym wywołaniem auth())
 
   // ⚙️ Pomijanie PUBLICZNYCH endpointów API
   if (
     path.startsWith('/api/main-page-data') ||
     path.startsWith('/api/contractor-pricing') ||
-    path.startsWith('/api/reviews/public')
+    path.startsWith('/api/reviews/public') ||
+    path.startsWith('/api/blog')
   ) {
     return applySecurityHeaders(req, NextResponse.next())
   }
 
   // ✅ Strony publiczne zawsze dostępne
   if (isPublicRoute(req)) {
+    // Opcjonalnie: jeśli to /login i użytkownik już zalogowany → przekieruj do panelu
+    if (path.startsWith('/login')) {
+      const { userId } = await auth()
+      const expired = req.nextUrl.searchParams.get('expired')
+      if (userId && expired !== '1') {
+        const res = NextResponse.redirect(new URL('/client/dashboard', req.url))
+        return applySecurityHeaders(req, res)
+      }
+    }
     return applySecurityHeaders(req, NextResponse.next())
   }
+
+  const { userId } = await auth()
 
   // 🕒 Niestandardowe ograniczenie czasu życia sesji (np. max 14 dni)
   const MAX_SESSION_DAYS = 14

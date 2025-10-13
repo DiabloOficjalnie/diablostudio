@@ -41,34 +41,39 @@ async function getSupabaseAnon() {
 }
 
 async function getPostsDirect(params: { page: number; limit: number; category?: string; featured?: boolean; search?: string }) {
-  const supabase = await getSupabaseAnon()
-  const { page, limit, category, featured, search } = params
-  const from = (page - 1) * limit
-  const to = from + limit - 1
+  try {
+    const supabase = await getSupabaseAnon()
+    const { page, limit, category, featured, search } = params
+    const from = (page - 1) * limit
+    const to = from + limit - 1
 
-  let listQuery = supabase
-    .from('blog_posts')
-    .select('*', { count: 'exact' })
-    .eq('status', 'published')
-    .not('published_at', 'is', null)
-    .order('published_at', { ascending: false })
+    let listQuery = supabase
+      .from('blog_posts')
+      .select('*', { count: 'exact' })
+      .eq('status', 'published')
+      .not('published_at', 'is', null)
+      .order('published_at', { ascending: false })
 
-  if (category && category !== 'wszystkie') {
-    listQuery = listQuery.eq('category', category)
-  }
-  if (featured) listQuery = listQuery.eq('is_featured', true)
-  if (search) {
-    listQuery = listQuery.or(`title.ilike.%${search}%,content.ilike.%${search}%,excerpt.ilike.%${search}%`)
-  }
+    if (category && category !== 'wszystkie') {
+      listQuery = listQuery.eq('category', category)
+    }
+    if (featured) listQuery = listQuery.eq('is_featured', true)
+    if (search) {
+      listQuery = listQuery.or(`title.ilike.%${search}%,content.ilike.%${search}%,excerpt.ilike.%${search}%`)
+    }
 
-  listQuery = listQuery.range(from, to)
+    listQuery = listQuery.range(from, to)
 
-  const { data, error, count } = await listQuery
-  if (error) {
-    console.error('Blog index fetch error:', error)
+    const { data, error, count } = await listQuery
+    if (error) {
+      console.error('Blog index fetch error:', error)
+      return { posts: [] as BlogPost[], total: 0 }
+    }
+    return { posts: (data as BlogPost[]) || [], total: count || 0 }
+  } catch (e) {
+    console.error('Blog index fatal fetch error (Supabase init or query):', e)
     return { posts: [] as BlogPost[], total: 0 }
   }
-  return { posts: (data as BlogPost[]) || [], total: count || 0 }
 }
 
 export async function generateMetadata(): Promise<Metadata> {
