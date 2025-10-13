@@ -70,10 +70,12 @@ export default function HomePage() {
   const [newsletterFirstNameTop, setNewsletterFirstNameTop] = useState('')
   const [newsletterEmailTop, setNewsletterEmailTop] = useState('')
   const [newsletterStatusTop, setNewsletterStatusTop] = useState<string | null>(null)
+  const [newsletterSuccessTop, setNewsletterSuccessTop] = useState(false)
 
   const [newsletterFirstNameBlog, setNewsletterFirstNameBlog] = useState('')
   const [newsletterEmailBlog, setNewsletterEmailBlog] = useState('')
   const [newsletterStatusBlog, setNewsletterStatusBlog] = useState<string | null>(null)
+  const [newsletterSuccessBlog, setNewsletterSuccessBlog] = useState(false)
   const [newsletterPrivacyTop, setNewsletterPrivacyTop] = useState(false)
   const [newsletterMarketingTop, setNewsletterMarketingTop] = useState(false)
   const [newsletterPrivacyBlog, setNewsletterPrivacyBlog] = useState(false)
@@ -736,11 +738,17 @@ export default function HomePage() {
       {/* Newsletter CTA (above decorative systems) */}
       <section className="py-12 bg-gradient-to-r from-indigo-700 to-purple-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white/10 backdrop-blur rounded-2xl p-8 text-white text-center shadow-xl border border-white/20">
+          <div className="bg-white/10 backdrop-blur rounded-2xl p-6 sm:p-8 text-white text-center shadow-2xl border border-white/20 ring-1 ring-white/30">
             <h3 className="text-3xl font-bold mb-3">📬 Dołącz do newslettera DecoSol</h3>
             <p className="text-indigo-100 mb-6">
               Porady ekspertów, inspiracje oraz promocje – 1-2 razy w miesiącu. Żadnego spamu.
             </p>
+            {newsletterSuccessTop && (
+              <div className="p-4 rounded-lg border border-green-200 bg-green-50 text-green-800 mb-4 text-center">
+                <div className="text-xl font-bold">Dziękujemy za zapis!</div>
+                <div className="text-sm mt-1">Potwierdzenie wysłaliśmy na podany adres e‑mail.</div>
+              </div>
+            )}
             <form
               onSubmit={async (e) => {
                 e.preventDefault()
@@ -777,7 +785,7 @@ export default function HomePage() {
                   setNewsletterStatusTop('Wystąpił błąd. Spróbuj ponownie.')
                 }
               }}
-              className="flex flex-col sm:flex-row gap-3 justify-center"
+              className={`flex flex-col sm:flex-row gap-3 justify-center ${newsletterSuccessTop ? 'hidden' : ''}`}
             >
               <input
                 type="text"
@@ -1968,6 +1976,7 @@ export default function HomePage() {
                     setNewsletterStatusBlog(data.error || 'Wystąpił błąd. Spróbuj ponownie.')
                   } else {
                     setNewsletterStatusBlog(data.message || 'Dziękujemy za zapis!')
+                    setNewsletterSuccessBlog(true)
                     setNewsletterFirstNameBlog('')
                     setNewsletterEmailBlog('')
                   }
@@ -1975,7 +1984,7 @@ export default function HomePage() {
                   setNewsletterStatusBlog('Wystąpił błąd. Spróbuj ponownie.')
                 }
               }}
-              className="flex flex-col sm:flex-row gap-4 justify-center max-w-xl mx-auto"
+              className={`flex flex-col sm:flex-row gap-4 justify-center max-w-xl mx-auto ${newsletterSuccessBlog ? 'hidden' : ''}`}
             >
               <input
                 type="text"
@@ -2734,6 +2743,12 @@ export default function HomePage() {
             <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
               Wyślij wiadomość
             </h3>
+            {newsletterSuccessBlog && (
+              <div className="p-4 rounded-lg border border-green-200 bg-green-50 text-green-800 mb-4 text-center max-w-xl mx-auto">
+                <div className="text-xl font-bold">Dziękujemy za zapis!</div>
+                <div className="text-sm mt-1">Potwierdzenie wysłaliśmy na podany adres e‑mail.</div>
+              </div>
+            )}
             <form
               onSubmit={async (e) => {
                 e.preventDefault()

@@ -164,13 +164,13 @@ export default function NewsletterModal({
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black bg-opacity-50" onClick={() => handleClose('snooze')} />
-      <div className="relative bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true" aria-labelledby="newsletter-title">
+      <div className="absolute inset-0 bg-black/60" onClick={() => handleClose('snooze')} />
+      <div className="relative bg-white rounded-2xl w-full max-w-sm sm:max-w-md md:max-w-xl shadow-2xl overflow-hidden">
+        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-4 sm:p-6 md:p-7">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold">
-              📧 Zapisz się do newslettera
+            <h3 id="newsletter-title" className="text-lg sm:text-xl md:text-2xl font-bold">
+              📧 Dołącz do newslettera
             </h3>
             <button
               onClick={() => handleClose('snooze')}
@@ -180,18 +180,18 @@ export default function NewsletterModal({
               ×
             </button>
           </div>
-          <p className="text-indigo-100 mt-2 text-sm">
-            Najnowsze porady, realizacje i promocje prosto na Twój e-mail.
+          <p className="text-indigo-100 mt-2 text-xs sm:text-sm md:text-base">
+            Porady ekspertów, realizacje i promocje 1–2 razy w miesiącu. Zero spamu.
           </p>
         </div>
 
-        <div className="p-6">
+        <div className="p-5 sm:p-6 md:p-8">
           {status.type === 'success' ? (
             <div className="text-center space-y-4">
-              <div className="mx-auto w-16 h-16 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-3xl">✓</div>
-              <h4 className="text-xl font-bold text-gray-900">Dziękujemy za zapis!</h4>
+              <div className="mx-auto w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-2xl sm:text-3xl">✓</div>
+              <h4 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">Dziękujemy za zapis!</h4>
               <p className="text-gray-600">Będziesz otrzymywać od nas:</p>
-              <ul className="text-left text-gray-700 space-y-1 max-w-sm mx-auto">
+              <ul className="text-left text-gray-700 space-y-1 max-w-sm mx-auto text-sm sm:text-base">
                 <li>• praktyczne porady i inspiracje dotyczące posadzek</li>
                 <li>• realizacje i case studies krok po kroku</li>
                 <li>• okazjonalne promocje i oferty specjalne (1–2 wiadomości/miesiąc)</li>
@@ -199,38 +199,57 @@ export default function NewsletterModal({
               <button
                 type="button"
                 onClick={() => handleClose('forever')}
-                className="w-full py-3 rounded-lg font-bold text-white bg-green-600 hover:bg-green-700 transition-colors"
+                className="w-full py-3 md:py-3.5 rounded-lg font-bold text-white bg-green-600 hover:bg-green-700 transition-colors"
               >
                 Super, czekam na wiadomości
               </button>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Imię
-                </label>
-                <input
-                  type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  placeholder="np. Jan"
-                  className="form-input mb-3"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Imię
+                  </label>
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    placeholder="np. Jan"
+                    className="form-input"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Adres e-mail
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="np. jan.kowalski@example.com"
+                    className="form-input"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Adres e-mail
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="np. jan.kowalski@example.com"
-                  className="form-input"
-                />
+
+              {/* Selling points */}
+              <div className="hidden sm:grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-gray-600">
+                <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                  <span className="text-green-600">✓</span>
+                  1–2 wiadomości/miesiąc
+                </div>
+                <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                  <span className="text-green-600">✓</span>
+                  Zero spamu
+                </div>
+                <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg">
+                  <span className="text-green-600">✓</span>
+                  Porady i promocje
+                </div>
               </div>
+
               <div className="space-y-2">
                 <label className="flex items-start gap-2 text-xs text-gray-600">
                   <input
@@ -257,7 +276,7 @@ export default function NewsletterModal({
                 <button
                   type="submit"
                   disabled={status.type === 'loading' || !email || !privacyConsent || !marketingConsent}
-                  className="btn-primary w-full py-3 font-bold disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="btn-primary w-full py-3 md:py-3.5 font-bold disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {status.type === 'loading' ? 'Zapisywanie...' : 'Zapisz mnie'}
                 </button>
